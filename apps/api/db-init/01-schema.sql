@@ -1,3 +1,23 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Animals table for the shelter
+CREATE TABLE animals (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    species VARCHAR(50) NOT NULL,
+    breed VARCHAR(100),
+    age INT,
+    status VARCHAR(20) CHECK (status IN ('available', 'adopted', 'reserved', 'sick')) DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Index for common queries
+CREATE INDEX idx_animals_species ON animals(species);
+CREATE INDEX idx_animals_status ON animals(status);
+CREATE INDEX idx_animals_created_at ON animals(created_at DESC);
+
 CREATE TABLE ShelterConfiguration (
     id_config INT PRIMARY KEY,
     maintenance_percentage DECIMAL(5,2) NOT NULL 
