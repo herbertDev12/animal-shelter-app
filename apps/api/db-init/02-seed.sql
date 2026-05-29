@@ -4,7 +4,7 @@
 -- ============================================
 -- 1. ShelterConfiguration
 -- ============================================
-INSERT INTO "ShelterConfiguration" (id_config, maintenance_percentage)
+INSERT INTO ShelterConfiguration (id_config, maintenance_percentage)
 VALUES (1, 15.00);
 
 -- ============================================
@@ -29,8 +29,7 @@ INSERT INTO Supplier (id_supplier, name, address, type, phone, contact_email, co
 -- ============================================
 INSERT INTO Veterinarian (id_supplier, id_clinic, modality, specialty, fax, veterinarian_email, city_distance) VALUES
 (1, 1, 'In-person', 'General Surgery', '+506 2222 3334', 'carlos@vetsuministros.cr', 5.20),
-(4, 2, 'Mobile', 'Exotic Animals', '+506 2777 8889', 'maria@vetmovil.cr', 45.00),
-(4, 3, 'Hybrid', 'Internal Medicine', '+506 2777 8890', 'jose@vetmovil.cr', 32.50);
+(4, 2, 'Mobile', 'Exotic Animals', '+506 2777 8889', 'maria@vetmovil.cr', 45.00);
 
 -- ============================================
 -- 5. Contract
