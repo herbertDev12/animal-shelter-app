@@ -1,0 +1,99 @@
+-- Seed data for Animal Shelter DB
+-- Runs automatically via docker-entrypoint-initdb.d
+
+-- ============================================
+-- 1. ShelterConfiguration
+-- ============================================
+INSERT INTO "ShelterConfiguration" (id_config, maintenance_percentage)
+VALUES (1, 15.00);
+
+-- ============================================
+-- 2. Clinic
+-- ============================================
+INSERT INTO Clinic (id_clinic, name, province, address) VALUES
+(1, 'VetCare Central', 'San Jose', 'Avenida Central, 125'),
+(2, 'Patitas Clinic', 'Alajuela', 'Calle 3, Bloque B'),
+(3, 'Animal Hospital Guanacaste', 'Guanacaste', 'Libertad, 800');
+
+-- ============================================
+-- 3. Supplier
+-- ============================================
+INSERT INTO Supplier (id_supplier, name, address, type, phone, contact_email, contact_name, province) VALUES
+(1, 'VetSuministros CR', 'Zona Industrial, San Jose', 'Veterinarian', '+506 2222 3333', 'contacto@vetsuministros.cr', 'Carlos Mora', 'San Jose'),
+(2, 'PetFood Premium', 'La Uruca, San Jose', 'Food Company', '+506 2244 5555', 'ventas@petfood.cr', 'Ana Rodriguez', 'San Jose'),
+(3, 'TransPet Costa Rica', 'Cartago centro', 'Service Company', '+506 2555 6666', 'info@transpet.cr', 'Luis Hernandez', 'Cartago'),
+(4, 'VetMovil CR', 'Limón centro', 'Service Company', '+506 2777 8888', 'servicios@vetmovil.cr', 'Maria Chen', 'Limón');
+
+-- ============================================
+-- 4. Veterinarian
+-- ============================================
+INSERT INTO Veterinarian (id_supplier, id_clinic, modality, specialty, fax, veterinarian_email, city_distance) VALUES
+(1, 1, 'In-person', 'General Surgery', '+506 2222 3334', 'carlos@vetsuministros.cr', 5.20),
+(4, 2, 'Mobile', 'Exotic Animals', '+506 2777 8889', 'maria@vetmovil.cr', 45.00),
+(4, 3, 'Hybrid', 'Internal Medicine', '+506 2777 8890', 'jose@vetmovil.cr', 32.50);
+
+-- ============================================
+-- 5. Contract
+-- ============================================
+INSERT INTO Contract (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, base_price, surcharge, status, food_type, service_type) VALUES
+(1, 1, 'Veterinarian', '2025-01-01', '2025-12-31', '2025-06-30', 'Annual veterinary supplies contract', 24000.00, 0.00, 'Active', NULL, NULL),
+(2, 2, 'Food', '2025-03-01', '2025-12-31', NULL, 'Premium dog and cat food supply', 18500.00, 500.00, 'Active', 'Dry & Wet Dog/Cat Food', NULL),
+(3, 3, 'Service', '2025-06-01', '2026-05-31', NULL, 'Animal transport for vet appointments', 9600.00, 0.00, 'Active', NULL, 'Veterinary Transport'),
+(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 22000.00, 0.00, 'Expired', NULL, NULL);
+
+-- ============================================
+-- 6. TransportService
+-- ============================================
+INSERT INTO TransportService (id_contract, vehicle, transport_modality) VALUES
+(3, 'Toyota Hiace Van', 'Shared rides, scheduled days'),
+(1, NULL, NULL);
+
+-- ============================================
+-- 7. Animal (INT PK table)
+-- ============================================
+INSERT INTO Animal (id_animal, name, species, breed, birth_date, weight, entry_date, status) VALUES
+(1, 'Max', 'Dog', 'Labrador Retriever', '2022-05-10', 30.50, '2025-01-15', 'In shelter'),
+(2, 'Luna', 'Cat', 'Siamese', '2023-02-20', 4.20, '2025-03-01', 'In shelter'),
+(3, 'Rocky', 'Dog', 'German Shepherd', '2021-11-05', 38.00, '2024-11-20', 'Adopted'),
+(4, 'Nala', 'Cat', 'Persian', '2024-01-10', 3.80, '2025-06-10', 'In shelter'),
+(5, 'Toby', 'Dog', 'Beagle', '2023-07-15', 12.30, '2025-04-22', 'In shelter'),
+(6, 'Milo', 'Rabbit', 'Holland Lop', '2024-03-01', 1.50, '2025-07-05', 'In shelter'),
+(7, 'Bella', 'Dog', 'Poodle', '2022-09-18', 6.70, '2025-02-14', 'Adopted'),
+(8, 'Simba', 'Cat', 'Maine Coon', '2023-12-25', 6.10, '2025-05-30', 'Deceased');
+
+-- ============================================
+-- 8. ActivitySchedule
+-- ============================================
+INSERT INTO ActivitySchedule (id_schedule, id_animal, id_contract, activity_type, description, date, time, duration_days, additional_surcharge) VALUES
+(1, 1, 1, 'Vaccination', 'Annual rabies and distemper vaccination', '2025-07-15', '09:00:00', 1, 0.00),
+(2, 2, 2, 'Feeding', 'Daily nutrition plan - senior cat formula', '2025-07-10', '08:00:00', 30, 150.00),
+(3, 5, 3, 'Transport', 'Transport to VetCare Central for check-up', '2025-08-01', '10:30:00', 1, 25.00),
+(4, 4, 1, 'Medical Checkup', 'Routine health examination', '2025-07-20', '14:00:00', 1, 0.00);
+
+-- ============================================
+-- 9. Adoption
+-- ============================================
+INSERT INTO Adoption (id_adoption, id_animal, adoption_date, adoption_price) VALUES
+(1, 3, '2025-04-10', 150.00),
+(2, 7, '2025-06-01', 120.00);
+
+-- ============================================
+-- 10. Donation
+-- ============================================
+INSERT INTO Donation (id_donation, id_animal, amount, date, donor) VALUES
+(1, 1, 50.00, '2025-03-15', 'Maria Gutierrez'),
+(2, 2, 200.00, '2025-05-20', 'Pedro Alvarez'),
+(3, 5, 75.00, '2025-06-18', 'Fundacion Patitas Felices');
+
+-- ============================================
+-- 11. animals (UUID PK table - the one the API uses)
+-- ============================================
+INSERT INTO animals (name, species, breed, age, status) VALUES
+('Max', 'Dog', 'Labrador Retriever', 3, 'available'),
+('Luna', 'Cat', 'Siamese', 2, 'available'),
+('Rocky', 'Dog', 'German Shepherd', 4, 'adopted'),
+('Nala', 'Cat', 'Persian', 1, 'available'),
+('Toby', 'Dog', 'Beagle', 2, 'reserved'),
+('Milo', 'Rabbit', 'Holland Lop', 1, 'available'),
+('Bella', 'Dog', 'Poodle', 3, 'adopted'),
+('Simba', 'Cat', 'Maine Coon', 2, 'available');

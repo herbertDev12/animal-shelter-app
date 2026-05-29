@@ -1,3 +1,10 @@
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Ensure environment variables are loaded
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../../../../../.env') });
+
 import { Pool, PoolConfig } from 'pg';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';

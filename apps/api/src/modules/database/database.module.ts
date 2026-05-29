@@ -1,5 +1,5 @@
 import { Module, Global } from '@nestjs/common';
-import { DATABASE_CONNECTION, connectToDatabase } from '../config/database.config';
+import { DATABASE_CONNECTION, connectToDatabase } from './config/database.config';
 
 @Global()
 @Module({

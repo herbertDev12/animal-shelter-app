@@ -28,7 +28,7 @@ apps/api/
 
 ```bash
 cd apps/api
-npm install pg  # PostgreSQL client
+pnpm add pg  # PostgreSQL client
 ```
 
 ### 2. Environment Variables

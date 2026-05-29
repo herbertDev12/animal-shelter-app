@@ -8,12 +8,12 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import { AnimalsService } from './animals.service';
-import { CreateAnimalDto, SearchAnimalsFilters } from '../database/repositories/animals.repository';
+import { AnimalService } from './animal.service';
+import type { CreateAnimalDto, SearchAnimalsFilters } from './animal.repository';
 
 @Controller('animals')
-export class AnimalsController {
-  constructor(private animalsService: AnimalsService) {}
+export class AnimalController {
+  constructor(private animalsService: AnimalService) {}
 
   @Get()
   async findAll() {

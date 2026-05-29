@@ -1,4 +1,4 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
 export abstract class BaseRepository {
   constructor(protected pool: Pool) {}
@@ -8,7 +8,7 @@ export abstract class BaseRepository {
    * @param query SQL query with $1, $2, etc. placeholders
    * @param values Array of values corresponding to placeholders
    */
-  protected async execute<T = any>(
+  protected async execute<T extends QueryResultRow = any>(
     query: string,
     values: any[] = [],
   ): Promise<QueryResult<T>> {
@@ -23,7 +23,7 @@ export abstract class BaseRepository {
   /**
    * Execute a query and return rows
    */
-  protected async query<T = any>(
+  protected async query<T extends QueryResultRow = any>(
     query: string,
     values: any[] = [],
   ): Promise<T[]> {
@@ -34,7 +34,7 @@ export abstract class BaseRepository {
   /**
    * Execute a query and return single row
    */
-  protected async queryOne<T = any>(
+  protected async queryOne<T extends QueryResultRow = any>(
     query: string,
     values: any[] = [],
   ): Promise<T | null> {

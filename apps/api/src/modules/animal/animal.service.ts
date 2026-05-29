@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
-  AnimalsRepository,
+  AnimalRepository,
   CreateAnimalDto,
   SearchAnimalsFilters,
-} from '../database/repositories/animals.repository';
+} from './animal.repository';
 
 @Injectable()
-export class AnimalsService {
-  constructor(private animalsRepository: AnimalsRepository) {}
+export class AnimalService {
+  constructor(private animalsRepository: AnimalRepository) {}
 
   async findAll() {
     return this.animalsRepository.findAll();

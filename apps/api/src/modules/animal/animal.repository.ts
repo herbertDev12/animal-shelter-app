@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-import { DATABASE_CONNECTION } from '../config/database.config';
+import { BaseRepository } from '../database/base.repository';
+import { DATABASE_CONNECTION } from '../database/config/database.config';
 
 export interface Animal {
   id: string;
@@ -33,8 +33,8 @@ export interface SearchAnimalsFilters {
 }
 
 @Injectable()
-export class AnimalsRepository extends BaseRepository {
-  constructor(@Inject(DATABASE_CONNECTION) private pool: Pool) {
+export class AnimalRepository extends BaseRepository {
+  constructor(@Inject(DATABASE_CONNECTION) protected override pool: Pool) {
     super(pool);
   }
 
