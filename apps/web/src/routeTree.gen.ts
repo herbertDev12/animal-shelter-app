@@ -9,9 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfitRouteImport } from './routes/profit'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardTopUsersRouteImport } from './routes/dashboard/top-users'
+import { Route as DashboardProfitRouteImport } from './routes/dashboard/profit'
+import { Route as DashboardEventsRouteImport } from './routes/dashboard/events'
+import { Route as Dashboard_layoutRouteImport } from './routes/dashboard/__layout'
 
+const ProfitRoute = ProfitRouteImport.update({
+  id: '/profit',
+  path: '/profit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -22,35 +32,104 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardTopUsersRoute = DashboardTopUsersRouteImport.update({
+  id: '/dashboard/top-users',
+  path: '/dashboard/top-users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProfitRoute = DashboardProfitRouteImport.update({
+  id: '/dashboard/profit',
+  path: '/dashboard/profit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardEventsRoute = DashboardEventsRouteImport.update({
+  id: '/dashboard/events',
+  path: '/dashboard/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Dashboard_layoutRoute = Dashboard_layoutRouteImport.update({
+  id: '/dashboard/__layout',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/profit': typeof ProfitRoute
+  '/dashboard': typeof Dashboard_layoutRoute
+  '/dashboard/events': typeof DashboardEventsRoute
+  '/dashboard/profit': typeof DashboardProfitRoute
+  '/dashboard/top-users': typeof DashboardTopUsersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/profit': typeof ProfitRoute
+  '/dashboard': typeof Dashboard_layoutRoute
+  '/dashboard/events': typeof DashboardEventsRoute
+  '/dashboard/profit': typeof DashboardProfitRoute
+  '/dashboard/top-users': typeof DashboardTopUsersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/profit': typeof ProfitRoute
+  '/dashboard/__layout': typeof Dashboard_layoutRoute
+  '/dashboard/events': typeof DashboardEventsRoute
+  '/dashboard/profit': typeof DashboardProfitRoute
+  '/dashboard/top-users': typeof DashboardTopUsersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/profit'
+    | '/dashboard'
+    | '/dashboard/events'
+    | '/dashboard/profit'
+    | '/dashboard/top-users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/about'
+    | '/profit'
+    | '/dashboard'
+    | '/dashboard/events'
+    | '/dashboard/profit'
+    | '/dashboard/top-users'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/profit'
+    | '/dashboard/__layout'
+    | '/dashboard/events'
+    | '/dashboard/profit'
+    | '/dashboard/top-users'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ProfitRoute: typeof ProfitRoute
+  Dashboard_layoutRoute: typeof Dashboard_layoutRoute
+  DashboardEventsRoute: typeof DashboardEventsRoute
+  DashboardProfitRoute: typeof DashboardProfitRoute
+  DashboardTopUsersRoute: typeof DashboardTopUsersRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profit': {
+      id: '/profit'
+      path: '/profit'
+      fullPath: '/profit'
+      preLoaderRoute: typeof ProfitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -65,12 +144,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/top-users': {
+      id: '/dashboard/top-users'
+      path: '/dashboard/top-users'
+      fullPath: '/dashboard/top-users'
+      preLoaderRoute: typeof DashboardTopUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/profit': {
+      id: '/dashboard/profit'
+      path: '/dashboard/profit'
+      fullPath: '/dashboard/profit'
+      preLoaderRoute: typeof DashboardProfitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/events': {
+      id: '/dashboard/events'
+      path: '/dashboard/events'
+      fullPath: '/dashboard/events'
+      preLoaderRoute: typeof DashboardEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/__layout': {
+      id: '/dashboard/__layout'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof Dashboard_layoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ProfitRoute: ProfitRoute,
+  Dashboard_layoutRoute: Dashboard_layoutRoute,
+  DashboardEventsRoute: DashboardEventsRoute,
+  DashboardProfitRoute: DashboardProfitRoute,
+  DashboardTopUsersRoute: DashboardTopUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

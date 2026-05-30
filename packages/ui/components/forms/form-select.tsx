@@ -1,5 +1,5 @@
-import * as React from "react"
-import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form"
+import * as React from "react";
+import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form";
 
 import {
   Select,
@@ -7,7 +7,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "../ui/select";
 import {
   FormControl,
   FormDescription,
@@ -15,30 +15,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/forms/form"
+} from "../forms/form";
 
 interface FormSelectOption {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 interface FormSelectProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends UseControllerProps<TFieldValues, TName> {
-  label?: string
-  description?: string
-  placeholder?: string
-  options: FormSelectOption[]
+  label?: string;
+  description?: string;
+  placeholder?: string;
+  options: FormSelectOption[];
 }
 
-const FormSelect = React.forwardRef<
-  HTMLButtonElement,
-  FormSelectProps
->(
+const FormSelect = React.forwardRef<HTMLButtonElement, FormSelectProps>(
   (
     { control, name, label, description, placeholder, options, ...props },
-    ref
+    ref,
   ) => {
     return (
       <FormField
@@ -66,10 +63,10 @@ const FormSelect = React.forwardRef<
           </FormItem>
         )}
       />
-    )
-  }
-)
+    );
+  },
+);
 
-FormSelect.displayName = "FormSelect"
+FormSelect.displayName = "FormSelect";
 
-export { FormSelect, type FormSelectProps, type FormSelectOption }
+export { FormSelect, type FormSelectProps, type FormSelectOption };
