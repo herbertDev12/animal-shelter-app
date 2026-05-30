@@ -1,7 +1,7 @@
-import * as React from "react"
-import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form"
+import * as React from "react";
+import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form";
 
-import { DatePicker } from "@/components/ui/date-picker"
+import { DatePicker } from "../ui/date-picker";
 import {
   FormControl,
   FormDescription,
@@ -9,25 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/forms/form"
+} from "./form";
 
 interface FormDatePickerProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
 > extends UseControllerProps<TFieldValues, TName> {
-  label?: string
-  description?: string
-  placeholder?: string
+  label?: string;
+  description?: string;
+  placeholder?: string;
 }
 
-const FormDatePicker = React.forwardRef<
-  HTMLButtonElement,
-  FormDatePickerProps
->(
-  (
-    { control, name, label, description, placeholder, ...props },
-    ref
-  ) => {
+const FormDatePicker = React.forwardRef<HTMLButtonElement, FormDatePickerProps>(
+  ({ control, name, label, description, placeholder, ...props }, ref) => {
     return (
       <FormField
         control={control}
@@ -48,10 +42,10 @@ const FormDatePicker = React.forwardRef<
           </FormItem>
         )}
       />
-    )
-  }
-)
+    );
+  },
+);
 
-FormDatePicker.displayName = "FormDatePicker"
+FormDatePicker.displayName = "FormDatePicker";
 
-export { FormDatePicker, type FormDatePickerProps }
+export { FormDatePicker, type FormDatePickerProps };

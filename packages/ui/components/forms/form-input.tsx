@@ -1,7 +1,7 @@
-import * as React from "react"
-import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form"
+import * as React from "react";
+import { FieldPath, FieldValues, UseControllerProps } from "react-hook-form";
 
-import { Input, type InputProps } from "@/components/ui/input"
+import { Input, type InputProps } from "../ui/input";
 import {
   FormControl,
   FormDescription,
@@ -9,33 +9,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/forms/form"
+} from "../forms/form";
 
 interface FormInputProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> extends UseControllerProps<TFieldValues, TName>,
-    Omit<InputProps, "name"> {
-  label?: string
-  description?: string
-  placeholder?: string
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>
+  extends UseControllerProps<TFieldValues, TName>, Omit<InputProps, "name"> {
+  label?: string;
+  description?: string;
+  placeholder?: string;
 }
 
-const FormInput = React.forwardRef<
-  HTMLInputElement,
-  FormInputProps
->(
+const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   (
-    {
-      control,
-      name,
-      label,
-      description,
-      placeholder,
-      type = "text",
-      ...props
-    },
-    ref
+    { control, name, label, description, placeholder, type = "text", ...props },
+    ref,
   ) => {
     return (
       <FormField
@@ -58,10 +47,10 @@ const FormInput = React.forwardRef<
           </FormItem>
         )}
       />
-    )
-  }
-)
+    );
+  },
+);
 
-FormInput.displayName = "FormInput"
+FormInput.displayName = "FormInput";
 
-export { FormInput, type FormInputProps }
+export { FormInput, type FormInputProps };

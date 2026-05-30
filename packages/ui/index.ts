@@ -11,7 +11,11 @@ export { Calendar, type CalendarProps } from "./components/ui/calendar";
 export { Popover, PopoverTrigger, PopoverAnchor, PopoverContent } from "./components/ui/popover";
 export { Input, type InputProps } from "./components/ui/input";
 export { Label } from "./components/ui/label";
+export { Progress } from "./components/ui/progress"
 export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectSeparator, SelectScrollUpButton, SelectScrollDownButton } from "./components/ui/select";
+export { Skeleton } from "./components/ui/skeleton";
+export { Switch } from "./components/ui/switch";
+export { Toaster } from "./components/ui/sonner";
 
 // form components
 export { 

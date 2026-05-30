@@ -10,11 +10,20 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
     "@repo/ui": "workspace:*",
+    "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-router": "^1.170.8",
+    "clsx": "^2.0.0",
+    "lucide-react": "^0.331.0",
     "nuqs": "^2.8.9",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
+    "react-hook-form": "^7.76.1",
+    "recharts": "^2.10.3",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^2.2.0",
+    "zod": "^3.25.76",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
@@ -24,7 +33,7 @@
     "@tanstack/router-plugin": "^1.168.11",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.5.0",
     "eslint": "^8.57.0",
     "postcss": "^8.5.15",
