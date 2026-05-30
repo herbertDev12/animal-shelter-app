@@ -1,7 +1,10 @@
 {
   "name": "@repo/ui",
   "version": "0.0.0",
+  "main": "./index.ts",
+  "types": "./index.ts",
   "exports": {
+    ".": "./index.ts",
     "./counter": "./components/counter.ts",
     "./header": "./components/header.ts",
     "./setup-counter": "./utils/counter.ts",
@@ -9,15 +12,21 @@
     "./card": "./components/ui/card.tsx",
     "./carousel": "./components/ui/carousel.tsx",
     "./date-picker": "./components/ui/date-picker.tsx",
-    "./forms": "./components/forms/index.ts"
+    "./forms": "./components/forms/index.ts",
+    "./input": "./components/ui/input.tsx",
+    "./label": "./components/ui/label.tsx",
+    "./progress": "./components/ui/progress.tsx",
+    "./separator": "./components/ui/separator.tsx",
+    "./skeleton": "./components/ui/skeleton.tsx",
+    "./switch": "./components/ui/switch.tsx"
   },
   "license": "MIT",
   "scripts": {
     "lint": "eslint \"**/*.ts\""
   },
   "dependencies": {
+    "@base-ui/react": "^1.5.0",
     "@hookform/resolvers": "^3.3.4",
-    "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-primitive": "^2.0.0",
@@ -33,6 +42,7 @@
     "react-day-picker": "^8.9.1",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.51.5",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.3.0",
     "zod": "^3.22.4"
   },
