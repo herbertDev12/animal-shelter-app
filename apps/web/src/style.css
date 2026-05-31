@@ -46,10 +46,7 @@
   }
 }
 
-* {
-  @apply border-border;
-}
-
 body {
-  @apply bg-background text-foreground;
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
 }

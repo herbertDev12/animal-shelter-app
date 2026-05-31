@@ -1,14 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/profit")({
-  component: ProfitComponent,
-});
-
-function ProfitComponent() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Profit Page</h1>
-      <p>This is the profit page content.</p>
+export const Route = createFileRoute('/profit')({
+  component: () => (
+    <div className="p-2">
+      <h3 className="text-2xl font-bold">Profit</h3>
+      <p className="text-gray-400">Profit statistics will be displayed here.</p>
     </div>
-  );
-}
+  ),
+})

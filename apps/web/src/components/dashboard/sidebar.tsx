@@ -1,27 +1,29 @@
-"use client";
-
-import { LayoutDashboard, Bot, Users, Calendar } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Home } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
-import { BackButton } from "./back-button";
-import { cn } from "@repo/ui";
+import { cn } from "../../lib/cn";
 
 export function Sidebar() {
   const location = useLocation();
 
   const navItems = [
-    { to: "/dashboard/profit", label: "Profit", icon: LayoutDashboard },
-    { to: "/dashboard/top-users", label: "Top Users", icon: Users },
-    { to: "/dashboard/events", label: "Events", icon: Calendar },
+    { to: "/profit", label: "Profit", icon: LayoutDashboard },
+    { to: "/top-users", label: "Top Users", icon: Users },
+    { to: "/events", label: "Events", icon: Calendar },
   ];
 
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 bg-[#10131a] shadow-[1px_0_0_0_rgba(69,72,79,0.15)] flex flex-col p-6 space-y-8 z-50">
-      <div>
-        <BackButton />
-      </div>
+      <Link
+        to="/"
+        className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2"
+      >
+        <Home size={16} />
+        <span>Back to Home</span>
+      </Link>
+
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-          <Bot className="text-purple-400" />
+          <LayoutDashboard className="text-purple-400" size={20} />
         </div>
         <div>
           <h1 className="text-lg font-black italic tracking-tighter">
@@ -33,10 +35,11 @@ export function Sidebar() {
           </p>
         </div>
       </div>
+
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.to);
+          const isActive = location.pathname === item.to;
           return (
             <Link
               key={item.to}
