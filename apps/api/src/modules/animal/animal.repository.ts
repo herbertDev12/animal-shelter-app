@@ -2,35 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
 import { BaseRepository } from '../database/base.repository';
 import { DATABASE_CONNECTION } from '../database/config/database.config';
-
-export interface Animal {
-  id: string;
-  name: string;
-  species: string;
-  breed?: string;
-  age?: number;
-  status: 'available' | 'adopted' | 'reserved';
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface CreateAnimalDto {
-  name: string;
-  species: string;
-  breed?: string;
-  age?: number;
-  status?: 'available' | 'adopted' | 'reserved';
-}
-
-export interface SearchAnimalsFilters {
-  species?: string;
-  breed?: string;
-  status?: string[];
-  minAge?: number;
-  maxAge?: number;
-  limit?: number;
-  offset?: number;
-}
+import { Animal, CreateAnimal, SearchAnimalsFilters } from '@repo/schemas';
 
 @Injectable()
 export class AnimalRepository extends BaseRepository {
@@ -83,7 +55,7 @@ export class AnimalRepository extends BaseRepository {
    */
   async search(filters: SearchAnimalsFilters): Promise<Animal[]> {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 0;
 
     if (filters.species) {
@@ -151,7 +123,7 @@ export class AnimalRepository extends BaseRepository {
   /**
    * Create a new animal
    */
-  async create(data: CreateAnimalDto): Promise<Animal> {
+  async create(data: CreateAnimal): Promise<Animal> {
     const query = `
       INSERT INTO animals (
         name,
@@ -192,12 +164,9 @@ export class AnimalRepository extends BaseRepository {
   /**
    * Update an animal
    */
-  async update(
-    id: string,
-    data: Partial<CreateAnimalDto>,
-  ): Promise<Animal> {
+  async update(id: string, data: Partial<CreateAnimal>): Promise<Animal> {
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramCount = 1;
 
     if (data.name !== undefined) {

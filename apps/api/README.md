@@ -96,3 +96,61 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## How works error handling in the api?
+
+When you use `CreateAnimalDto` in a controller:
+
+```typescript
+@Post()
+async create(@Body() dto: CreateAnimalDto) {
+  // If validation fails, an error is thrown BEFORE this code runs
+  return this.service.create(dto);
+}
+```
+
+**If the incoming request data violates the Zod rules:**
+
+✅ `nestjs-zod` automatically validates against `createAnimalSchema`  
+✅ If validation fails → throws a `BadRequestException` automatically  
+✅ NestJS returns an HTTP 400 response with validation error details  
+✅ The controller method is **never executed**
+
+## Example
+
+If you POST this invalid data:
+
+```json
+{
+  "name": "", // ❌ Empty string (min(1) required)
+  "species": "", // ❌ Empty string (min(1) required)
+  "age": -5 // ❌ Negative number (min(0) required)
+}
+```
+
+The response will be HTTP 400:
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "name must be at least 1 characters",
+    "species must be at least 1 characters",
+    "age must be greater than or equal to 0"
+  ],
+  "error": "Bad Request"
+}
+```
+
+## No Manual Errors Needed
+
+You don't need to:
+
+- ❌ Check if data is valid inside the controller
+- ❌ Throw manual errors
+- ❌ Write try-catch blocks for validation
+- ❌ Call `dto.validate()` manually
+
+The `nestjs-zod` decorator integration handles it all automatically! The validation happens in the NestJS validation pipe before your controller method is even called.
+
+This is one of the main benefits of using DTOs with `nestjs-zod` — **declarative validation through schema definition** instead of imperative error handling.

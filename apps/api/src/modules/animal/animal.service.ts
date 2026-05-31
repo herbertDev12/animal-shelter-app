@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import {
-  AnimalRepository,
-  CreateAnimalDto,
-  SearchAnimalsFilters,
-} from './animal.repository';
+import { AnimalRepository } from './animal.repository';
+import { CreateAnimal, SearchAnimalsFilters } from '@repo/schemas';
 
 @Injectable()
 export class AnimalService {
@@ -21,11 +18,11 @@ export class AnimalService {
     return this.animalsRepository.search(filters);
   }
 
-  async create(data: CreateAnimalDto) {
+  async create(data: CreateAnimal) {
     return this.animalsRepository.create(data);
   }
 
-  async update(id: string, data: Partial<CreateAnimalDto>) {
+  async update(id: string, data: Partial<CreateAnimal>) {
     return this.animalsRepository.update(id, data);
   }
 

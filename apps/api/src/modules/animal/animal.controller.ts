@@ -9,7 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { AnimalService } from './animal.service';
-import type { CreateAnimalDto, SearchAnimalsFilters } from './animal.repository';
+import { CreateAnimalDto, SearchAnimalsFiltersDto } from '@repo/schemas';
 
 @Controller('animals')
 export class AnimalController {
@@ -21,7 +21,7 @@ export class AnimalController {
   }
 
   @Get('search')
-  async search(@Query() filters: SearchAnimalsFilters) {
+  async search(@Query() filters: SearchAnimalsFiltersDto) {
     return this.animalsService.search(filters);
   }
 
