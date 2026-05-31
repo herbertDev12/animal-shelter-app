@@ -4,10 +4,15 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prepare": "husky install"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "eslint": "^8.57.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
     "prettier": "^3.2.5",
     "turbo": "^2.9.14"
   },
