@@ -1,17 +1,3 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Animals table for the shelter
-CREATE TABLE animals (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL,
-    species VARCHAR(50) NOT NULL,
-    breed VARCHAR(100),
-    age INT,
-    status VARCHAR(20) CHECK (status IN ('available', 'adopted', 'reserved', 'sick')) DEFAULT 'available',
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
-);
 
 -- Index for common queries
 CREATE INDEX idx_animals_species ON animals(species);
@@ -61,11 +47,7 @@ CREATE TABLE Contract (
     end_date            DATE NOT NULL,
     reconciliation_date DATE,
     description         VARCHAR(300),
-    base_price          DECIMAL(10,2) NOT NULL,
-    surcharge           DECIMAL(10,2) DEFAULT 0,
     status              VARCHAR(20) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'Expired')),
-    food_type           VARCHAR(100), 
-    service_type        VARCHAR(100),
     
     CHECK (end_date >= start_date),
     FOREIGN KEY (id_supplier) REFERENCES Supplier(id_supplier)
@@ -77,6 +59,20 @@ CREATE TABLE TransportService (
     transport_modality VARCHAR(100),
     FOREIGN KEY (id_contract) REFERENCES Contract(id_contract)
 );
+
+CREATE TABLE ServiceOffered (
+    id_service      INT PRIMARY KEY,
+    id_contract     INT NOT NULL,
+    name            VARCHAR(100) NOT NULL, -- Ej: "Consulta General", "Saco de Pienso 20kg", "Traslado Local"
+    service_type    VARCHAR(100),          -- Clasificación general
+    food_type       VARCHAR(100),          -- Solo se llena si es un contrato de alimentos (pienso, húmeda, suplemento)
+    base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),
+    
+    FOREIGN KEY (id_contract) REFERENCES Contract(id_contract)
+);
+
+-- Índice para agilizar búsquedas de servicios por contrato
+CREATE INDEX idx_service_contract ON ServiceOffered(id_contract);
 
 CREATE TABLE Animal (
     id_animal  INT PRIMARY KEY,
