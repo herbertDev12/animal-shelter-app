@@ -1,0 +1,48 @@
+{
+  "name": "@repo/schemas",
+  "version": "1.0.0",
+  "description": "Shared validation schemas and NestJS DTOs",
+  "type": "commonjs",
+  "exports": {
+    "./*": {
+      "import": "./src/*",
+      "require": "./dist/commonjs/src/*.js",
+      "node": "./dist/nodenext/src/*.js",
+      "default": "./dist/nodenext/src/*.js"
+    },
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./dist/commonjs/src/index.js",
+      "node": "./dist/nodenext/src/index.js",
+      "default": "./dist/nodenext/src/index.js"
+    }
+  },
+  "main": "./dist/commonjs/src/index.js",
+  "module": "./dist/nodenext/src/index.js",
+  "types": "./dist/nodenext/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && tsc -p tsconfig.cjs.json",
+    "dev": "concurrently \"tsc --watch\" \"tsc -p tsconfig.cjs.json --watch\""
+  },
+  "dependencies": {
+    "nestjs-zod": "^5.0.1",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@repo/typescript-config": "workspace:*",
+    "concurrently": "^10.0.0",
+    "typescript": "^5.7.3"
+  },
+  "keywords": [
+    "schemas",
+    "validation",
+    "zod",
+    "dto"
+  ],
+  "author": "",
+  "license": "UNLICENSED"
+}
