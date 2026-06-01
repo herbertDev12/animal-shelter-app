@@ -4,3 +4,4 @@ export * from "./food-supplier-contracts";
 export * from "./complementary-service-contracts";
 export * from "./active-veterinarians";
 export * from "./animal-care-schedule";
+export * from "./revenue-plan";

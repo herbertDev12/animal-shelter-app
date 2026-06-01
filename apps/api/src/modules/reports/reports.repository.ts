@@ -13,6 +13,8 @@ import {
   ActiveVeterinariansResponse,
   AnimalCareSchedule,
   AnimalCareScheduleResponse,
+  RevenuePlan,
+  RevenuePlanResponse,
 } from '@repo/schemas';
 
 @Injectable()
@@ -373,6 +375,78 @@ export class ReportsRepository extends BaseRepository {
           row.price) *
         (1 + (row.maintenance_percentage ?? 0) / 100),
     }));
+
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  /**
+   * Get revenue plan from adoptions and donations
+   * Returns per-animal summary with maintenance costs, adoption fees, donations, and total revenue
+   */
+  async findRevenuePlan(
+    limit: number = 10,
+    offset: number = 0,
+  ): Promise<RevenuePlanResponse> {
+    const params: unknown[] = [];
+    let paramCount = 0;
+
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM "Animal" a;
+    `;
+
+    const total = await this.count(countQuery);
+
+    paramCount++;
+    params.push(limit);
+    paramCount++;
+    params.push(offset);
+
+    const dataQuery = `
+      SELECT
+        a.name as animal_name,
+        a.species,
+        a.breed,
+        EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
+        (
+          SELECT COALESCE(SUM(COALESCE(so.base_price, 0) + COALESCE(asched.additional_surcharge, 0)), 0)
+          FROM "ActivitySchedule" asched
+          LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
+          LEFT JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
+          WHERE asched.id_animal = a.id_animal
+        ) * (1 + COALESCE((SELECT maintenance_percentage FROM "ShelterConfiguration" LIMIT 1), 0) / 100)
+        as total_maintenance_cost,
+        COALESCE(
+          (SELECT SUM(adp.adoption_price) FROM "Adoption" adp WHERE adp.id_animal = a.id_animal),
+          0
+        ) as total_adoption_fee,
+        COALESCE(
+          (SELECT SUM(d.amount) FROM "Donation" d WHERE d.id_animal = a.id_animal),
+          0
+        ) as total_donations,
+        (
+          COALESCE(
+            (SELECT SUM(adp.adoption_price) FROM "Adoption" adp WHERE adp.id_animal = a.id_animal),
+            0
+          )
+          +
+          COALESCE(
+            (SELECT SUM(d.amount) FROM "Donation" d WHERE d.id_animal = a.id_animal),
+            0
+          )
+        ) as total_revenue
+      FROM "Animal" a
+      ORDER BY a.name
+      LIMIT $${paramCount - 1}
+      OFFSET $${paramCount}
+    `;
+
+    const data = await this.query<RevenuePlan>(dataQuery, params);
 
     return {
       data,

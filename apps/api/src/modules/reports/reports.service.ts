@@ -6,6 +6,7 @@ import {
   ComplementaryServiceContractFilters,
   ActiveVeterinarianFilters,
   AnimalCareScheduleFilters,
+  RevenuePlanFilters,
 } from '@repo/schemas';
 
 @Injectable()
@@ -51,6 +52,13 @@ export class ReportsService {
       filters.limit,
       filters.offset,
       filters.id_animal,
+    );
+  }
+
+  async findRevenuePlan(filters: RevenuePlanFilters) {
+    return this.reportsRepository.findRevenuePlan(
+      filters.limit,
+      filters.offset,
     );
   }
 }

@@ -6,6 +6,7 @@ import {
   ComplementaryServiceContractFiltersDto,
   ActiveVeterinarianFiltersDto,
   AnimalCareScheduleFiltersDto,
+  RevenuePlanFiltersDto,
 } from '@repo/schemas';
 
 @Controller('reports')
@@ -43,5 +44,10 @@ export class ReportsController {
   @Get('animal-care-schedule')
   async findAnimalCareSchedule(@Query() filters: AnimalCareScheduleFiltersDto) {
     return this.reportsService.findAnimalCareSchedule(filters);
+  }
+
+  @Get('revenue-plan')
+  async findRevenuePlan(@Query() filters: RevenuePlanFiltersDto) {
+    return this.reportsService.findRevenuePlan(filters);
   }
 }
