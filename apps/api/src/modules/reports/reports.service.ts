@@ -4,6 +4,7 @@ import {
   ReconciledVeterinarianContractFilters,
   FoodSupplierContractFilters,
   ComplementaryServiceContractFilters,
+  ActiveVeterinarianFilters,
 } from '@repo/schemas';
 
 @Injectable()
@@ -32,6 +33,15 @@ export class ReportsService {
     return this.reportsRepository.findComplementaryServiceContracts(
       filters.limit,
       filters.offset,
+    );
+  }
+
+  async findActiveVeterinarians(filters: ActiveVeterinarianFilters) {
+    return this.reportsRepository.findActiveVeterinarians(
+      filters.limit,
+      filters.offset,
+      filters.clinic_id,
+      filters.province,
     );
   }
 }

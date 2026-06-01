@@ -9,6 +9,8 @@ import {
   FoodSupplierContractsResponse,
   ComplementaryServiceContract,
   ComplementaryServiceContractsResponse,
+  ActiveVeterinarian,
+  ActiveVeterinariansResponse,
 } from '@repo/schemas';
 
 @Injectable()
@@ -183,6 +185,87 @@ export class ReportsRepository extends BaseRepository {
       dataQuery,
       params,
     );
+
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  /**
+   * Get active veterinarians with JOIN across tables
+   * Returns veterinarians with active contracts, optionally filtered by clinic and/or province
+   */
+  async findActiveVeterinarians(
+    limit: number = 10,
+    offset: number = 0,
+    clinic_id?: number,
+    province?: string,
+  ): Promise<ActiveVeterinariansResponse> {
+    const params: unknown[] = [];
+    let paramCount = 0;
+
+    const conditions: string[] = [
+      `s.type = 'Veterinarian'`,
+      `ct.contract_category = 'Veterinarian'`,
+      `ct.status = 'Active'`,
+    ];
+
+    if (clinic_id) {
+      paramCount++;
+      params.push(clinic_id);
+      conditions.push(`c.id_clinic = $${paramCount}`);
+    }
+
+    if (province) {
+      paramCount++;
+      params.push(province);
+      conditions.push(`c.province = $${paramCount}`);
+    }
+
+    const whereClause = conditions.join('\n      AND ');
+
+    const countQuery = `
+      SELECT COUNT(DISTINCT v.id_supplier) as count
+      FROM "Veterinarian" v
+      INNER JOIN "Supplier" s ON v.id_supplier = s.id_supplier
+      INNER JOIN "Clinic" c ON v.id_clinic = c.id_clinic
+      INNER JOIN "Contract" ct ON v.id_supplier = ct.id_supplier
+      WHERE ${whereClause};
+    `;
+
+    const total = await this.count(countQuery, params);
+
+    paramCount++;
+    params.push(limit);
+    paramCount++;
+    params.push(offset);
+
+    const dataQuery = `
+     SELECT
+      CURRENT_DATE as date,
+      s.name as veterinarian_name,
+      c.name as clinic_name,
+      c.province,
+      v.specialty,
+      s.phone,
+      v.fax,
+      COALESCE(v.veterinarian_email, s.contact_email) as email,
+      v.city_distance as distance_to_nearest_city,
+      v.modality as modalities
+     FROM "Veterinarian" v
+     INNER JOIN "Supplier" s ON v.id_supplier = s.id_supplier
+     INNER JOIN "Clinic" c ON v.id_clinic = c.id_clinic
+     INNER JOIN "Contract" ct ON v.id_supplier = ct.id_supplier
+     WHERE ${whereClause}
+     ORDER BY s.name
+     LIMIT $${paramCount - 1}
+     OFFSET $${paramCount}
+    `;
+
+    const data = await this.query<ActiveVeterinarian>(dataQuery, params);
 
     return {
       data,

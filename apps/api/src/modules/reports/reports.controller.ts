@@ -4,6 +4,7 @@ import {
   ReconciledVeterinarianContractFiltersDto,
   FoodSupplierContractFiltersDto,
   ComplementaryServiceContractFiltersDto,
+  ActiveVeterinarianFiltersDto,
 } from '@repo/schemas';
 
 @Controller('reports')
@@ -29,5 +30,12 @@ export class ReportsController {
     @Query() filters: ComplementaryServiceContractFiltersDto,
   ) {
     return this.reportsService.findComplementaryServiceContracts(filters);
+  }
+
+  @Get('active-veterinarians')
+  async findActiveVeterinarians(
+    @Query() filters: ActiveVeterinarianFiltersDto,
+  ) {
+    return this.reportsService.findActiveVeterinarians(filters);
   }
 }
