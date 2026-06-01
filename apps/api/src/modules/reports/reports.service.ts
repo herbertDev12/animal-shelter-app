@@ -3,6 +3,7 @@ import { ReportsRepository } from './reports.repository';
 import {
   ReconciledVeterinarianContractFilters,
   FoodSupplierContractFilters,
+  ComplementaryServiceContractFilters,
 } from '@repo/schemas';
 
 @Injectable()
@@ -20,6 +21,15 @@ export class ReportsService {
 
   async findFoodSupplierContracts(filters: FoodSupplierContractFilters) {
     return this.reportsRepository.findFoodSupplierContracts(
+      filters.limit,
+      filters.offset,
+    );
+  }
+
+  async findComplementaryServiceContracts(
+    filters: ComplementaryServiceContractFilters,
+  ) {
+    return this.reportsRepository.findComplementaryServiceContracts(
       filters.limit,
       filters.offset,
     );

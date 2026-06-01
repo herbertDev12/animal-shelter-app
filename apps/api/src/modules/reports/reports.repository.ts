@@ -7,6 +7,8 @@ import {
   ReconciledVeterinarianContractsResponse,
   FoodSupplierContract,
   FoodSupplierContractsResponse,
+  ComplementaryServiceContract,
+  ComplementaryServiceContractsResponse,
 } from '@repo/schemas';
 
 @Injectable()
@@ -123,6 +125,64 @@ export class ReportsRepository extends BaseRepository {
     `;
 
     const data = await this.query<FoodSupplierContract>(dataQuery, params);
+
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  /**
+   * Get complementary service contracts with JOIN across tables
+   * Returns contracts where reconciliation_date IS NOT NULL
+   */
+  async findComplementaryServiceContracts(
+    limit: number = 10,
+    offset: number = 0,
+  ): Promise<ComplementaryServiceContractsResponse> {
+    const params: unknown[] = [];
+    let paramCount = 0;
+
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM "Contract" ct
+      INNER JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
+      WHERE ct.reconciliation_date IS NOT NULL
+      AND ct.contract_category = 'Service';
+    `;
+
+    const total = await this.count(countQuery);
+
+    paramCount++;
+    params.push(limit);
+    paramCount++;
+    params.push(offset);
+
+    const dataQuery = `
+     SELECT 
+      ct.start_date,
+      ct.end_date,
+      ct.reconciliation_date,
+      ct.description,
+      so.service_type,
+      so.base_price as cost_per_service,
+      s.province
+     FROM "Contract" ct
+     INNER JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
+     INNER JOIN "Supplier" s ON ct.id_supplier = s.id_supplier
+     WHERE ct.reconciliation_date IS NOT NULL
+      AND ct.contract_category = 'Service'
+     ORDER BY ct.reconciliation_date DESC
+     LIMIT $${paramCount - 1}
+     OFFSET $${paramCount}
+    `;
+
+    const data = await this.query<ComplementaryServiceContract>(
+      dataQuery,
+      params,
+    );
 
     return {
       data,
