@@ -5,6 +5,7 @@ import {
   FoodSupplierContractFilters,
   ComplementaryServiceContractFilters,
   ActiveVeterinarianFilters,
+  AnimalCareScheduleFilters,
 } from '@repo/schemas';
 
 @Injectable()
@@ -42,6 +43,14 @@ export class ReportsService {
       filters.offset,
       filters.clinic_id,
       filters.province,
+    );
+  }
+
+  async findAnimalCareSchedule(filters: AnimalCareScheduleFilters) {
+    return this.reportsRepository.findAnimalCareSchedule(
+      filters.limit,
+      filters.offset,
+      filters.id_animal,
     );
   }
 }

@@ -11,6 +11,8 @@ import {
   ComplementaryServiceContractsResponse,
   ActiveVeterinarian,
   ActiveVeterinariansResponse,
+  AnimalCareSchedule,
+  AnimalCareScheduleResponse,
 } from '@repo/schemas';
 
 @Injectable()
@@ -266,6 +268,111 @@ export class ReportsRepository extends BaseRepository {
     `;
 
     const data = await this.query<ActiveVeterinarian>(dataQuery, params);
+
+    return {
+      data,
+      total,
+      limit,
+      offset,
+    };
+  }
+
+  /**
+   * Get care activity schedule for an animal
+   * Returns activity schedule entries with animal info, pricing, and totals
+   */
+  async findAnimalCareSchedule(
+    limit: number = 10,
+    offset: number = 0,
+    id_animal: number,
+  ): Promise<AnimalCareScheduleResponse> {
+    const params: unknown[] = [];
+    let paramCount = 0;
+
+    const countQuery = `
+      SELECT COUNT(*) as count
+      FROM "ActivitySchedule" asched
+      INNER JOIN "Animal" a ON asched.id_animal = a.id_animal
+      WHERE a.id_animal = $1;
+    `;
+
+    paramCount++;
+    params.push(id_animal);
+
+    const total = await this.count(countQuery, params);
+
+    paramCount++;
+    params.push(limit);
+    paramCount++;
+    params.push(offset);
+
+    const mainQuery = `
+      SELECT
+        a.name              as animal_name,
+        a.species,
+        a.breed,
+        EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
+        a.weight,
+        (CURRENT_DATE - a.entry_date)::int                      as days_in_shelter,
+        asched.date         as "day",
+        asched.time         as hour,
+        asched.description  as activity_description,
+        COALESCE(so.base_price, 0) + COALESCE(asched.additional_surcharge, 0) as price,
+        vet_s.name          as assigned_veterinarian_name,
+        food_so.food_type   as assigned_food_type,
+
+        (SELECT COALESCE(SUM(COALESCE(so_vet.base_price, 0) + COALESCE(asched_vet.additional_surcharge, 0)), 0)
+         FROM "ActivitySchedule" asched_vet
+         INNER JOIN "Contract" ct_vet ON asched_vet.id_contract = ct_vet.id_contract
+         LEFT JOIN "ServiceOffered" so_vet ON ct_vet.id_contract = so_vet.id_contract
+         WHERE asched_vet.id_animal = a.id_animal
+           AND ct_vet.contract_category = 'Veterinarian'
+        ) as total_veterinary_care_price,
+
+        (SELECT COALESCE(SUM(COALESCE(so_transp.base_price, 0) + COALESCE(asched_transp.additional_surcharge, 0)), 0)
+         FROM "ActivitySchedule" asched_transp
+         INNER JOIN "Contract" ct_transp ON asched_transp.id_contract = ct_transp.id_contract
+         LEFT JOIN "ServiceOffered" so_transp ON ct_transp.id_contract = so_transp.id_contract
+         INNER JOIN "TransportService" ts ON ct_transp.id_contract = ts.id_contract
+         WHERE asched_transp.id_animal = a.id_animal
+        ) as transport_price,
+
+        (SELECT COALESCE(SUM(COALESCE(so_food.base_price, 0) + COALESCE(asched_food.additional_surcharge, 0)), 0)
+         FROM "ActivitySchedule" asched_food
+         INNER JOIN "Contract" ct_food ON asched_food.id_contract = ct_food.id_contract
+         LEFT JOIN "ServiceOffered" so_food ON ct_food.id_contract = so_food.id_contract
+         WHERE asched_food.id_animal = a.id_animal
+           AND ct_food.contract_category = 'Food'
+        ) as total_food_price,
+
+        (SELECT sc.maintenance_percentage FROM "ShelterConfiguration" sc LIMIT 1) as maintenance_percentage
+
+      FROM "Animal" a
+      INNER JOIN "ActivitySchedule" asched ON a.id_animal = asched.id_animal
+      LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
+      LEFT JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
+      LEFT JOIN "Veterinarian" v ON ct.id_supplier = v.id_supplier
+        AND ct.contract_category = 'Veterinarian'
+      LEFT JOIN "Supplier" vet_s ON v.id_supplier = vet_s.id_supplier
+      LEFT JOIN "ServiceOffered" food_so ON ct.id_contract = food_so.id_contract
+        AND ct.contract_category = 'Food'
+      WHERE a.id_animal = $1
+      ORDER BY asched.date, asched.time
+      LIMIT $${paramCount - 2}
+      OFFSET $${paramCount - 1}
+    `;
+
+    const rows = await this.query<AnimalCareSchedule>(mainQuery, params);
+
+    const data = rows.map((row) => ({
+      ...row,
+      total_maintenance_cost:
+        (row.total_veterinary_care_price +
+          row.transport_price +
+          row.total_food_price +
+          row.price) *
+        (1 + (row.maintenance_percentage ?? 0) / 100),
+    }));
 
     return {
       data,
