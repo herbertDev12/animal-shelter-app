@@ -154,3 +154,37 @@ You don't need to:
 The `nestjs-zod` decorator integration handles it all automatically! The validation happens in the NestJS validation pipe before your controller method is even called.
 
 This is one of the main benefits of using DTOs with `nestjs-zod` — **declarative validation through schema definition** instead of imperative error handling.
+
+## Preventing SQL injection attacks
+
+These lines build **parameterized SQL query values** to prevent SQL injection attacks.
+
+```typescript
+paramCount++; // Increment to 1
+params.push(limit); // params = [limit]
+
+paramCount++; // Increment to 2
+params.push(offset); // params = [limit, offset]
+```
+
+**Why it's needed:**
+
+In the SQL query below, PostgreSQL uses `$1`, `$2` etc. as placeholders:
+
+```sql
+LIMIT $${paramCount - 1}    // becomes LIMIT $1
+OFFSET $${paramCount}       // becomes OFFSET $2
+```
+
+The `params` array maps to these placeholders:
+
+- `$1` → `params[0]` = `limit` value
+- `$2` → `params[1]` = `offset` value
+
+**The pattern:**
+
+1. Increment `paramCount` to track the next placeholder position
+2. Push the actual value into `params` array
+3. The database driver substitutes `$1`, `$2`, etc. with safe parameterized values
+
+This prevents SQL injection because user input is never directly concatenated into the query string—only placeholder positions are.

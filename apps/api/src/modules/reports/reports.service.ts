@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ReportsRepository } from './reports.repository';
-import { ReconciledVeterinarianContractFilters } from '@repo/schemas';
+import {
+  ReconciledVeterinarianContractFilters,
+  FoodSupplierContractFilters,
+} from '@repo/schemas';
 
 @Injectable()
 export class ReportsService {
@@ -10,6 +13,13 @@ export class ReportsService {
     filters: ReconciledVeterinarianContractFilters,
   ) {
     return this.reportsRepository.findReconciledVeterinarianContracts(
+      filters.limit,
+      filters.offset,
+    );
+  }
+
+  async findFoodSupplierContracts(filters: FoodSupplierContractFilters) {
+    return this.reportsRepository.findFoodSupplierContracts(
       filters.limit,
       filters.offset,
     );
