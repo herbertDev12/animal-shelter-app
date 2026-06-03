@@ -11,6 +11,7 @@
     "./button": "./components/ui/button.tsx",
     "./card": "./components/ui/card.tsx",
     "./carousel": "./components/ui/carousel.tsx",
+    "./collapsible": "./components/ui/collapsible.tsx",
     "./date-picker": "./components/ui/date-picker.tsx",
     "./forms": "./components/forms/index.ts",
     "./input": "./components/ui/input.tsx",
