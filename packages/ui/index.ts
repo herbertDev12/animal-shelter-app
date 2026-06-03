@@ -53,6 +53,7 @@ export {
 } from "./components/ui/select";
 export { Skeleton } from "./components/ui/skeleton";
 export { Switch } from "./components/ui/switch";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./components/ui/tabs";
 export { Toaster } from "./components/ui/sonner";
 
 // form components

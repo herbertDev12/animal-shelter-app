@@ -1,6 +1,7 @@
 import { LayoutDashboard, Users, Calendar, Home } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "../../lib/cn";
+import { CollapsibleReportsTree } from "./collapsible-reports-tree";
 
 export function Sidebar() {
   const location = useLocation();
@@ -37,6 +38,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
+        <CollapsibleReportsTree />
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.to;

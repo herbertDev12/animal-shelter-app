@@ -19,7 +19,8 @@
     "./progress": "./components/ui/progress.tsx",
     "./separator": "./components/ui/separator.tsx",
     "./skeleton": "./components/ui/skeleton.tsx",
-    "./switch": "./components/ui/switch.tsx"
+    "./switch": "./components/ui/switch.tsx",
+    "./tabs": "./components/ui/tabs.tsx"
   },
   "license": "MIT",
   "scripts": {
