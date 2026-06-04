@@ -14,6 +14,7 @@
     "@repo/ui": "workspace:*",
     "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-router": "^1.170.8",
+    "@tanstack/react-table": "^8.21.3",
     "clsx": "^2.0.0",
     "lucide-react": "^0.331.0",
     "nuqs": "^2.8.9",
