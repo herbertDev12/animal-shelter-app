@@ -23,6 +23,10 @@ export function CollapsibleReportsTree() {
       label: "Animal Care Schedule",
     },
     {
+      to: "/reports/revenue-plan",
+      label: "Revenue Plan",
+    },
+    {
       to: "/reports/food-supplier-contracts",
       label: "Food Suppliers",
     },

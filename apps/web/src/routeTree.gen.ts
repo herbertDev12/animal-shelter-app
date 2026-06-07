@@ -13,6 +13,7 @@ import { Route as TopUsersRouteImport } from './routes/top-users'
 import { Route as ProfitRouteImport } from './routes/profit'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReportsRevenuePlanRouteImport } from './routes/reports/revenue-plan'
 import { Route as ReportsReconciledVeterinarianContractsRouteImport } from './routes/reports/reconciled-veterinarian-contracts'
 import { Route as ReportsFoodSupplierContractsRouteImport } from './routes/reports/food-supplier-contracts'
 import { Route as ReportsComplementaryServiceContractsRouteImport } from './routes/reports/complementary-service-contracts'
@@ -37,6 +38,11 @@ const EventsRoute = EventsRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportsRevenuePlanRoute = ReportsRevenuePlanRouteImport.update({
+  id: '/reports/revenue-plan',
+  path: '/reports/revenue-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsReconciledVeterinarianContractsRoute =
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
   id:
     | '__root__'
     | '/'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +162,7 @@ export interface RootRouteChildren {
   ReportsComplementaryServiceContractsRoute: typeof ReportsComplementaryServiceContractsRoute
   ReportsFoodSupplierContractsRoute: typeof ReportsFoodSupplierContractsRoute
   ReportsReconciledVeterinarianContractsRoute: typeof ReportsReconciledVeterinarianContractsRoute
+  ReportsRevenuePlanRoute: typeof ReportsRevenuePlanRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/revenue-plan': {
+      id: '/reports/revenue-plan'
+      path: '/reports/revenue-plan'
+      fullPath: '/reports/revenue-plan'
+      preLoaderRoute: typeof ReportsRevenuePlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports/reconciled-veterinarian-contracts': {
@@ -232,6 +252,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsFoodSupplierContractsRoute: ReportsFoodSupplierContractsRoute,
   ReportsReconciledVeterinarianContractsRoute:
     ReportsReconciledVeterinarianContractsRoute,
+  ReportsRevenuePlanRoute: ReportsRevenuePlanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
