@@ -8,6 +8,7 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
+import { Button } from "@repo/ui";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 
@@ -68,20 +69,20 @@ export function CustomTable<TData extends Record<string, unknown>>({
                 Page {table.getState().pagination.pageIndex + 1} of{" "}
                 {table.getPageCount()}
               </span>
-              <button
+              <Button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
                 className="px-3 py-1 rounded bg-[#10131a] border border-gray-800 hover:bg-[#1f2937] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Prev
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
                 className="px-3 py-1 rounded bg-[#10131a] border border-gray-800 hover:bg-[#1f2937] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
-              </button>
+              </Button>
             </div>
           )}
         </div>

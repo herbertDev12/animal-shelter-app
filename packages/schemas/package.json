@@ -11,6 +11,7 @@
       "default": "./dist/nodenext/src/*.js"
     },
     ".": {
+      "types": "./dist/nodenext/src/index.d.ts",
       "import": "./src/index.ts",
       "require": "./dist/commonjs/src/index.js",
       "node": "./dist/nodenext/src/index.js",
