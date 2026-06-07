@@ -1,6 +1,6 @@
 {
   "extends": "@repo/typescript-config/vite.json",
-  "include": ["src"],
+  "include": ["src", "src/modules/reports/food-supplier-contracts/.tsx"],
   "compilerOptions": {
     "jsx": "react-jsx",
     "target": "ES2022",
