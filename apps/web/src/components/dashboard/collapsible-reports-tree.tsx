@@ -15,6 +15,10 @@ export function CollapsibleReportsTree() {
       label: "Reconciled Veterinarians",
     },
     {
+      to: "/reports/active-veterinarians",
+      label: "Active Veterinarians",
+    },
+    {
       to: "/reports/food-supplier-contracts",
       label: "Food Suppliers",
     },
