@@ -19,6 +19,10 @@ export function CollapsibleReportsTree() {
       label: "Active Veterinarians",
     },
     {
+      to: "/reports/animal-care-schedule",
+      label: "Animal Care Schedule",
+    },
+    {
       to: "/reports/food-supplier-contracts",
       label: "Food Suppliers",
     },
