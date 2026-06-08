@@ -48,17 +48,28 @@ INSERT INTO "TransportService" (id_contract, vehicle, transport_modality) VALUES
 (1, NULL, NULL);
 
 -- ============================================
--- 7. Animal (INT PK table)
+-- 7. Animal (SERIAL PK table)
 -- ============================================
 INSERT INTO "Animal" (id_animal, name, species, breed, birth_date, weight, entry_date, status) VALUES
-(1, 'Max', 'Dog', 'Labrador Retriever', '2022-05-10', 30.50, '2025-01-15', 'In shelter'),
-(2, 'Luna', 'Cat', 'Siamese', '2023-02-20', 4.20, '2025-03-01', 'In shelter'),
-(3, 'Rocky', 'Dog', 'German Shepherd', '2021-11-05', 38.00, '2024-11-20', 'Adopted'),
-(4, 'Nala', 'Cat', 'Persian', '2024-01-10', 3.80, '2025-06-10', 'In shelter'),
-(5, 'Toby', 'Dog', 'Beagle', '2023-07-15', 12.30, '2025-04-22', 'In shelter'),
-(6, 'Milo', 'Rabbit', 'Holland Lop', '2024-03-01', 1.50, '2025-07-05', 'In shelter'),
-(7, 'Bella', 'Dog', 'Poodle', '2022-09-18', 6.70, '2025-02-14', 'Adopted'),
-(8, 'Simba', 'Cat', 'Maine Coon', '2023-12-25', 6.10, '2025-05-30', 'Deceased');
+(1, 'Max', 'Dog', 'Labrador Retriever', '2022-05-10', 30.50, '2025-01-15', 'available'),
+(2, 'Luna', 'Cat', 'Siamese', '2023-02-20', 4.20, '2025-03-01', 'available'),
+(3, 'Rocky', 'Dog', 'German Shepherd', '2021-11-05', 38.00, '2024-11-20', 'adopted'),
+(4, 'Nala', 'Cat', 'Persian', '2024-01-10', 3.80, '2025-06-10', 'available'),
+(5, 'Toby', 'Dog', 'Beagle', '2023-07-15', 12.30, '2025-04-22', 'available'),
+(6, 'Milo', 'Rabbit', 'Holland Lop', '2024-03-01', 1.50, '2025-07-05', 'available'),
+(7, 'Bella', 'Dog', 'Poodle', '2022-09-18', 6.70, '2025-02-14', 'adopted'),
+(8, 'Simba', 'Cat', 'Maine Coon', '2023-12-25', 6.10, '2025-05-30', 'deceased');
+
+-- Synchronize sequences for SERIAL columns
+SELECT setval(pg_get_serial_sequence('"ShelterConfiguration"', 'id_config'), COALESCE(MAX(id_config), 1)) FROM "ShelterConfiguration";
+SELECT setval(pg_get_serial_sequence('"Clinic"', 'id_clinic'), COALESCE(MAX(id_clinic), 1)) FROM "Clinic";
+SELECT setval(pg_get_serial_sequence('"Supplier"', 'id_supplier'), COALESCE(MAX(id_supplier), 1)) FROM "Supplier";
+SELECT setval(pg_get_serial_sequence('"Contract"', 'id_contract'), COALESCE(MAX(id_contract), 1)) FROM "Contract";
+SELECT setval(pg_get_serial_sequence('"ServiceOffered"', 'id_service'), COALESCE(MAX(id_service), 1)) FROM "ServiceOffered";
+SELECT setval(pg_get_serial_sequence('"Animal"', 'id_animal'), COALESCE(MAX(id_animal), 1)) FROM "Animal";
+SELECT setval(pg_get_serial_sequence('"ActivitySchedule"', 'id_schedule'), COALESCE(MAX(id_schedule), 1)) FROM "ActivitySchedule";
+SELECT setval(pg_get_serial_sequence('"Adoption"', 'id_adoption'), COALESCE(MAX(id_adoption), 1)) FROM "Adoption";
+SELECT setval(pg_get_serial_sequence('"Donation"', 'id_donation'), COALESCE(MAX(id_donation), 1)) FROM "Donation";
 
 -- ============================================
 -- 8. ActivitySchedule

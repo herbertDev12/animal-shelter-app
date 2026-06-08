@@ -1,18 +1,18 @@
 
 CREATE TABLE "ShelterConfiguration" (
-    id_config INT PRIMARY KEY,
+    id_config SERIAL PRIMARY KEY,
     maintenance_percentage DECIMAL(5,2) NOT NULL 
 );
 
 CREATE TABLE "Clinic" (
-    id_clinic INT PRIMARY KEY,
+    id_clinic SERIAL PRIMARY KEY,
     name      VARCHAR(100) NOT NULL,
     province  VARCHAR(100),
     address   VARCHAR(200)
 );
 
 CREATE TABLE "Supplier" (
-    id_supplier   INT PRIMARY KEY,
+    id_supplier   SERIAL PRIMARY KEY,
     name          VARCHAR(100) NOT NULL,
     address       VARCHAR(200),
     type          VARCHAR(50) CHECK (type IN ('Veterinarian', 'Food Company', 'Service Company')),
@@ -35,7 +35,7 @@ CREATE TABLE "Veterinarian" (
 );
 
 CREATE TABLE "Contract" (
-    id_contract         INT PRIMARY KEY,
+    id_contract         SERIAL PRIMARY KEY,
     id_supplier         INT NOT NULL,
     contract_category   VARCHAR(50) CHECK (contract_category IN ('Veterinarian', 'Food', 'Service')),
     start_date          DATE NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE "TransportService" (
 );
 
 CREATE TABLE "ServiceOffered" (
-    id_service      INT PRIMARY KEY,
+    id_service      SERIAL PRIMARY KEY,
     id_contract     INT NOT NULL,
     name            VARCHAR(100) NOT NULL, -- Ej: "Consulta General", "Saco de Pienso 20kg", "Traslado Local"
     service_type    VARCHAR(100),          -- Clasificación general
@@ -67,18 +67,18 @@ CREATE TABLE "ServiceOffered" (
 );
 
 CREATE TABLE "Animal" (
-    id_animal  INT PRIMARY KEY,
+    id_animal  SERIAL PRIMARY KEY,
     name       VARCHAR(100) NOT NULL,
     species    VARCHAR(50) NOT NULL,
     breed      VARCHAR(50),
     birth_date DATE,
     weight     DECIMAL(6,2),
     entry_date DATE NOT NULL,
-    status     VARCHAR(20) DEFAULT 'In shelter' CHECK (status IN ('In shelter', 'Adopted', 'Deceased'))
+    status     VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'adopted', 'reserved', 'deceased'))
 );
 
 CREATE TABLE "ActivitySchedule" (
-    id_schedule          INT PRIMARY KEY,
+    id_schedule          SERIAL PRIMARY KEY,
     id_animal            INT NOT NULL,
     id_contract          INT NOT NULL,
     activity_type        VARCHAR(50), 
@@ -92,7 +92,7 @@ CREATE TABLE "ActivitySchedule" (
 );
 
 CREATE TABLE "Adoption" (
-    id_adoption INT PRIMARY KEY,
+    id_adoption SERIAL PRIMARY KEY,
     id_animal INT NOT NULL,
     adoption_date DATE NOT NULL,
     adoption_price DECIMAL(10,2),
@@ -100,7 +100,7 @@ CREATE TABLE "Adoption" (
 );
 
 CREATE TABLE "Donation" (
-    id_donation INT PRIMARY KEY,
+    id_donation SERIAL PRIMARY KEY,
     id_animal INT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
     date DATE NOT NULL,
