@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AnimalService } from './animal.service';
 import { CreateAnimalDto, SearchAnimalsFiltersDto } from '@repo/schemas';
@@ -31,7 +32,7 @@ export class AnimalController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseIntPipe) id: number) {
     return this.animalsService.findById(id);
   }
 
@@ -42,14 +43,14 @@ export class AnimalController {
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: Partial<CreateAnimalDto>,
   ) {
     return this.animalsService.update(id, data);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', ParseIntPipe) id: number) {
     return this.animalsService.delete(id);
   }
 }

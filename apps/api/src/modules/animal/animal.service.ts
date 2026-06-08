@@ -10,7 +10,7 @@ export class AnimalService {
     return this.animalsRepository.findAll();
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     return this.animalsRepository.findById(id);
   }
 
@@ -19,15 +19,15 @@ export class AnimalService {
   }
 
   async create(data: CreateAnimal) {
-    return this.animalsRepository.create(data);
+    return this.animalsRepository.createAnimal(data);
   }
 
-  async update(id: string, data: Partial<CreateAnimal>) {
-    return this.animalsRepository.update(id, data);
+  async update(id: number, data: Partial<CreateAnimal>) {
+    return this.animalsRepository.updateAnimal(id, data);
   }
 
-  async delete(id: string) {
-    return this.animalsRepository.delete(id);
+  async delete(id: number) {
+    return this.animalsRepository.deleteAnimal(id);
   }
 
   async getStats() {

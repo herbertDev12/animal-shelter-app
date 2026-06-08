@@ -7,6 +7,8 @@ export const createAnimalSchema = z.object({
   species: z.string().min(1, "Species is required"),
   breed: z.string().optional(),
   age: z.number().int().min(0).optional(),
+  birth_date: z.coerce.date().optional(),
+  weight: z.number().min(0).optional(),
   status: animalStatusEnum.default("available"),
 });
 
@@ -23,9 +25,8 @@ export const searchAnimalsFiltersSchema = z.object({
 });
 
 export const animalSchema = createAnimalSchema.extend({
-  id: z.string().uuid(),
-  created_at: z.date(),
-  updated_at: z.date(),
+  id: z.number().int(),
+  entry_date: z.date(),
 });
 
 export type CreateAnimal = z.infer<typeof createAnimalSchema>;

@@ -1,8 +1,24 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Pool } from 'pg';
+import { Pool, QueryResultRow } from 'pg';
 import { BaseRepository } from '../database/base.repository';
 import { DATABASE_CONNECTION } from '../database/config/database.config';
-import { Animal, CreateAnimal, SearchAnimalsFilters } from '@repo/schemas';
+import {
+  Animal,
+  AnimalStatus,
+  CreateAnimal,
+  SearchAnimalsFilters,
+} from '@repo/schemas';
+
+interface AnimalRow extends QueryResultRow {
+  id_animal: number;
+  name: string;
+  species: string;
+  breed: string | null;
+  birth_date: Date | null;
+  weight: number | null;
+  entry_date: Date;
+  status: AnimalStatus;
+}
 
 @Injectable()
 export class AnimalRepository extends BaseRepository {
@@ -16,16 +32,17 @@ export class AnimalRepository extends BaseRepository {
   async findAll(): Promise<Animal[]> {
     const query = `
       SELECT 
-        id,
+        id_animal as id,
         name,
         species,
         breed,
-        age,
-        status,
-        created_at,
-        updated_at
-      FROM animals
-      ORDER BY created_at DESC
+        birth_date,
+        EXTRACT(YEAR FROM AGE(birth_date))::int as age,
+        weight,
+        entry_date,
+        status
+      FROM "Animal"
+      ORDER BY entry_date DESC
     `;
     return this.query<Animal>(query);
   }
@@ -33,19 +50,20 @@ export class AnimalRepository extends BaseRepository {
   /**
    * Find animal by ID
    */
-  async findById(id: string): Promise<Animal | null> {
+  async findById(id: number): Promise<Animal | null> {
     const query = `
       SELECT 
-        id,
+        id_animal as id,
         name,
         species,
         breed,
-        age,
-        status,
-        created_at,
-        updated_at
-      FROM animals
-      WHERE id = $1
+        birth_date,
+        EXTRACT(YEAR FROM AGE(birth_date))::int as age,
+        weight,
+        entry_date,
+        status
+      FROM "Animal"
+      WHERE id_animal = $1
     `;
     return this.queryOne<Animal>(query, [id]);
   }
@@ -78,13 +96,13 @@ export class AnimalRepository extends BaseRepository {
 
     if (filters.minAge !== undefined) {
       paramCount++;
-      conditions.push(`a.age >= $${paramCount}`);
+      conditions.push(`EXTRACT(YEAR FROM AGE(a.birth_date)) >= $${paramCount}`);
       params.push(filters.minAge);
     }
 
     if (filters.maxAge !== undefined) {
       paramCount++;
-      conditions.push(`a.age <= $${paramCount}`);
+      conditions.push(`EXTRACT(YEAR FROM AGE(a.birth_date)) <= $${paramCount}`);
       params.push(filters.maxAge);
     }
 
@@ -102,17 +120,18 @@ export class AnimalRepository extends BaseRepository {
 
     const query = `
       SELECT 
-        id,
+        id_animal as id,
         name,
         species,
         breed,
-        age,
-        status,
-        created_at,
-        updated_at
-      FROM animals a
+        birth_date,
+        EXTRACT(YEAR FROM AGE(birth_date))::int as age,
+        weight,
+        entry_date,
+        status
+      FROM "Animal" a
       ${whereClause}
-      ORDER BY a.created_at DESC
+      ORDER BY a.entry_date DESC
       LIMIT $${paramCount - 1}
       OFFSET $${paramCount}
     `;
@@ -123,126 +142,72 @@ export class AnimalRepository extends BaseRepository {
   /**
    * Create a new animal
    */
-  async create(data: CreateAnimal): Promise<Animal> {
-    const query = `
-      INSERT INTO animals (
-        name,
-        species,
-        breed,
-        age,
-        status,
-        created_at,
-        updated_at
-      )
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-      RETURNING 
-        id,
-        name,
-        species,
-        breed,
-        age,
-        status,
-        created_at,
-        updated_at
-    `;
+  async createAnimal(data: CreateAnimal): Promise<Animal> {
+    const record: Record<string, unknown> = {
+      name: data.name,
+      species: data.species,
+      breed: data.breed || null,
+      status: data.status || 'available',
+      entry_date: new Date(),
+      weight: data.weight || null,
+      birth_date: data.birth_date || null,
+    };
 
-    const result = await this.queryOne<Animal>(query, [
-      data.name,
-      data.species,
-      data.breed || null,
-      data.age || null,
-      data.status || 'available',
-    ]);
-
-    if (!result) {
-      throw new Error('Failed to create animal');
+    if (data.age !== undefined && !record.birth_date) {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - data.age);
+      record.birth_date = birthDate;
     }
 
-    return result;
+    const result = await this.create<AnimalRow>('Animal', record);
+    return {
+      id: result.id_animal,
+      name: result.name,
+      species: result.species,
+      status: result.status,
+      entry_date: result.entry_date,
+      breed: result.breed || undefined,
+      age: data.age,
+      birth_date: result.birth_date || undefined,
+      weight: result.weight || undefined,
+    };
   }
 
   /**
    * Update an animal
    */
-  async update(id: string, data: Partial<CreateAnimal>): Promise<Animal> {
-    const updates: string[] = [];
-    const params: unknown[] = [];
-    let paramCount = 1;
+  async updateAnimal(id: number, data: Partial<CreateAnimal>): Promise<Animal> {
+    const record: Record<string, unknown> = { ...data };
+    delete record.age;
 
-    if (data.name !== undefined) {
-      paramCount++;
-      updates.push(`name = $${paramCount}`);
-      params.push(data.name);
+    if (data.age !== undefined && !data.birth_date) {
+      const birthDate = new Date();
+      birthDate.setFullYear(birthDate.getFullYear() - data.age);
+      record.birth_date = birthDate;
     }
 
-    if (data.species !== undefined) {
-      paramCount++;
-      updates.push(`species = $${paramCount}`);
-      params.push(data.species);
-    }
+    const result = await this.update<AnimalRow>('Animal', id, record, {
+      idColumn: 'id_animal',
+      timestampColumn: '',
+    });
 
-    if (data.breed !== undefined) {
-      paramCount++;
-      updates.push(`breed = $${paramCount}`);
-      params.push(data.breed);
-    }
-
-    if (data.age !== undefined) {
-      paramCount++;
-      updates.push(`age = $${paramCount}`);
-      params.push(data.age);
-    }
-
-    if (data.status !== undefined) {
-      paramCount++;
-      updates.push(`status = $${paramCount}`);
-      params.push(data.status);
-    }
-
-    if (updates.length === 0) {
-      const animal = await this.findById(id);
-      if (!animal) throw new Error('Animal not found');
-      return animal;
-    }
-
-    updates.push(`updated_at = NOW()`);
-    params.unshift(id);
-
-    const query = `
-      UPDATE animals
-      SET ${updates.join(', ')}
-      WHERE id = $1
-      RETURNING 
-        id,
-        name,
-        species,
-        breed,
-        age,
-        status,
-        created_at,
-        updated_at
-    `;
-
-    const result = await this.queryOne<Animal>(query, params);
-
-    if (!result) {
-      throw new Error('Animal not found');
-    }
-
-    return result;
+    return {
+      id: result.id_animal,
+      name: result.name,
+      species: result.species,
+      status: result.status,
+      entry_date: result.entry_date,
+      breed: result.breed || undefined,
+      birth_date: result.birth_date || undefined,
+      weight: result.weight || undefined,
+    };
   }
 
   /**
    * Delete an animal
    */
-  async delete(id: string): Promise<boolean> {
-    const query = `
-      DELETE FROM animals
-      WHERE id = $1
-    `;
-
-    const result = await this.execute(query, [id]);
-    return result.rowCount ? result.rowCount > 0 : false;
+  async deleteAnimal(id: number): Promise<boolean> {
+    return this.delete('Animal', id, 'id_animal');
   }
 
   /**
@@ -251,7 +216,7 @@ export class AnimalRepository extends BaseRepository {
   async countByStatus(status: string): Promise<number> {
     const query = `
       SELECT COUNT(*) as count
-      FROM animals
+      FROM "Animal"
       WHERE status = $1
     `;
 
@@ -269,7 +234,7 @@ export class AnimalRepository extends BaseRepository {
         species,
         COUNT(CASE WHEN status = 'available' THEN 1 END) as available,
         COUNT(CASE WHEN status = 'adopted' THEN 1 END) as adopted
-      FROM animals
+      FROM "Animal"
       GROUP BY species
       ORDER BY species
     `;
