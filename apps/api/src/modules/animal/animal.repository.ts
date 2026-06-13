@@ -26,9 +26,6 @@ export class AnimalRepository extends BaseRepository {
     super(pool);
   }
 
-  /**
-   * Get all animals with basic info
-   */
   async findAll(): Promise<Animal[]> {
     const query = `
       SELECT 
@@ -47,9 +44,6 @@ export class AnimalRepository extends BaseRepository {
     return this.query<Animal>(query);
   }
 
-  /**
-   * Find animal by ID
-   */
   async findById(id: number): Promise<Animal | null> {
     const query = `
       SELECT 
@@ -68,9 +62,6 @@ export class AnimalRepository extends BaseRepository {
     return this.queryOne<Animal>(query, [id]);
   }
 
-  /**
-   * Search animals with dynamic filters
-   */
   async search(filters: SearchAnimalsFilters): Promise<Animal[]> {
     const conditions: string[] = [];
     const params: unknown[] = [];
@@ -139,9 +130,6 @@ export class AnimalRepository extends BaseRepository {
     return this.query<Animal>(query, params);
   }
 
-  /**
-   * Create a new animal
-   */
   async createAnimal(data: CreateAnimal): Promise<Animal> {
     const record: Record<string, unknown> = {
       name: data.name,
@@ -173,9 +161,6 @@ export class AnimalRepository extends BaseRepository {
     };
   }
 
-  /**
-   * Update an animal
-   */
   async updateAnimal(id: number, data: Partial<CreateAnimal>): Promise<Animal> {
     const record: Record<string, unknown> = { ...data };
     delete record.age;
@@ -203,16 +188,10 @@ export class AnimalRepository extends BaseRepository {
     };
   }
 
-  /**
-   * Delete an animal
-   */
   async deleteAnimal(id: number): Promise<boolean> {
     return this.delete('Animal', id, 'id_animal');
   }
 
-  /**
-   * Count available animals
-   */
   async countByStatus(status: string): Promise<number> {
     const query = `
       SELECT COUNT(*) as count
@@ -223,9 +202,6 @@ export class AnimalRepository extends BaseRepository {
     return this.count(query, [status]);
   }
 
-  /**
-   * Get animals with adoption stats
-   */
   async getAdoptionStats(): Promise<
     Array<{ species: string; available: number; adopted: number }>
   > {

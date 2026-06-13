@@ -1,4 +1,5 @@
 export * from "./src/animal";
+export * from "./src/supplier";
 export * from "./src/veterinarian-contracts";
 export * from "./src/food-supplier-contracts";
 export * from "./src/complementary-service-contracts";
