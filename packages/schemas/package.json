@@ -11,16 +11,16 @@
       "default": "./dist/nodenext/src/*.js"
     },
     ".": {
-      "types": "./dist/nodenext/src/index.d.ts",
+      "types": "./dist/nodenext/index.d.ts",
       "import": "./src/index.ts",
-      "require": "./dist/commonjs/src/index.js",
-      "node": "./dist/nodenext/src/index.js",
-      "default": "./dist/nodenext/src/index.js"
+      "require": "./dist/commonjs/index.js",
+      "node": "./dist/nodenext/index.js",
+      "default": "./dist/nodenext/index.js"
     }
   },
-  "main": "./dist/commonjs/src/index.js",
-  "module": "./dist/nodenext/src/index.js",
-  "types": "./dist/nodenext/src/index.d.ts",
+  "main": "./dist/commonjs/index.js",
+  "module": "./dist/nodenext/index.js",
+  "types": "./dist/nodenext/index.d.ts",
   "files": [
     "dist"
   ],

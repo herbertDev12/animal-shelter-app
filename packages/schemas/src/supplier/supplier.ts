@@ -9,10 +9,7 @@ export const supplierTypeEnum = z.enum([
 export const createSupplierSchema = z.object({
   name: z.string().min(1, "Name is required"),
   address: z.string().optional(),
-  type: supplierTypeEnum.refine(
-    (val) => val !== null,
-    "Type is required and cannot be null",
-  ),
+  type: supplierTypeEnum,
   phone: z.string().optional(),
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_name: z.string().optional(),

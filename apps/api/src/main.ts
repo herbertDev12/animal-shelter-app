@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 // Load environment variables before other modules are imported
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
@@ -10,7 +11,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.useGlobalPipes(new ZodValidationPipe());
   app.enableCors({
     origin: process.env.WEB_URL,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
