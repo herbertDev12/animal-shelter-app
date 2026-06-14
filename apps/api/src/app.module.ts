@@ -7,6 +7,7 @@ import { SupplierModule } from './modules/supplier/supplier.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ContractModule } from './modules/contract/contract.module';
 import { TransportServiceModule } from './modules/transport-service/transport-service.module';
+import { VeterinarianModule } from './modules/veterinarian/veterinarian.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TransportServiceModule } from './modules/transport-service/transport-se
     ReportsModule,
     ContractModule,
     TransportServiceModule,
+    VeterinarianModule,
   ],
   controllers: [AppController],
   providers: [AppService],
