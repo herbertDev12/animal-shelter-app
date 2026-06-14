@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './modules/database/database.module';
 import { AnimalsModule } from './modules/animal/animal.module';
+import { ClinicsModule } from './modules/clinic/clinic.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ContractModule } from './modules/contract/contract.module';
@@ -13,6 +14,7 @@ import { VeterinarianModule } from './modules/veterinarian/veterinarian.module';
   imports: [
     DatabaseModule,
     AnimalsModule,
+    ClinicsModule,
     SupplierModule,
     ReportsModule,
     ContractModule,
