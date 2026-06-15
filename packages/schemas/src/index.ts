@@ -1,5 +1,4 @@
 export * from "./src/animal";
-export * from "./src/adoption";
 export * from "./src/clinic";
 export * from "./src/supplier";
 export * from "./src/veterinarian-contracts";
@@ -13,3 +12,4 @@ export * from "./src/service-offered";
 export * from "./src/transport-service";
 export * from "./src/veterinarian";
 export * from "./src/activity-schedule";
+export * from "./src/adoption";

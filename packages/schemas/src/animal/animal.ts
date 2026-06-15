@@ -18,10 +18,10 @@ export const searchAnimalsFiltersSchema = z.object({
   species: z.string().optional(),
   breed: z.string().optional(),
   status: z.array(z.string()).optional(),
-  minAge: z.number().int().min(0).optional(),
-  maxAge: z.number().int().min(0).optional(),
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  minAge: z.coerce.number().int().min(0).optional(),
+  maxAge: z.coerce.number().int().min(0).optional(),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const animalSchema = createAnimalSchema.extend({
