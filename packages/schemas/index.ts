@@ -8,5 +8,6 @@ export * from "./src/active-veterinarians";
 export * from "./src/animal-care-schedule";
 export * from "./src/revenue-plan";
 export * from "./src/contract";
+export * from "./src/service-offered";
 export * from "./src/transport-service";
 export * from "./src/veterinarian";

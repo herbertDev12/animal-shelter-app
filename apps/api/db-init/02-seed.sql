@@ -48,7 +48,18 @@ INSERT INTO "TransportService" (id_contract, vehicle, transport_modality) VALUES
 (1, NULL, NULL);
 
 -- ============================================
--- 7. Animal (SERIAL PK table)
+-- 7. ServiceOffered
+-- ============================================
+INSERT INTO "ServiceOffered" (id_service, id_contract, name, service_type, food_type, base_price) VALUES
+(1, 1, 'Consulta General', 'Veterinary Consultation', NULL, 35.00),
+(2, 1, 'Vacunación Completa', 'Vaccination', NULL, 55.00),
+(3, 2, 'Saco de Pienso 20kg', 'Food', 'Pienso', 42.50),
+(4, 2, 'Alimento Húmedo Premium', 'Food', 'Húmeda', 28.00),
+(5, 3, 'Traslado Local', 'Transport', NULL, 25.00),
+(6, 3, 'Traslado Interprovincial', 'Transport', NULL, 85.00);
+
+-- ============================================
+-- 8. Animal (SERIAL PK table)
 -- ============================================
 INSERT INTO "Animal" (id_animal, name, species, breed, birth_date, weight, entry_date, status) VALUES
 (1, 'Max', 'Dog', 'Labrador Retriever', '2022-05-10', 30.50, '2025-01-15', 'available'),
@@ -72,7 +83,7 @@ SELECT setval(pg_get_serial_sequence('"Adoption"', 'id_adoption'), COALESCE(MAX(
 SELECT setval(pg_get_serial_sequence('"Donation"', 'id_donation'), COALESCE(MAX(id_donation), 1)) FROM "Donation";
 
 -- ============================================
--- 8. ActivitySchedule
+-- 9. ActivitySchedule
 -- ============================================
 INSERT INTO "ActivitySchedule" (id_schedule, id_animal, id_contract, activity_type, description, date, time, duration_days, additional_surcharge) VALUES
 (1, 1, 1, 'Vaccination', 'Annual rabies and distemper vaccination', '2025-07-15', '09:00:00', 1, 0.00),
@@ -81,14 +92,14 @@ INSERT INTO "ActivitySchedule" (id_schedule, id_animal, id_contract, activity_ty
 (4, 4, 1, 'Medical Checkup', 'Routine health examination', '2025-07-20', '14:00:00', 1, 0.00);
 
 -- ============================================
--- 9. Adoption
+-- 10. Adoption
 -- ============================================
 INSERT INTO "Adoption" (id_adoption, id_animal, adoption_date, adoption_price) VALUES
 (1, 3, '2025-04-10', 150.00),
 (2, 7, '2025-06-01', 120.00);
 
 -- ============================================
--- 10. Donation
+-- 11. Donation
 -- ============================================
 INSERT INTO "Donation" (id_donation, id_animal, amount, date, donor) VALUES
 (1, 1, 50.00, '2025-03-15', 'Maria Gutierrez'),
