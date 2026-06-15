@@ -12,4 +12,5 @@ export * from "./src/service-offered";
 export * from "./src/transport-service";
 export * from "./src/veterinarian";
 export * from "./src/activity-schedule";
+export * from "./src/donation";
 export * from "./src/adoption";

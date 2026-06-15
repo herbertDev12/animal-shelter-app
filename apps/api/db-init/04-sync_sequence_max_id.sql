@@ -1,1 +1,1 @@
-SELECT setval('"ActivitySchedule_id_schedule_seq"', (SELECT MAX(id_schedule) FROM "ActivitySchedule"));
+SELECT setval('"Donation_id_donation_seq"', (SELECT MAX(id_donation) FROM "Donation"));

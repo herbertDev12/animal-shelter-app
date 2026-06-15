@@ -11,6 +11,7 @@ import { TransportServiceModule } from './modules/transport-service/transport-se
 import { VeterinarianModule } from './modules/veterinarian/veterinarian.module';
 import { ServiceOfferedModule } from './modules/service-offered/service-offered.module';
 import { ActivityScheduleModule } from './modules/activity-schedule/activity-schedule.module';
+import { DonationModule } from './modules/donation/donation.module';
 import { AdoptionModule } from './modules/adoption/adoption.module';
 
 @Module({
@@ -25,6 +26,7 @@ import { AdoptionModule } from './modules/adoption/adoption.module';
     VeterinarianModule,
     ServiceOfferedModule,
     ActivityScheduleModule,
+    DonationModule,
     AdoptionModule,
   ],
   controllers: [AppController],
