@@ -10,6 +10,7 @@ import { ContractModule } from './modules/contract/contract.module';
 import { TransportServiceModule } from './modules/transport-service/transport-service.module';
 import { VeterinarianModule } from './modules/veterinarian/veterinarian.module';
 import { ServiceOfferedModule } from './modules/service-offered/service-offered.module';
+import { ActivityScheduleModule } from './modules/activity-schedule/activity-schedule.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ServiceOfferedModule } from './modules/service-offered/service-offered.
     TransportServiceModule,
     VeterinarianModule,
     ServiceOfferedModule,
+    ActivityScheduleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

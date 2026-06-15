@@ -1,0 +1,1 @@
+SELECT setval('"ActivitySchedule_id_schedule_seq"', (SELECT MAX(id_schedule) FROM "ActivitySchedule"));
