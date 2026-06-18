@@ -10,7 +10,7 @@
     "lint": "eslint \"src/**/*.ts\""
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.4.0",
     "@repo/ui": "workspace:*",
     "@repo/schemas": "workspace:*",
     "@tanstack/react-query": "^5.100.14",

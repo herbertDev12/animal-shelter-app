@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryStates, parseAsString, parseAsInteger } from "nuqs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
@@ -14,8 +15,6 @@ import {
 import type { Animal } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchAnimals, deleteAnimal } from "../services";
-import { CreateAnimalForm } from "../forms/create-animal";
-import { EditAnimalForm } from "../forms/edit-animal";
 
 const statusBadgeClass: Record<string, string> = {
   available: "bg-green-500/15 text-green-400",
@@ -36,8 +35,7 @@ function formatDate(value: Date | string | null | undefined) {
 
 export function AnimalsList() {
   const queryClient = useQueryClient();
-  const [showCreate, setShowCreate] = useState(false);
-  const [editingAnimal, setEditingAnimal] = useState<Animal | null>(null);
+  const navigate = useNavigate();
 
   const [filters, setFilters] = useQueryStates(
     {
@@ -161,7 +159,12 @@ export function AnimalsList() {
             >
               <button
                 type="button"
-                onClick={() => setEditingAnimal(row.original)}
+                onClick={() =>
+                  navigate({
+                    to: "/animals/$animalId/edit",
+                    params: { animalId: String(row.original.id) },
+                  })
+                }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -180,7 +183,7 @@ export function AnimalsList() {
         ),
       },
     ],
-    [],
+    [navigate],
   );
 
   return (
@@ -192,32 +195,13 @@ export function AnimalsList() {
             Manage the shelter's animals — create, edit, filter and remove.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            setEditingAnimal(null);
-            setShowCreate((prev) => !prev);
-          }}
-          className="rounded-lg bg-[#cc97ff] text-[#10131a] hover:bg-[#cc97ff]/90 font-bold"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Create Animal
-        </Button>
+        <Link to="/animals/new">
+          <Button className="rounded-lg bg-[#cc97ff] text-[#10131a] hover:bg-[#cc97ff]/90 font-bold">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Animal
+          </Button>
+        </Link>
       </div>
-
-      {showCreate && (
-        <CreateAnimalForm
-          onCreated={() => setShowCreate(false)}
-          onCancel={() => setShowCreate(false)}
-        />
-      )}
-
-      {editingAnimal && (
-        <EditAnimalForm
-          animal={editingAnimal}
-          onSaved={() => setEditingAnimal(null)}
-          onCancel={() => setEditingAnimal(null)}
-        />
-      )}
 
       {/* Filters */}
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">

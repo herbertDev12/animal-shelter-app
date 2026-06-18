@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -20,7 +20,7 @@ export function CreateAnimalForm({
   const queryClient = useQueryClient();
 
   const { control, handleSubmit, reset } = useForm<CreateAnimal>({
-    resolver: zodResolver(createAnimalSchema),
+    resolver: zodResolver(createAnimalSchema) as Resolver<CreateAnimal>,
     defaultValues: {
       name: "",
       species: "",
@@ -46,10 +46,23 @@ export function CreateAnimalForm({
     mutation.mutate(data);
   };
 
+  const onInvalid = (errors: FieldErrors<CreateAnimal>) => {
+    const messages = Object.values(errors)
+      .map((e) => e?.message)
+      .filter(Boolean) as string[];
+    toast.error("Couldn't create animal", {
+      description:
+        messages.length > 0
+          ? messages.map((m) => `• ${m}`).join("  ")
+          : "Please fill in all required fields before submitting.",
+      duration: 4000,
+    });
+  };
+
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">Create Animal</h3>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <AnimalFormFields control={control} />
         <div className="flex justify-end gap-3 pt-2">
           {onCancel && (

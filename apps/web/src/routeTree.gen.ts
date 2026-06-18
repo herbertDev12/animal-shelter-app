@@ -12,14 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopUsersRouteImport } from './routes/top-users'
 import { Route as ProfitRouteImport } from './routes/profit'
 import { Route as EventsRouteImport } from './routes/events'
-import { Route as AnimalsRouteImport } from './routes/animals'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnimalsIndexRouteImport } from './routes/animals/index'
 import { Route as ReportsRevenuePlanRouteImport } from './routes/reports/revenue-plan'
 import { Route as ReportsReconciledVeterinarianContractsRouteImport } from './routes/reports/reconciled-veterinarian-contracts'
 import { Route as ReportsFoodSupplierContractsRouteImport } from './routes/reports/food-supplier-contracts'
 import { Route as ReportsComplementaryServiceContractsRouteImport } from './routes/reports/complementary-service-contracts'
 import { Route as ReportsAnimalCareScheduleRouteImport } from './routes/reports/animal-care-schedule'
 import { Route as ReportsActiveVeterinariansRouteImport } from './routes/reports/active-veterinarians'
+import { Route as AnimalsNewRouteImport } from './routes/animals/new'
+import { Route as AnimalsAnimalIdEditRouteImport } from './routes/animals/$animalId.edit'
 
 const TopUsersRoute = TopUsersRouteImport.update({
   id: '/top-users',
@@ -36,14 +38,14 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AnimalsRoute = AnimalsRouteImport.update({
-  id: '/animals',
-  path: '/animals',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimalsIndexRoute = AnimalsIndexRouteImport.update({
+  id: '/animals/',
+  path: '/animals/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReportsRevenuePlanRoute = ReportsRevenuePlanRouteImport.update({
@@ -81,101 +83,125 @@ const ReportsActiveVeterinariansRoute =
     path: '/reports/active-veterinarians',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AnimalsNewRoute = AnimalsNewRouteImport.update({
+  id: '/animals/new',
+  path: '/animals/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimalsAnimalIdEditRoute = AnimalsAnimalIdEditRouteImport.update({
+  id: '/animals/$animalId/edit',
+  path: '/animals/$animalId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
+  '/animals/new': typeof AnimalsNewRoute
   '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
   '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
   '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/animals/': typeof AnimalsIndexRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
+  '/animals/new': typeof AnimalsNewRoute
   '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
   '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
   '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/animals': typeof AnimalsIndexRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
+  '/animals/new': typeof AnimalsNewRoute
   '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
   '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
   '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
   '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
   '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
   '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/animals/': typeof AnimalsIndexRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
+    | '/animals/new'
     | '/reports/active-veterinarians'
     | '/reports/animal-care-schedule'
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
     | '/reports/revenue-plan'
+    | '/animals/'
+    | '/animals/$animalId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
+    | '/animals/new'
     | '/reports/active-veterinarians'
     | '/reports/animal-care-schedule'
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
     | '/reports/revenue-plan'
+    | '/animals'
+    | '/animals/$animalId/edit'
   id:
     | '__root__'
     | '/'
-    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
+    | '/animals/new'
     | '/reports/active-veterinarians'
     | '/reports/animal-care-schedule'
     | '/reports/complementary-service-contracts'
     | '/reports/food-supplier-contracts'
     | '/reports/reconciled-veterinarian-contracts'
     | '/reports/revenue-plan'
+    | '/animals/'
+    | '/animals/$animalId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AnimalsRoute: typeof AnimalsRoute
   EventsRoute: typeof EventsRoute
   ProfitRoute: typeof ProfitRoute
   TopUsersRoute: typeof TopUsersRoute
+  AnimalsNewRoute: typeof AnimalsNewRoute
   ReportsActiveVeterinariansRoute: typeof ReportsActiveVeterinariansRoute
   ReportsAnimalCareScheduleRoute: typeof ReportsAnimalCareScheduleRoute
   ReportsComplementaryServiceContractsRoute: typeof ReportsComplementaryServiceContractsRoute
   ReportsFoodSupplierContractsRoute: typeof ReportsFoodSupplierContractsRoute
   ReportsReconciledVeterinarianContractsRoute: typeof ReportsReconciledVeterinarianContractsRoute
   ReportsRevenuePlanRoute: typeof ReportsRevenuePlanRoute
+  AnimalsIndexRoute: typeof AnimalsIndexRoute
+  AnimalsAnimalIdEditRoute: typeof AnimalsAnimalIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -201,18 +227,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/animals': {
-      id: '/animals'
-      path: '/animals'
-      fullPath: '/animals'
-      preLoaderRoute: typeof AnimalsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals/': {
+      id: '/animals/'
+      path: '/animals'
+      fullPath: '/animals/'
+      preLoaderRoute: typeof AnimalsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reports/revenue-plan': {
@@ -257,15 +283,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReportsActiveVeterinariansRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/animals/new': {
+      id: '/animals/new'
+      path: '/animals/new'
+      fullPath: '/animals/new'
+      preLoaderRoute: typeof AnimalsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals/$animalId/edit': {
+      id: '/animals/$animalId/edit'
+      path: '/animals/$animalId/edit'
+      fullPath: '/animals/$animalId/edit'
+      preLoaderRoute: typeof AnimalsAnimalIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AnimalsRoute: AnimalsRoute,
   EventsRoute: EventsRoute,
   ProfitRoute: ProfitRoute,
   TopUsersRoute: TopUsersRoute,
+  AnimalsNewRoute: AnimalsNewRoute,
   ReportsActiveVeterinariansRoute: ReportsActiveVeterinariansRoute,
   ReportsAnimalCareScheduleRoute: ReportsAnimalCareScheduleRoute,
   ReportsComplementaryServiceContractsRoute:
@@ -274,6 +314,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsReconciledVeterinarianContractsRoute:
     ReportsReconciledVeterinarianContractsRoute,
   ReportsRevenuePlanRoute: ReportsRevenuePlanRoute,
+  AnimalsIndexRoute: AnimalsIndexRoute,
+  AnimalsAnimalIdEditRoute: AnimalsAnimalIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

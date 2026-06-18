@@ -12,7 +12,8 @@ import {
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
-      theme="system"
+      theme="dark"
+      richColors
       className="toaster group"
       icons={{
         success: <FileCheckIcon className="size-4" />,
@@ -23,10 +24,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--normal-bg": "#161a21",
+          "--normal-text": "#ffffff",
+          "--normal-border": "rgba(255,255,255,0.08)",
+          "--border-radius": "0.75rem",
         } as React.CSSProperties
       }
       toastOptions={{

@@ -24,6 +24,12 @@ export const fetchAnimals = async (
   return response.json();
 };
 
+export const fetchAnimal = async (id: number): Promise<Animal> => {
+  const response = await fetch(`${API_URL}/animals/${id}`);
+  if (!response.ok) throw new Error("Failed to fetch animal");
+  return response.json();
+};
+
 export const createAnimal = async (data: CreateAnimal): Promise<Animal> => {
   const response = await fetch(`${API_URL}/animals`, {
     method: "POST",
