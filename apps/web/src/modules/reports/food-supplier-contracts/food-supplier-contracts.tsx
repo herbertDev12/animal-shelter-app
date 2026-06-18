@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { FoodSupplierContractDto } from "@repo/schemas";
+import type { FoodSupplierContractDto } from "@repo/schemas";
 import { useFoodSupplierContracts } from "./useFoodSupplierContracts";
 
 export function FoodSupplierContractsComponent() {

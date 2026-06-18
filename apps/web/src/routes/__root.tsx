@@ -1,5 +1,6 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { Sidebar } from '../components/dashboard/sidebar'
+import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { Toaster } from "@repo/ui";
+import { Sidebar } from "../components/dashboard/sidebar";
 
 export const Route = createRootRoute({
   component: () => (
@@ -8,6 +9,7 @@ export const Route = createRootRoute({
       <main className="ml-64 p-8">
         <Outlet />
       </main>
+      <Toaster />
     </div>
   ),
-})
+});

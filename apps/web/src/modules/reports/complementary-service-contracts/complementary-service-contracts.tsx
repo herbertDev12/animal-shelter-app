@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ComplementaryServiceContractDto } from "@repo/schemas";
+import type { ComplementaryServiceContractDto } from "@repo/schemas";
 import { useComplementaryServiceContracts } from "./useComplementaryServiceContracts";
 
 export function ComplementaryServiceContractsComponent() {

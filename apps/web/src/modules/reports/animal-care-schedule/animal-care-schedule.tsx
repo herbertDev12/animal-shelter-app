@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AnimalCareScheduleDto } from "@repo/schemas";
+import type { AnimalCareScheduleDto } from "@repo/schemas";
 import { useAnimalCareSchedule } from "./useAnimalCareSchedule";
 import { Input } from "@repo/ui";
 

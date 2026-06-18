@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ActiveVeterinarianDto } from "@repo/schemas";
+import type { ActiveVeterinarianDto } from "@repo/schemas";
 import { useActiveVeterinarians } from "./useActiveVeterinarians";
 
 export function ActiveVeterinariansComponent() {

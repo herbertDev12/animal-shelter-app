@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { RevenuePlanDto } from "@repo/schemas";
+import type { RevenuePlanDto } from "@repo/schemas";
 import { useRevenuePlan } from "./useRevenuePlan";
 
 export function RevenuePlanComponent() {

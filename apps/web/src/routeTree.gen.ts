@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TopUsersRouteImport } from './routes/top-users'
 import { Route as ProfitRouteImport } from './routes/profit'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as AnimalsRouteImport } from './routes/animals'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReportsRevenuePlanRouteImport } from './routes/reports/revenue-plan'
 import { Route as ReportsReconciledVeterinarianContractsRouteImport } from './routes/reports/reconciled-veterinarian-contracts'
@@ -33,6 +34,11 @@ const ProfitRoute = ProfitRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimalsRoute = AnimalsRouteImport.update({
+  id: '/animals',
+  path: '/animals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -78,6 +84,7 @@ const ReportsActiveVeterinariansRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
@@ -103,6 +111,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/animals': typeof AnimalsRoute
   '/events': typeof EventsRoute
   '/profit': typeof ProfitRoute
   '/top-users': typeof TopUsersRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/animals'
     | '/events'
     | '/profit'
     | '/top-users'
@@ -154,6 +166,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AnimalsRoute: typeof AnimalsRoute
   EventsRoute: typeof EventsRoute
   ProfitRoute: typeof ProfitRoute
   TopUsersRoute: typeof TopUsersRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals': {
+      id: '/animals'
+      path: '/animals'
+      fullPath: '/animals'
+      preLoaderRoute: typeof AnimalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -242,6 +262,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AnimalsRoute: AnimalsRoute,
   EventsRoute: EventsRoute,
   ProfitRoute: ProfitRoute,
   TopUsersRoute: TopUsersRoute,

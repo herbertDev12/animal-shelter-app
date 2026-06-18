@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ReconciledVeterinarianContractDto } from "@repo/schemas";
+import type { ReconciledVeterinarianContractDto } from "@repo/schemas";
 import { useReconciledVeterinarianContracts } from "./useReconciledVeterinarianContracts";
 
 export function ReconciledVeterinarianContractsComponent() {
