@@ -87,7 +87,6 @@ export function AnimalsList() {
 
   const columns = useMemo<ColumnDef<Animal>[]>(
     () => [
-      { header: "ID", accessorKey: "id" },
       {
         header: "Name",
         accessorKey: "name",
