@@ -12,8 +12,8 @@ export const searchClinicsFiltersSchema = z.object({
   name: z.string().optional(),
   province: z.string().optional(),
   address: z.string().optional(),
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const clinicSchema = createClinicSchema.extend({

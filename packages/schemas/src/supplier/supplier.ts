@@ -25,8 +25,8 @@ export const searchSuppliersFiltersSchema = z.object({
   phone: z.string().optional(),
   contact_email: z.string().email().optional().or(z.literal("")),
   contact_name: z.string().optional(),
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const supplierSchema = createSupplierSchema.extend({

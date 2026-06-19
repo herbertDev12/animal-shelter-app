@@ -12,8 +12,8 @@ export const foodSupplierContractSchema = z.object({
 });
 
 export const foodSupplierContractFiltersSchema = z.object({
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const foodSupplierContractsResponseSchema = z.object({

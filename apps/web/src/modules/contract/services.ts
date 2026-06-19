@@ -2,6 +2,7 @@ import type {
   Contract,
   CreateContract,
   SearchContractsFilters,
+  Supplier,
 } from "@repo/schemas";
 
 const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
@@ -62,4 +63,10 @@ export const deleteContract = async (id: number): Promise<void> => {
     method: "DELETE",
   });
   if (!response.ok) throw new Error("Failed to delete contract");
+};
+
+export const fetchSuppliers = async (): Promise<Supplier[]> => {
+  const response = await fetch(`${API_URL}/suppliers`);
+  if (!response.ok) throw new Error("Failed to fetch suppliers");
+  return response.json();
 };

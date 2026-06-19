@@ -1,4 +1,13 @@
-import { LayoutDashboard, Users, Calendar, Home, PawPrint } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  Home,
+  PawPrint,
+  FileText,
+  Building2,
+  Heart,
+} from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "../../lib/cn";
 import { CollapsibleReportsTree } from "./collapsible-reports-tree";
@@ -11,6 +20,9 @@ export function Sidebar() {
     { to: "/top-users", label: "Top Users", icon: Users },
     { to: "/events", label: "Events", icon: Calendar },
     { to: "/animals", label: "Animals", icon: PawPrint },
+    { to: "/contracts", label: "Contracts", icon: FileText },
+    { to: "/clinics", label: "Clinics", icon: Building2 },
+    { to: "/adoptions", label: "Adoptions", icon: Heart },
   ];
 
   return (

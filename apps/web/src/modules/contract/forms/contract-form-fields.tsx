@@ -3,7 +3,7 @@ import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
 import { RHFDateInput } from "@/components/fields/rhf-date-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchSuppliers } from "@/modules/supplier/services";
+import { fetchSuppliers } from "@/modules/contract/services";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -34,7 +34,7 @@ export function ContractFormFields<T extends FieldValues>({
         placeholder="Select a supplier"
         queryKey={["suppliers", "options"]}
         queryFn={() =>
-          fetchSuppliers({ limit: 100 }).then((rows) =>
+          fetchSuppliers().then((rows) =>
             rows.map((s) => ({ id: s.id, label: s.name })),
           )
         }

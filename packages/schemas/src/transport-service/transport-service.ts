@@ -39,12 +39,12 @@ export const updateTransportServiceSchema = transportServiceBaseSchema
   );
 
 export const searchTransportServicesFiltersSchema = z.object({
-  id_supplier: z.number().int().optional(),
+  id_supplier: z.coerce.number().int().optional(),
   status: contractStatusEnum.optional(),
   vehicle: z.string().optional(),
   transport_modality: z.string().optional(),
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const transportServiceSchema = z.object({

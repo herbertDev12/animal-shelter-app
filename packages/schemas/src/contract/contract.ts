@@ -35,11 +35,11 @@ export const updateContractSchema = contractBaseSchema.partial().refine(
 );
 
 export const searchContractsFiltersSchema = z.object({
-  id_supplier: z.number().int().optional(),
+  id_supplier: z.coerce.number().int().optional(),
   contract_category: contractCategoryEnum.optional(),
   status: contractStatusEnum.optional(),
-  limit: z.number().int().min(1).default(10),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(10),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const contractSchema = contractBaseSchema.extend({
