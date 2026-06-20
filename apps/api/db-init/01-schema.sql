@@ -108,6 +108,7 @@ CREATE TABLE "Donation" (
     FOREIGN KEY (id_animal) REFERENCES "Animal"(id_animal)
 );
 
+
 CREATE INDEX idx_supplier_province ON "Supplier"("province");
 CREATE INDEX idx_supplier_type ON "Supplier"("type");
 CREATE INDEX idx_contract_category ON "Contract"("contract_category");
@@ -118,3 +119,38 @@ CREATE INDEX idx_animals_species ON "Animal"("species");
 CREATE INDEX idx_animals_status ON "Animal"("status");
 CREATE INDEX idx_animals_created_at ON "Animal"("entry_date" DESC);
 CREATE INDEX idx_service_contract ON "ServiceOffered"("id_contract");
+
+
+CREATE OR REPLACE FUNCTION fn_auto_expire_contract()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.end_date < CURRENT_DATE AND NEW.status = 'Active' THEN
+    NEW.status := 'Expired';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_auto_expire_contract
+BEFORE INSERT OR UPDATE ON "Contract"
+FOR EACH ROW EXECUTE FUNCTION fn_auto_expire_contract();
+
+CREATE OR REPLACE FUNCTION fn_validate_contract_active()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_status VARCHAR(20);
+BEGIN
+  SELECT status INTO v_status FROM "Contract" WHERE id_contract = NEW.id_contract;
+  IF v_status IS NULL THEN
+    RAISE EXCEPTION 'Contract % does not exist', NEW.id_contract;
+  END IF;
+  IF v_status <> 'Active' THEN
+    RAISE EXCEPTION 'Contract % is not active (status: %)', NEW.id_contract, v_status;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_contract_active
+BEFORE INSERT OR UPDATE ON "ActivitySchedule"
+FOR EACH ROW EXECUTE FUNCTION fn_validate_contract_active();
