@@ -81,15 +81,6 @@ export function AdoptionsList() {
 
   const columns = useMemo<ColumnDef<Adoption>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Animal", accessorKey: "id_animal" },
       {
         header: "Adoption date",

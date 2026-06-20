@@ -70,15 +70,6 @@ export function ServicesOfferedList() {
 
   const columns = useMemo<ColumnDef<ServiceOffered>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Name", accessorKey: "name" },
       { header: "Contract", accessorKey: "id_contract" },
       {

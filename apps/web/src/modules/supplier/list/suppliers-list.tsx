@@ -75,15 +75,6 @@ export function SuppliersList() {
 
   const columns = useMemo<ColumnDef<Supplier>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Name", accessorKey: "name" },
       { header: "Type", accessorKey: "type" },
       { header: "Contact", accessorKey: "contact_name" },

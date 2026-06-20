@@ -91,15 +91,6 @@ export function ContractsList() {
 
   const columns = useMemo<ColumnDef<Contract>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Supplier", accessorKey: "id_supplier" },
       { header: "Category", accessorKey: "contract_category" },
       {

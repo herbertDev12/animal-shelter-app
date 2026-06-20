@@ -71,15 +71,6 @@ export function VeterinariansList() {
   const columns = useMemo<ColumnDef<Veterinarian>[]>(
     () => [
       {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
-      {
         header: "Name",
         accessorKey: "name",
         cell: ({ getValue }) => (

@@ -82,15 +82,6 @@ export function ActivitySchedulesList() {
   const columns = useMemo<ColumnDef<ActivitySchedule>[]>(
     () => [
       {
-        header: "ID",
-        accessorKey: "id_schedule",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
-      {
         header: "Animal",
         cell: ({ row }) => row.original.animal_name ?? row.original.id_animal,
       },

@@ -94,15 +94,6 @@ export function TransportServicesList() {
 
   const columns = useMemo<ColumnDef<TransportService>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Supplier", accessorKey: "id_supplier" },
       { header: "Vehicle", accessorKey: "vehicle" },
       { header: "Modality", accessorKey: "transport_modality" },

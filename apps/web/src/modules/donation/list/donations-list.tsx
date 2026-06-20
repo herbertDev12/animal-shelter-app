@@ -83,15 +83,6 @@ export function DonationsList() {
 
   const columns = useMemo<ColumnDef<Donation>[]>(
     () => [
-      {
-        header: "ID",
-        accessorKey: "id",
-        cell: ({ getValue }) => (
-          <span className="font-semibold text-white">
-            #{getValue() as number}
-          </span>
-        ),
-      },
       { header: "Animal", accessorKey: "id_animal" },
       {
         header: "Amount",
