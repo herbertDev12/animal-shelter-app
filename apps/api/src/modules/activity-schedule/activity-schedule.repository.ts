@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { Pool, QueryResultRow } from 'pg';
 import { BaseRepository } from '../database/base.repository';
 import { DATABASE_CONNECTION } from '../database/config/database.config';
@@ -138,9 +138,26 @@ export class ActivityScheduleRepository extends BaseRepository {
     return this.query<ActivitySchedule>(query, params);
   }
 
+  private async assertContractActive(id_contract: number): Promise<void> {
+    const result = await this.queryOne<{ status: string }>(
+      'SELECT status FROM "Contract" WHERE id_contract = $1',
+      [id_contract],
+    );
+    if (!result) {
+      throw new BadRequestException(`Contract ${id_contract} does not exist`);
+    }
+    if (result.status !== 'Active') {
+      throw new BadRequestException(
+        `Contract ${id_contract} is not active (status: ${result.status})`,
+      );
+    }
+  }
+
   async createActivitySchedule(
     data: CreateActivitySchedule,
   ): Promise<ActivitySchedule> {
+    await this.assertContractActive(data.id_contract);
+
     const query = `
       INSERT INTO "ActivitySchedule" (id_animal, id_contract, activity_type, description, date, time, duration_days)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -164,6 +181,10 @@ export class ActivityScheduleRepository extends BaseRepository {
     id: number,
     data: UpdateActivitySchedule,
   ): Promise<ActivitySchedule> {
+    if (data.id_contract !== undefined) {
+      await this.assertContractActive(data.id_contract);
+    }
+
     const updates: string[] = [];
     const values: unknown[] = [id];
     let paramCount = 1;
