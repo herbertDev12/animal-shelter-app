@@ -44,7 +44,8 @@ CREATE TABLE "Contract" (
     description         VARCHAR(300),
     status              VARCHAR(20) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'Expired')),
     base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),
-    
+    surcharge       DECIMAL(10,2) DEFAULT 0 CHECK (surcharge >= 0),
+
     CHECK (end_date >= start_date),
     FOREIGN KEY (id_supplier) REFERENCES "Supplier"(id_supplier)
 );
@@ -85,8 +86,7 @@ CREATE TABLE "ActivitySchedule" (
     description          VARCHAR(300),
     date                 DATE NOT NULL,
     time                 TIME,
-    duration_days        INT DEFAULT 1, 
-    additional_surcharge DECIMAL(10,2) DEFAULT 0,
+    duration_days        INT DEFAULT 1,
     FOREIGN KEY (id_animal) REFERENCES "Animal"(id_animal),
     FOREIGN KEY (id_contract) REFERENCES "Contract"(id_contract)
 );

@@ -76,6 +76,13 @@ export function ContractFormFields<T extends FieldValues>({
         placeholder="0.00"
         step="0.01"
       />
+      <RHFNumberInput
+        name={"surcharge" as Path<T>}
+        control={control}
+        label="Surcharge"
+        placeholder="0.00"
+        step="0.01"
+      />
       <RHFInput
         name={"description" as Path<T>}
         control={control}

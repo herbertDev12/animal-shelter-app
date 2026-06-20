@@ -102,11 +102,6 @@ export function ActivitySchedulesList() {
         cell: ({ getValue }) => `${getValue() as number} d`,
       },
       {
-        header: "Surcharge",
-        accessorKey: "additional_surcharge",
-        cell: ({ getValue }) => `$${getValue() as number}`,
-      },
-      {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => (

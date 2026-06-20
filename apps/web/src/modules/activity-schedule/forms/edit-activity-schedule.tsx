@@ -32,7 +32,6 @@ export function EditActivityScheduleForm({
     ) as Resolver<CreateActivitySchedule>,
     defaultValues: {
       duration_days: 1,
-      additional_surcharge: 0,
       activity_type: "",
       description: "",
     },
@@ -46,7 +45,6 @@ export function EditActivityScheduleForm({
       date: schedule.date ?? "",
       time: schedule.time ?? "",
       duration_days: schedule.duration_days,
-      additional_surcharge: schedule.additional_surcharge,
       description: schedule.description ?? "",
     });
   }, [schedule, reset]);

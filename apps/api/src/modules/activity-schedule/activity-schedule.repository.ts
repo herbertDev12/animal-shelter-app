@@ -19,7 +19,6 @@ interface ActivityScheduleRow extends QueryResultRow {
   date: string;
   time: string | null;
   duration_days: number;
-  additional_surcharge: number;
 }
 
 @Injectable()
@@ -39,8 +38,7 @@ export class ActivityScheduleRepository extends BaseRepository {
         asch.description,
         asch.date,
         asch.time,
-        asch.duration_days,
-        asch.additional_surcharge
+        asch.duration_days
       FROM "ActivitySchedule" asch
       INNER JOIN "Animal" a ON asch.id_animal = a.id_animal
       ORDER BY asch.date DESC, asch.time DESC
@@ -59,8 +57,7 @@ export class ActivityScheduleRepository extends BaseRepository {
         asch.description,
         asch.date,
         asch.time,
-        asch.duration_days,
-        asch.additional_surcharge
+        asch.duration_days
       FROM "ActivitySchedule" asch
       INNER JOIN "Animal" a ON asch.id_animal = a.id_animal
       WHERE asch.id_schedule = $1
@@ -129,8 +126,7 @@ export class ActivityScheduleRepository extends BaseRepository {
         asch.description,
         asch.date,
         asch.time,
-        asch.duration_days,
-        asch.additional_surcharge
+        asch.duration_days
       FROM "ActivitySchedule" asch
       INNER JOIN "Animal" a ON asch.id_animal = a.id_animal
       ${whereClause}
@@ -146,8 +142,8 @@ export class ActivityScheduleRepository extends BaseRepository {
     data: CreateActivitySchedule,
   ): Promise<ActivitySchedule> {
     const query = `
-      INSERT INTO "ActivitySchedule" (id_animal, id_contract, activity_type, description, date, time, duration_days, additional_surcharge)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO "ActivitySchedule" (id_animal, id_contract, activity_type, description, date, time, duration_days)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
     const values = [
@@ -158,7 +154,6 @@ export class ActivityScheduleRepository extends BaseRepository {
       data.date,
       data.time || null,
       data.duration_days ?? 1,
-      data.additional_surcharge ?? 0,
     ];
     const result = await this.queryOne<ActivityScheduleRow>(query, values);
     if (!result) throw new Error('Failed to create ActivitySchedule');
@@ -181,7 +176,6 @@ export class ActivityScheduleRepository extends BaseRepository {
       date: 'date',
       time: 'time',
       duration_days: 'duration_days',
-      additional_surcharge: 'additional_surcharge',
     };
 
     for (const [key, column] of Object.entries(fields)) {
@@ -230,7 +224,6 @@ export class ActivityScheduleRepository extends BaseRepository {
       date: row.date,
       time: row.time,
       duration_days: row.duration_days,
-      additional_surcharge: row.additional_surcharge,
     };
   }
 }

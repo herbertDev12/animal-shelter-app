@@ -80,12 +80,6 @@ export function ActivityScheduleFormFields<T extends FieldValues>({
         label="Duration (days)"
         min={1}
       />
-      <RHFNumberInput
-        name={"additional_surcharge" as Path<T>}
-        control={control}
-        label="Additional surcharge"
-        step="0.01"
-      />
       <RHFInput
         name={"description" as Path<T>}
         control={control}

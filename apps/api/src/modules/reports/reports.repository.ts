@@ -319,25 +319,25 @@ export class ReportsRepository extends BaseRepository {
         asched.date         as "day",
         asched.time         as hour,
         asched.description  as activity_description,
-        COALESCE(ct.base_price, 0) + COALESCE(asched.additional_surcharge, 0) as price,
+        COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0) as price,
         vet_s.name          as assigned_veterinarian_name,
         food_so.food_type   as assigned_food_type,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_vet.base_price, 0) + COALESCE(asched_vet.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_vet.base_price, 0) + COALESCE(ct_vet.surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_vet
          INNER JOIN "Contract" ct_vet ON asched_vet.id_contract = ct_vet.id_contract
          WHERE asched_vet.id_animal = a.id_animal
            AND ct_vet.contract_category = 'Veterinarian'
         ) as total_veterinary_care_price,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_transp.base_price, 0) + COALESCE(asched_transp.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_transp.base_price, 0) + COALESCE(ct_transp.surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_transp
          INNER JOIN "Contract" ct_transp ON asched_transp.id_contract = ct_transp.id_contract
          INNER JOIN "TransportService" ts ON ct_transp.id_contract = ts.id_contract
          WHERE asched_transp.id_animal = a.id_animal
         ) as transport_price,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_food.base_price, 0) + COALESCE(asched_food.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_food.base_price, 0) + COALESCE(ct_food.surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_food
          INNER JOIN "Contract" ct_food ON asched_food.id_contract = ct_food.id_contract
          WHERE asched_food.id_animal = a.id_animal
@@ -410,7 +410,7 @@ export class ReportsRepository extends BaseRepository {
         a.breed,
         EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
         (
-          SELECT COALESCE(SUM(COALESCE(ct.base_price, 0) + COALESCE(asched.additional_surcharge, 0)), 0)
+          SELECT COALESCE(SUM(COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0)), 0)
           FROM "ActivitySchedule" asched
           LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
           WHERE asched.id_animal = a.id_animal

@@ -109,6 +109,11 @@ export function ContractsList() {
         cell: ({ getValue }) => `$${getValue() as number}`,
       },
       {
+        header: "Surcharge",
+        accessorKey: "surcharge",
+        cell: ({ getValue }) => `$${getValue() as number}`,
+      },
+      {
         header: "Status",
         accessorKey: "status",
         cell: ({ getValue }) => {

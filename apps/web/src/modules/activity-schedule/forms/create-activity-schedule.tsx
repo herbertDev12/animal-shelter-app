@@ -28,7 +28,6 @@ export function CreateActivityScheduleForm({
     ) as Resolver<CreateActivitySchedule>,
     defaultValues: {
       duration_days: 1,
-      additional_surcharge: 0,
       activity_type: "",
       description: "",
     },

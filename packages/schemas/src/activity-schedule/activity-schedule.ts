@@ -8,7 +8,6 @@ export const createActivityScheduleSchema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().optional().nullable(),
   duration_days: z.number().int().min(1).default(1),
-  additional_surcharge: z.number().min(0).default(0),
 });
 
 export const updateActivityScheduleSchema = z.object({
@@ -19,7 +18,6 @@ export const updateActivityScheduleSchema = z.object({
   date: z.string().optional(),
   time: z.string().optional().nullable(),
   duration_days: z.number().int().min(1).optional(),
-  additional_surcharge: z.number().min(0).optional(),
 });
 
 export const searchActivityScheduleFiltersSchema = z.object({
@@ -42,7 +40,6 @@ export const activityScheduleSchema = z.object({
   date: z.string(),
   time: z.string().nullable().optional(),
   duration_days: z.number().int(),
-  additional_surcharge: z.number(),
 });
 
 export type CreateActivitySchedule = z.infer<
