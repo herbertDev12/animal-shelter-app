@@ -43,6 +43,7 @@ CREATE TABLE "Contract" (
     reconciliation_date DATE,
     description         VARCHAR(300),
     status              VARCHAR(20) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'Expired')),
+    base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),
     
     CHECK (end_date >= start_date),
     FOREIGN KEY (id_supplier) REFERENCES "Supplier"(id_supplier)
@@ -61,7 +62,6 @@ CREATE TABLE "ServiceOffered" (
     name            VARCHAR(100) NOT NULL, -- Ej: "Consulta General", "Saco de Pienso 20kg", "Traslado Local"
     service_type    VARCHAR(100),          -- Clasificación general
     food_type       VARCHAR(100),          -- Solo se llena si es un contrato de alimentos (pienso, húmeda, suplemento)
-    base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),
     
     FOREIGN KEY (id_contract) REFERENCES "Contract"(id_contract)
 );

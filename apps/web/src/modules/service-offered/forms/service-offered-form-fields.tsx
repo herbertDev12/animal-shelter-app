@@ -1,6 +1,5 @@
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
-import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
 import { fetchContracts } from "@/modules/contract/services";
 
@@ -46,13 +45,6 @@ export function ServiceOfferedFormFields<T extends FieldValues>({
         label="Food type"
         placeholder="Optional"
         className={fieldClassName}
-      />
-      <RHFNumberInput
-        name={"base_price" as Path<T>}
-        control={control}
-        label="Base price"
-        placeholder="0.00"
-        step="0.01"
       />
     </div>
   );

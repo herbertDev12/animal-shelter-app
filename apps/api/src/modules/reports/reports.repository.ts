@@ -173,7 +173,7 @@ export class ReportsRepository extends BaseRepository {
       ct.reconciliation_date,
       ct.description,
       so.service_type,
-      so.base_price as cost_per_service,
+      ct.base_price as cost_per_service,
       s.province
      FROM "Contract" ct
      INNER JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
@@ -319,30 +319,27 @@ export class ReportsRepository extends BaseRepository {
         asched.date         as "day",
         asched.time         as hour,
         asched.description  as activity_description,
-        COALESCE(so.base_price, 0) + COALESCE(asched.additional_surcharge, 0) as price,
+        COALESCE(ct.base_price, 0) + COALESCE(asched.additional_surcharge, 0) as price,
         vet_s.name          as assigned_veterinarian_name,
         food_so.food_type   as assigned_food_type,
 
-        (SELECT COALESCE(SUM(COALESCE(so_vet.base_price, 0) + COALESCE(asched_vet.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_vet.base_price, 0) + COALESCE(asched_vet.additional_surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_vet
          INNER JOIN "Contract" ct_vet ON asched_vet.id_contract = ct_vet.id_contract
-         LEFT JOIN "ServiceOffered" so_vet ON ct_vet.id_contract = so_vet.id_contract
          WHERE asched_vet.id_animal = a.id_animal
            AND ct_vet.contract_category = 'Veterinarian'
         ) as total_veterinary_care_price,
 
-        (SELECT COALESCE(SUM(COALESCE(so_transp.base_price, 0) + COALESCE(asched_transp.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_transp.base_price, 0) + COALESCE(asched_transp.additional_surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_transp
          INNER JOIN "Contract" ct_transp ON asched_transp.id_contract = ct_transp.id_contract
-         LEFT JOIN "ServiceOffered" so_transp ON ct_transp.id_contract = so_transp.id_contract
          INNER JOIN "TransportService" ts ON ct_transp.id_contract = ts.id_contract
          WHERE asched_transp.id_animal = a.id_animal
         ) as transport_price,
 
-        (SELECT COALESCE(SUM(COALESCE(so_food.base_price, 0) + COALESCE(asched_food.additional_surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(COALESCE(ct_food.base_price, 0) + COALESCE(asched_food.additional_surcharge, 0)), 0)
          FROM "ActivitySchedule" asched_food
          INNER JOIN "Contract" ct_food ON asched_food.id_contract = ct_food.id_contract
-         LEFT JOIN "ServiceOffered" so_food ON ct_food.id_contract = so_food.id_contract
          WHERE asched_food.id_animal = a.id_animal
            AND ct_food.contract_category = 'Food'
         ) as total_food_price,
@@ -352,7 +349,6 @@ export class ReportsRepository extends BaseRepository {
       FROM "Animal" a
       INNER JOIN "ActivitySchedule" asched ON a.id_animal = asched.id_animal
       LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
-      LEFT JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
       LEFT JOIN "Veterinarian" v ON ct.id_supplier = v.id_supplier
         AND ct.contract_category = 'Veterinarian'
       LEFT JOIN "Supplier" vet_s ON v.id_supplier = vet_s.id_supplier
@@ -414,10 +410,9 @@ export class ReportsRepository extends BaseRepository {
         a.breed,
         EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
         (
-          SELECT COALESCE(SUM(COALESCE(so.base_price, 0) + COALESCE(asched.additional_surcharge, 0)), 0)
+          SELECT COALESCE(SUM(COALESCE(ct.base_price, 0) + COALESCE(asched.additional_surcharge, 0)), 0)
           FROM "ActivitySchedule" asched
           LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
-          LEFT JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
           WHERE asched.id_animal = a.id_animal
         ) * (1 + COALESCE((SELECT maintenance_percentage FROM "ShelterConfiguration" LIMIT 1), 0) / 100)
         as total_maintenance_cost,

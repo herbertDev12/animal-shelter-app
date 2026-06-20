@@ -1,5 +1,6 @@
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
+import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
 import { RHFDateInput } from "@/components/fields/rhf-date-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
@@ -67,6 +68,13 @@ export function ContractFormFields<T extends FieldValues>({
         label="Status"
         placeholder="Select status"
         options={STATUS_OPTIONS}
+      />
+      <RHFNumberInput
+        name={"base_price" as Path<T>}
+        control={control}
+        label="Base price"
+        placeholder="0.00"
+        step="0.01"
       />
       <RHFInput
         name={"description" as Path<T>}

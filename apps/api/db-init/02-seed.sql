@@ -34,11 +34,11 @@ INSERT INTO "Veterinarian" (id_supplier, id_clinic, modality, specialty, fax, ve
 -- ============================================
 -- 5. Contract
 -- ============================================
-INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, status) VALUES
-(1, 1, 'Veterinarian', '2025-01-01', '2025-12-31', '2025-06-30', 'Annual veterinary supplies contract', 'Active'),
-(2, 2, 'Food', '2025-03-01', '2025-12-31', NULL, 'Premium dog and cat food supply', 'Active'),
-(3, 3, 'Service', '2025-06-01', '2026-05-31', NULL, 'Animal transport for vet appointments', 'Active'),
-(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired');
+INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, status, base_price) VALUES
+(1, 1, 'Veterinarian', '2025-01-01', '2025-12-31', '2025-06-30', 'Annual veterinary supplies contract', 'Active', 35.00),
+(2, 2, 'Food', '2025-03-01', '2025-12-31', NULL, 'Premium dog and cat food supply', 'Active', 42.50),
+(3, 3, 'Service', '2025-06-01', '2026-05-31', NULL, 'Animal transport for vet appointments', 'Active', 25.00),
+(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired', 30.00);
 
 -- ============================================
 -- 6. TransportService
@@ -50,13 +50,13 @@ INSERT INTO "TransportService" (id_contract, vehicle, transport_modality) VALUES
 -- ============================================
 -- 7. ServiceOffered
 -- ============================================
-INSERT INTO "ServiceOffered" (id_service, id_contract, name, service_type, food_type, base_price) VALUES
-(1, 1, 'Consulta General', 'Veterinary Consultation', NULL, 35.00),
-(2, 1, 'Vacunación Completa', 'Vaccination', NULL, 55.00),
-(3, 2, 'Saco de Pienso 20kg', 'Food', 'Pienso', 42.50),
-(4, 2, 'Alimento Húmedo Premium', 'Food', 'Húmeda', 28.00),
-(5, 3, 'Traslado Local', 'Transport', NULL, 25.00),
-(6, 3, 'Traslado Interprovincial', 'Transport', NULL, 85.00);
+INSERT INTO "ServiceOffered" (id_service, id_contract, name, service_type, food_type) VALUES
+(1, 1, 'Consulta General', 'Veterinary Consultation', NULL),
+(2, 1, 'Vacunación Completa', 'Vaccination', NULL),
+(3, 2, 'Saco de Pienso 20kg', 'Food', 'Pienso'),
+(4, 2, 'Alimento Húmedo Premium', 'Food', 'Húmeda'),
+(5, 3, 'Traslado Local', 'Transport', NULL),
+(6, 3, 'Traslado Interprovincial', 'Transport', NULL);
 
 -- ============================================
 -- 8. Animal (SERIAL PK table)

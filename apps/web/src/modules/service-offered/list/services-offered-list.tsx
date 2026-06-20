@@ -83,11 +83,6 @@ export function ServicesOfferedList() {
         cell: ({ getValue }) => (getValue() as string) ?? "—",
       },
       {
-        header: "Base price",
-        accessorKey: "base_price",
-        cell: ({ getValue }) => `$${getValue() as number}`,
-      },
-      {
         id: "actions",
         header: "Actions",
         cell: ({ row }) => (

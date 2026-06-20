@@ -15,7 +15,6 @@ interface ServiceOfferedRow extends QueryResultRow {
   name: string;
   service_type: string | null;
   food_type: string | null;
-  base_price: string;
 }
 
 @Injectable()
@@ -26,7 +25,7 @@ export class ServiceOfferedRepository extends BaseRepository {
 
   async findAll(): Promise<ServiceOffered[]> {
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type, base_price
+      SELECT id_service, id_contract, name, service_type, food_type
       FROM "ServiceOffered"
       ORDER BY id_service ASC
     `;
@@ -36,7 +35,7 @@ export class ServiceOfferedRepository extends BaseRepository {
 
   async findById(id: number): Promise<ServiceOffered | null> {
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type, base_price
+      SELECT id_service, id_contract, name, service_type, food_type
       FROM "ServiceOffered"
       WHERE id_service = $1
     `;
@@ -84,7 +83,7 @@ export class ServiceOfferedRepository extends BaseRepository {
     const offsetParam = paramCount;
 
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type, base_price
+      SELECT id_service, id_contract, name, service_type, food_type
       FROM "ServiceOffered"
       ${whereClause}
       ORDER BY id_service ASC
@@ -104,7 +103,6 @@ export class ServiceOfferedRepository extends BaseRepository {
       name: data.name,
       service_type: data.service_type || null,
       food_type: data.food_type || null,
-      base_price: data.base_price,
     };
     const result = await this.create<ServiceOfferedRow>(
       'ServiceOffered',
@@ -143,7 +141,6 @@ export class ServiceOfferedRepository extends BaseRepository {
       name: row.name,
       service_type: row.service_type,
       food_type: row.food_type,
-      base_price: parseFloat(row.base_price),
     };
   }
 }

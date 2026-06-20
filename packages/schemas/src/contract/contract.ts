@@ -11,6 +11,7 @@ const contractBaseSchema = z.object({
   reconciliation_date: z.coerce.date().optional().nullable(),
   description: z.string().max(300).optional().nullable(),
   status: contractStatusEnum.default("Active"),
+  base_price: z.number().nonnegative("Base price must be >= 0"),
 });
 
 export const createContractSchema = contractBaseSchema.refine(

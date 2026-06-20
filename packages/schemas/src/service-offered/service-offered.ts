@@ -5,7 +5,6 @@ const serviceOfferedBaseSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   service_type: z.string().max(100).optional().nullable(),
   food_type: z.string().max(100).optional().nullable(),
-  base_price: z.number().nonnegative("Base price must be >= 0"),
 });
 
 export const createServiceOfferedSchema = serviceOfferedBaseSchema;

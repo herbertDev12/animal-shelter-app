@@ -104,6 +104,11 @@ export function ContractsList() {
         cell: ({ getValue }) => formatDate(getValue() as string),
       },
       {
+        header: "Base price",
+        accessorKey: "base_price",
+        cell: ({ getValue }) => `$${getValue() as number}`,
+      },
+      {
         header: "Status",
         accessorKey: "status",
         cell: ({ getValue }) => {

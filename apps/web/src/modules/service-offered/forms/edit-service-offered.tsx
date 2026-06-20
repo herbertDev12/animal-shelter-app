@@ -41,7 +41,6 @@ export function EditServiceOfferedForm({
       name: service.name,
       service_type: service.service_type ?? "",
       food_type: service.food_type ?? "",
-      base_price: service.base_price,
     });
   }, [service, reset]);
 
