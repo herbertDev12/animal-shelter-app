@@ -1,7 +1,5 @@
 import {
   LayoutDashboard,
-  Users,
-  Calendar,
   Home,
   PawPrint,
   FileText,
@@ -22,9 +20,7 @@ export function Sidebar() {
   const location = useLocation();
 
   const navItems = [
-    { to: "/profit", label: "Profit", icon: LayoutDashboard },
-    { to: "/top-users", label: "Top Users", icon: Users },
-    { to: "/events", label: "Events", icon: Calendar },
+    { to: "/", label: "Home", icon: Home },
     { to: "/animals", label: "Animals", icon: PawPrint },
     { to: "/contracts", label: "Contracts", icon: FileText },
     { to: "/clinics", label: "Clinics", icon: Building2 },
@@ -47,14 +43,6 @@ export function Sidebar() {
 
   return (
     <aside className="h-screen w-64 fixed left-0 top-0 bg-[#10131a] shadow-[1px_0_0_0_rgba(69,72,79,0.15)] flex flex-col p-6 space-y-8 z-50">
-      <Link
-        to="/"
-        className="text-sm text-gray-400 hover:text-white transition-colors flex items-center space-x-2"
-      >
-        <Home size={16} />
-        <span>Back to Home</span>
-      </Link>
-
       <div className="flex items-center space-x-3">
         <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
           <LayoutDashboard className="text-purple-400" size={20} />
