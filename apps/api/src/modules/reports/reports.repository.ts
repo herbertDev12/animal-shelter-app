@@ -319,32 +319,38 @@ export class ReportsRepository extends BaseRepository {
         asched.date         as "day",
         asched.time         as hour,
         asched.description  as activity_description,
-        COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0) as price,
+        asched.duration_days * (COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0)) as price,
         vet_s.name          as assigned_veterinarian_name,
         food_so.food_type   as assigned_food_type,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_vet.base_price, 0) + COALESCE(ct_vet.surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(asched_vet.duration_days * (COALESCE(ct_vet.base_price, 0) + COALESCE(ct_vet.surcharge, 0))), 0)
          FROM "ActivitySchedule" asched_vet
          INNER JOIN "Contract" ct_vet ON asched_vet.id_contract = ct_vet.id_contract
          WHERE asched_vet.id_animal = a.id_animal
            AND ct_vet.contract_category = 'Veterinarian'
         ) as total_veterinary_care_price,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_transp.base_price, 0) + COALESCE(ct_transp.surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(asched_transp.duration_days * (COALESCE(ct_transp.base_price, 0) + COALESCE(ct_transp.surcharge, 0))), 0)
          FROM "ActivitySchedule" asched_transp
          INNER JOIN "Contract" ct_transp ON asched_transp.id_contract = ct_transp.id_contract
          INNER JOIN "TransportService" ts ON ct_transp.id_contract = ts.id_contract
          WHERE asched_transp.id_animal = a.id_animal
         ) as transport_price,
 
-        (SELECT COALESCE(SUM(COALESCE(ct_food.base_price, 0) + COALESCE(ct_food.surcharge, 0)), 0)
+        (SELECT COALESCE(SUM(asched_food.duration_days * (COALESCE(ct_food.base_price, 0) + COALESCE(ct_food.surcharge, 0))), 0)
          FROM "ActivitySchedule" asched_food
          INNER JOIN "Contract" ct_food ON asched_food.id_contract = ct_food.id_contract
          WHERE asched_food.id_animal = a.id_animal
            AND ct_food.contract_category = 'Food'
         ) as total_food_price,
 
-        (SELECT sc.maintenance_percentage FROM "ShelterConfiguration" sc LIMIT 1) as maintenance_percentage
+        (SELECT sc.maintenance_percentage FROM "ShelterConfiguration" sc LIMIT 1) as maintenance_percentage,
+
+        (SELECT COALESCE(SUM(asched_all.duration_days * (COALESCE(ct_all.base_price, 0) + COALESCE(ct_all.surcharge, 0))), 0)
+         FROM "ActivitySchedule" asched_all
+         LEFT JOIN "Contract" ct_all ON asched_all.id_contract = ct_all.id_contract
+         WHERE asched_all.id_animal = a.id_animal
+        ) as total_activity_cost
 
       FROM "Animal" a
       INNER JOIN "ActivitySchedule" asched ON a.id_animal = asched.id_animal
@@ -360,16 +366,15 @@ export class ReportsRepository extends BaseRepository {
       OFFSET $${paramCount - 1}
     `;
 
-    const rows = await this.query<AnimalCareSchedule>(mainQuery, params);
+    const rows = await this.query<
+      AnimalCareSchedule & { total_activity_cost: number }
+    >(mainQuery, params);
 
     const data = rows.map((row) => ({
       ...row,
       total_maintenance_cost:
-        (row.total_veterinary_care_price +
-          row.transport_price +
-          row.total_food_price +
-          row.price) *
-        (1 + (row.maintenance_percentage ?? 0) / 100),
+        Number(row.total_activity_cost) *
+        (1 + (Number(row.maintenance_percentage) ?? 0) / 100),
     }));
 
     return {
@@ -410,7 +415,7 @@ export class ReportsRepository extends BaseRepository {
         a.breed,
         EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
         (
-          SELECT COALESCE(SUM(COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0)), 0)
+          SELECT COALESCE(SUM(asched.duration_days * (COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0))), 0)
           FROM "ActivitySchedule" asched
           LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
           WHERE asched.id_animal = a.id_animal
