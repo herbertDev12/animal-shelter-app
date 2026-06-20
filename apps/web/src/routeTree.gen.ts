@@ -8,475 +8,839 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TopUsersRouteImport } from "./routes/top-users";
-import { Route as ProfitRouteImport } from "./routes/profit";
-import { Route as EventsRouteImport } from "./routes/events";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as ContractsIndexRouteImport } from "./routes/contracts/index";
-import { Route as ClinicsIndexRouteImport } from "./routes/clinics/index";
-import { Route as AnimalsIndexRouteImport } from "./routes/animals/index";
-import { Route as AdoptionsIndexRouteImport } from "./routes/adoptions/index";
-import { Route as ReportsRevenuePlanRouteImport } from "./routes/reports/revenue-plan";
-import { Route as ReportsReconciledVeterinarianContractsRouteImport } from "./routes/reports/reconciled-veterinarian-contracts";
-import { Route as ReportsFoodSupplierContractsRouteImport } from "./routes/reports/food-supplier-contracts";
-import { Route as ReportsComplementaryServiceContractsRouteImport } from "./routes/reports/complementary-service-contracts";
-import { Route as ReportsAnimalCareScheduleRouteImport } from "./routes/reports/animal-care-schedule";
-import { Route as ReportsActiveVeterinariansRouteImport } from "./routes/reports/active-veterinarians";
-import { Route as ContractsNewRouteImport } from "./routes/contracts/new";
-import { Route as ClinicsNewRouteImport } from "./routes/clinics/new";
-import { Route as AnimalsNewRouteImport } from "./routes/animals/new";
-import { Route as AdoptionsNewRouteImport } from "./routes/adoptions/new";
-import { Route as ContractsContractIdEditRouteImport } from "./routes/contracts/$contractId.edit";
-import { Route as ClinicsClinicIdEditRouteImport } from "./routes/clinics/$clinicId.edit";
-import { Route as AnimalsAnimalIdEditRouteImport } from "./routes/animals/$animalId.edit";
-import { Route as AdoptionsAdoptionIdEditRouteImport } from "./routes/adoptions/$adoptionId.edit";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TopUsersRouteImport } from './routes/top-users'
+import { Route as ProfitRouteImport } from './routes/profit'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as VeterinariansIndexRouteImport } from './routes/veterinarians/index'
+import { Route as TransportServicesIndexRouteImport } from './routes/transport-services/index'
+import { Route as SuppliersIndexRouteImport } from './routes/suppliers/index'
+import { Route as ServicesOfferedIndexRouteImport } from './routes/services-offered/index'
+import { Route as DonationsIndexRouteImport } from './routes/donations/index'
+import { Route as ContractsIndexRouteImport } from './routes/contracts/index'
+import { Route as ClinicsIndexRouteImport } from './routes/clinics/index'
+import { Route as AnimalsIndexRouteImport } from './routes/animals/index'
+import { Route as AdoptionsIndexRouteImport } from './routes/adoptions/index'
+import { Route as ActivitySchedulesIndexRouteImport } from './routes/activity-schedules/index'
+import { Route as VeterinariansNewRouteImport } from './routes/veterinarians/new'
+import { Route as TransportServicesNewRouteImport } from './routes/transport-services/new'
+import { Route as SuppliersNewRouteImport } from './routes/suppliers/new'
+import { Route as ServicesOfferedNewRouteImport } from './routes/services-offered/new'
+import { Route as ReportsRevenuePlanRouteImport } from './routes/reports/revenue-plan'
+import { Route as ReportsReconciledVeterinarianContractsRouteImport } from './routes/reports/reconciled-veterinarian-contracts'
+import { Route as ReportsFoodSupplierContractsRouteImport } from './routes/reports/food-supplier-contracts'
+import { Route as ReportsComplementaryServiceContractsRouteImport } from './routes/reports/complementary-service-contracts'
+import { Route as ReportsAnimalCareScheduleRouteImport } from './routes/reports/animal-care-schedule'
+import { Route as ReportsActiveVeterinariansRouteImport } from './routes/reports/active-veterinarians'
+import { Route as DonationsNewRouteImport } from './routes/donations/new'
+import { Route as ContractsNewRouteImport } from './routes/contracts/new'
+import { Route as ClinicsNewRouteImport } from './routes/clinics/new'
+import { Route as AnimalsNewRouteImport } from './routes/animals/new'
+import { Route as AdoptionsNewRouteImport } from './routes/adoptions/new'
+import { Route as ActivitySchedulesNewRouteImport } from './routes/activity-schedules/new'
+import { Route as VeterinariansVeterinarianIdEditRouteImport } from './routes/veterinarians/$veterinarianId.edit'
+import { Route as TransportServicesTransportServiceIdEditRouteImport } from './routes/transport-services/$transportServiceId.edit'
+import { Route as SuppliersSupplierIdEditRouteImport } from './routes/suppliers/$supplierId.edit'
+import { Route as ServicesOfferedServiceIdEditRouteImport } from './routes/services-offered/$serviceId.edit'
+import { Route as DonationsDonationIdEditRouteImport } from './routes/donations/$donationId.edit'
+import { Route as ContractsContractIdEditRouteImport } from './routes/contracts/$contractId.edit'
+import { Route as ClinicsClinicIdEditRouteImport } from './routes/clinics/$clinicId.edit'
+import { Route as AnimalsAnimalIdEditRouteImport } from './routes/animals/$animalId.edit'
+import { Route as AdoptionsAdoptionIdEditRouteImport } from './routes/adoptions/$adoptionId.edit'
+import { Route as ActivitySchedulesScheduleIdEditRouteImport } from './routes/activity-schedules/$scheduleId.edit'
 
 const TopUsersRoute = TopUsersRouteImport.update({
-  id: "/top-users",
-  path: "/top-users",
+  id: '/top-users',
+  path: '/top-users',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ProfitRoute = ProfitRouteImport.update({
-  id: "/profit",
-  path: "/profit",
+  id: '/profit',
+  path: '/profit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const EventsRoute = EventsRouteImport.update({
-  id: "/events",
-  path: "/events",
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const VeterinariansIndexRoute = VeterinariansIndexRouteImport.update({
+  id: '/veterinarians/',
+  path: '/veterinarians/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransportServicesIndexRoute = TransportServicesIndexRouteImport.update({
+  id: '/transport-services/',
+  path: '/transport-services/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppliersIndexRoute = SuppliersIndexRouteImport.update({
+  id: '/suppliers/',
+  path: '/suppliers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesOfferedIndexRoute = ServicesOfferedIndexRouteImport.update({
+  id: '/services-offered/',
+  path: '/services-offered/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DonationsIndexRoute = DonationsIndexRouteImport.update({
+  id: '/donations/',
+  path: '/donations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContractsIndexRoute = ContractsIndexRouteImport.update({
-  id: "/contracts/",
-  path: "/contracts/",
+  id: '/contracts/',
+  path: '/contracts/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ClinicsIndexRoute = ClinicsIndexRouteImport.update({
-  id: "/clinics/",
-  path: "/clinics/",
+  id: '/clinics/',
+  path: '/clinics/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AnimalsIndexRoute = AnimalsIndexRouteImport.update({
-  id: "/animals/",
-  path: "/animals/",
+  id: '/animals/',
+  path: '/animals/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdoptionsIndexRoute = AdoptionsIndexRouteImport.update({
-  id: "/adoptions/",
-  path: "/adoptions/",
+  id: '/adoptions/',
+  path: '/adoptions/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ActivitySchedulesIndexRoute = ActivitySchedulesIndexRouteImport.update({
+  id: '/activity-schedules/',
+  path: '/activity-schedules/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VeterinariansNewRoute = VeterinariansNewRouteImport.update({
+  id: '/veterinarians/new',
+  path: '/veterinarians/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TransportServicesNewRoute = TransportServicesNewRouteImport.update({
+  id: '/transport-services/new',
+  path: '/transport-services/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuppliersNewRoute = SuppliersNewRouteImport.update({
+  id: '/suppliers/new',
+  path: '/suppliers/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesOfferedNewRoute = ServicesOfferedNewRouteImport.update({
+  id: '/services-offered/new',
+  path: '/services-offered/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReportsRevenuePlanRoute = ReportsRevenuePlanRouteImport.update({
-  id: "/reports/revenue-plan",
-  path: "/reports/revenue-plan",
+  id: '/reports/revenue-plan',
+  path: '/reports/revenue-plan',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ReportsReconciledVeterinarianContractsRoute =
   ReportsReconciledVeterinarianContractsRouteImport.update({
-    id: "/reports/reconciled-veterinarian-contracts",
-    path: "/reports/reconciled-veterinarian-contracts",
+    id: '/reports/reconciled-veterinarian-contracts',
+    path: '/reports/reconciled-veterinarian-contracts',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 const ReportsFoodSupplierContractsRoute =
   ReportsFoodSupplierContractsRouteImport.update({
-    id: "/reports/food-supplier-contracts",
-    path: "/reports/food-supplier-contracts",
+    id: '/reports/food-supplier-contracts',
+    path: '/reports/food-supplier-contracts',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 const ReportsComplementaryServiceContractsRoute =
   ReportsComplementaryServiceContractsRouteImport.update({
-    id: "/reports/complementary-service-contracts",
-    path: "/reports/complementary-service-contracts",
+    id: '/reports/complementary-service-contracts',
+    path: '/reports/complementary-service-contracts',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 const ReportsAnimalCareScheduleRoute =
   ReportsAnimalCareScheduleRouteImport.update({
-    id: "/reports/animal-care-schedule",
-    path: "/reports/animal-care-schedule",
+    id: '/reports/animal-care-schedule',
+    path: '/reports/animal-care-schedule',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
 const ReportsActiveVeterinariansRoute =
   ReportsActiveVeterinariansRouteImport.update({
-    id: "/reports/active-veterinarians",
-    path: "/reports/active-veterinarians",
+    id: '/reports/active-veterinarians',
+    path: '/reports/active-veterinarians',
     getParentRoute: () => rootRouteImport,
-  } as any);
+  } as any)
+const DonationsNewRoute = DonationsNewRouteImport.update({
+  id: '/donations/new',
+  path: '/donations/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContractsNewRoute = ContractsNewRouteImport.update({
-  id: "/contracts/new",
-  path: "/contracts/new",
+  id: '/contracts/new',
+  path: '/contracts/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ClinicsNewRoute = ClinicsNewRouteImport.update({
-  id: "/clinics/new",
-  path: "/clinics/new",
+  id: '/clinics/new',
+  path: '/clinics/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AnimalsNewRoute = AnimalsNewRouteImport.update({
-  id: "/animals/new",
-  path: "/animals/new",
+  id: '/animals/new',
+  path: '/animals/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdoptionsNewRoute = AdoptionsNewRouteImport.update({
-  id: "/adoptions/new",
-  path: "/adoptions/new",
+  id: '/adoptions/new',
+  path: '/adoptions/new',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ActivitySchedulesNewRoute = ActivitySchedulesNewRouteImport.update({
+  id: '/activity-schedules/new',
+  path: '/activity-schedules/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VeterinariansVeterinarianIdEditRoute =
+  VeterinariansVeterinarianIdEditRouteImport.update({
+    id: '/veterinarians/$veterinarianId/edit',
+    path: '/veterinarians/$veterinarianId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const TransportServicesTransportServiceIdEditRoute =
+  TransportServicesTransportServiceIdEditRouteImport.update({
+    id: '/transport-services/$transportServiceId/edit',
+    path: '/transport-services/$transportServiceId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SuppliersSupplierIdEditRoute = SuppliersSupplierIdEditRouteImport.update({
+  id: '/suppliers/$supplierId/edit',
+  path: '/suppliers/$supplierId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServicesOfferedServiceIdEditRoute =
+  ServicesOfferedServiceIdEditRouteImport.update({
+    id: '/services-offered/$serviceId/edit',
+    path: '/services-offered/$serviceId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DonationsDonationIdEditRoute = DonationsDonationIdEditRouteImport.update({
+  id: '/donations/$donationId/edit',
+  path: '/donations/$donationId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContractsContractIdEditRoute = ContractsContractIdEditRouteImport.update({
-  id: "/contracts/$contractId/edit",
-  path: "/contracts/$contractId/edit",
+  id: '/contracts/$contractId/edit',
+  path: '/contracts/$contractId/edit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ClinicsClinicIdEditRoute = ClinicsClinicIdEditRouteImport.update({
-  id: "/clinics/$clinicId/edit",
-  path: "/clinics/$clinicId/edit",
+  id: '/clinics/$clinicId/edit',
+  path: '/clinics/$clinicId/edit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AnimalsAnimalIdEditRoute = AnimalsAnimalIdEditRouteImport.update({
-  id: "/animals/$animalId/edit",
-  path: "/animals/$animalId/edit",
+  id: '/animals/$animalId/edit',
+  path: '/animals/$animalId/edit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AdoptionsAdoptionIdEditRoute = AdoptionsAdoptionIdEditRouteImport.update({
-  id: "/adoptions/$adoptionId/edit",
-  path: "/adoptions/$adoptionId/edit",
+  id: '/adoptions/$adoptionId/edit',
+  path: '/adoptions/$adoptionId/edit',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ActivitySchedulesScheduleIdEditRoute =
+  ActivitySchedulesScheduleIdEditRouteImport.update({
+    id: '/activity-schedules/$scheduleId/edit',
+    path: '/activity-schedules/$scheduleId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/events": typeof EventsRoute;
-  "/profit": typeof ProfitRoute;
-  "/top-users": typeof TopUsersRoute;
-  "/adoptions/new": typeof AdoptionsNewRoute;
-  "/animals/new": typeof AnimalsNewRoute;
-  "/clinics/new": typeof ClinicsNewRoute;
-  "/contracts/new": typeof ContractsNewRoute;
-  "/reports/active-veterinarians": typeof ReportsActiveVeterinariansRoute;
-  "/reports/animal-care-schedule": typeof ReportsAnimalCareScheduleRoute;
-  "/reports/complementary-service-contracts": typeof ReportsComplementaryServiceContractsRoute;
-  "/reports/food-supplier-contracts": typeof ReportsFoodSupplierContractsRoute;
-  "/reports/reconciled-veterinarian-contracts": typeof ReportsReconciledVeterinarianContractsRoute;
-  "/reports/revenue-plan": typeof ReportsRevenuePlanRoute;
-  "/adoptions/": typeof AdoptionsIndexRoute;
-  "/animals/": typeof AnimalsIndexRoute;
-  "/clinics/": typeof ClinicsIndexRoute;
-  "/contracts/": typeof ContractsIndexRoute;
-  "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
-  "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
-  "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
-  "/contracts/$contractId/edit": typeof ContractsContractIdEditRoute;
+  '/': typeof IndexRoute
+  '/events': typeof EventsRoute
+  '/profit': typeof ProfitRoute
+  '/top-users': typeof TopUsersRoute
+  '/activity-schedules/new': typeof ActivitySchedulesNewRoute
+  '/adoptions/new': typeof AdoptionsNewRoute
+  '/animals/new': typeof AnimalsNewRoute
+  '/clinics/new': typeof ClinicsNewRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/donations/new': typeof DonationsNewRoute
+  '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
+  '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
+  '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
+  '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
+  '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/services-offered/new': typeof ServicesOfferedNewRoute
+  '/suppliers/new': typeof SuppliersNewRoute
+  '/transport-services/new': typeof TransportServicesNewRoute
+  '/veterinarians/new': typeof VeterinariansNewRoute
+  '/activity-schedules/': typeof ActivitySchedulesIndexRoute
+  '/adoptions/': typeof AdoptionsIndexRoute
+  '/animals/': typeof AnimalsIndexRoute
+  '/clinics/': typeof ClinicsIndexRoute
+  '/contracts/': typeof ContractsIndexRoute
+  '/donations/': typeof DonationsIndexRoute
+  '/services-offered/': typeof ServicesOfferedIndexRoute
+  '/suppliers/': typeof SuppliersIndexRoute
+  '/transport-services/': typeof TransportServicesIndexRoute
+  '/veterinarians/': typeof VeterinariansIndexRoute
+  '/activity-schedules/$scheduleId/edit': typeof ActivitySchedulesScheduleIdEditRoute
+  '/adoptions/$adoptionId/edit': typeof AdoptionsAdoptionIdEditRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
+  '/clinics/$clinicId/edit': typeof ClinicsClinicIdEditRoute
+  '/contracts/$contractId/edit': typeof ContractsContractIdEditRoute
+  '/donations/$donationId/edit': typeof DonationsDonationIdEditRoute
+  '/services-offered/$serviceId/edit': typeof ServicesOfferedServiceIdEditRoute
+  '/suppliers/$supplierId/edit': typeof SuppliersSupplierIdEditRoute
+  '/transport-services/$transportServiceId/edit': typeof TransportServicesTransportServiceIdEditRoute
+  '/veterinarians/$veterinarianId/edit': typeof VeterinariansVeterinarianIdEditRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/events": typeof EventsRoute;
-  "/profit": typeof ProfitRoute;
-  "/top-users": typeof TopUsersRoute;
-  "/adoptions/new": typeof AdoptionsNewRoute;
-  "/animals/new": typeof AnimalsNewRoute;
-  "/clinics/new": typeof ClinicsNewRoute;
-  "/contracts/new": typeof ContractsNewRoute;
-  "/reports/active-veterinarians": typeof ReportsActiveVeterinariansRoute;
-  "/reports/animal-care-schedule": typeof ReportsAnimalCareScheduleRoute;
-  "/reports/complementary-service-contracts": typeof ReportsComplementaryServiceContractsRoute;
-  "/reports/food-supplier-contracts": typeof ReportsFoodSupplierContractsRoute;
-  "/reports/reconciled-veterinarian-contracts": typeof ReportsReconciledVeterinarianContractsRoute;
-  "/reports/revenue-plan": typeof ReportsRevenuePlanRoute;
-  "/adoptions": typeof AdoptionsIndexRoute;
-  "/animals": typeof AnimalsIndexRoute;
-  "/clinics": typeof ClinicsIndexRoute;
-  "/contracts": typeof ContractsIndexRoute;
-  "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
-  "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
-  "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
-  "/contracts/$contractId/edit": typeof ContractsContractIdEditRoute;
+  '/': typeof IndexRoute
+  '/events': typeof EventsRoute
+  '/profit': typeof ProfitRoute
+  '/top-users': typeof TopUsersRoute
+  '/activity-schedules/new': typeof ActivitySchedulesNewRoute
+  '/adoptions/new': typeof AdoptionsNewRoute
+  '/animals/new': typeof AnimalsNewRoute
+  '/clinics/new': typeof ClinicsNewRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/donations/new': typeof DonationsNewRoute
+  '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
+  '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
+  '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
+  '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
+  '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/services-offered/new': typeof ServicesOfferedNewRoute
+  '/suppliers/new': typeof SuppliersNewRoute
+  '/transport-services/new': typeof TransportServicesNewRoute
+  '/veterinarians/new': typeof VeterinariansNewRoute
+  '/activity-schedules': typeof ActivitySchedulesIndexRoute
+  '/adoptions': typeof AdoptionsIndexRoute
+  '/animals': typeof AnimalsIndexRoute
+  '/clinics': typeof ClinicsIndexRoute
+  '/contracts': typeof ContractsIndexRoute
+  '/donations': typeof DonationsIndexRoute
+  '/services-offered': typeof ServicesOfferedIndexRoute
+  '/suppliers': typeof SuppliersIndexRoute
+  '/transport-services': typeof TransportServicesIndexRoute
+  '/veterinarians': typeof VeterinariansIndexRoute
+  '/activity-schedules/$scheduleId/edit': typeof ActivitySchedulesScheduleIdEditRoute
+  '/adoptions/$adoptionId/edit': typeof AdoptionsAdoptionIdEditRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
+  '/clinics/$clinicId/edit': typeof ClinicsClinicIdEditRoute
+  '/contracts/$contractId/edit': typeof ContractsContractIdEditRoute
+  '/donations/$donationId/edit': typeof DonationsDonationIdEditRoute
+  '/services-offered/$serviceId/edit': typeof ServicesOfferedServiceIdEditRoute
+  '/suppliers/$supplierId/edit': typeof SuppliersSupplierIdEditRoute
+  '/transport-services/$transportServiceId/edit': typeof TransportServicesTransportServiceIdEditRoute
+  '/veterinarians/$veterinarianId/edit': typeof VeterinariansVeterinarianIdEditRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/events": typeof EventsRoute;
-  "/profit": typeof ProfitRoute;
-  "/top-users": typeof TopUsersRoute;
-  "/adoptions/new": typeof AdoptionsNewRoute;
-  "/animals/new": typeof AnimalsNewRoute;
-  "/clinics/new": typeof ClinicsNewRoute;
-  "/contracts/new": typeof ContractsNewRoute;
-  "/reports/active-veterinarians": typeof ReportsActiveVeterinariansRoute;
-  "/reports/animal-care-schedule": typeof ReportsAnimalCareScheduleRoute;
-  "/reports/complementary-service-contracts": typeof ReportsComplementaryServiceContractsRoute;
-  "/reports/food-supplier-contracts": typeof ReportsFoodSupplierContractsRoute;
-  "/reports/reconciled-veterinarian-contracts": typeof ReportsReconciledVeterinarianContractsRoute;
-  "/reports/revenue-plan": typeof ReportsRevenuePlanRoute;
-  "/adoptions/": typeof AdoptionsIndexRoute;
-  "/animals/": typeof AnimalsIndexRoute;
-  "/clinics/": typeof ClinicsIndexRoute;
-  "/contracts/": typeof ContractsIndexRoute;
-  "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
-  "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
-  "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
-  "/contracts/$contractId/edit": typeof ContractsContractIdEditRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/events': typeof EventsRoute
+  '/profit': typeof ProfitRoute
+  '/top-users': typeof TopUsersRoute
+  '/activity-schedules/new': typeof ActivitySchedulesNewRoute
+  '/adoptions/new': typeof AdoptionsNewRoute
+  '/animals/new': typeof AnimalsNewRoute
+  '/clinics/new': typeof ClinicsNewRoute
+  '/contracts/new': typeof ContractsNewRoute
+  '/donations/new': typeof DonationsNewRoute
+  '/reports/active-veterinarians': typeof ReportsActiveVeterinariansRoute
+  '/reports/animal-care-schedule': typeof ReportsAnimalCareScheduleRoute
+  '/reports/complementary-service-contracts': typeof ReportsComplementaryServiceContractsRoute
+  '/reports/food-supplier-contracts': typeof ReportsFoodSupplierContractsRoute
+  '/reports/reconciled-veterinarian-contracts': typeof ReportsReconciledVeterinarianContractsRoute
+  '/reports/revenue-plan': typeof ReportsRevenuePlanRoute
+  '/services-offered/new': typeof ServicesOfferedNewRoute
+  '/suppliers/new': typeof SuppliersNewRoute
+  '/transport-services/new': typeof TransportServicesNewRoute
+  '/veterinarians/new': typeof VeterinariansNewRoute
+  '/activity-schedules/': typeof ActivitySchedulesIndexRoute
+  '/adoptions/': typeof AdoptionsIndexRoute
+  '/animals/': typeof AnimalsIndexRoute
+  '/clinics/': typeof ClinicsIndexRoute
+  '/contracts/': typeof ContractsIndexRoute
+  '/donations/': typeof DonationsIndexRoute
+  '/services-offered/': typeof ServicesOfferedIndexRoute
+  '/suppliers/': typeof SuppliersIndexRoute
+  '/transport-services/': typeof TransportServicesIndexRoute
+  '/veterinarians/': typeof VeterinariansIndexRoute
+  '/activity-schedules/$scheduleId/edit': typeof ActivitySchedulesScheduleIdEditRoute
+  '/adoptions/$adoptionId/edit': typeof AdoptionsAdoptionIdEditRoute
+  '/animals/$animalId/edit': typeof AnimalsAnimalIdEditRoute
+  '/clinics/$clinicId/edit': typeof ClinicsClinicIdEditRoute
+  '/contracts/$contractId/edit': typeof ContractsContractIdEditRoute
+  '/donations/$donationId/edit': typeof DonationsDonationIdEditRoute
+  '/services-offered/$serviceId/edit': typeof ServicesOfferedServiceIdEditRoute
+  '/suppliers/$supplierId/edit': typeof SuppliersSupplierIdEditRoute
+  '/transport-services/$transportServiceId/edit': typeof TransportServicesTransportServiceIdEditRoute
+  '/veterinarians/$veterinarianId/edit': typeof VeterinariansVeterinarianIdEditRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/events"
-    | "/profit"
-    | "/top-users"
-    | "/adoptions/new"
-    | "/animals/new"
-    | "/clinics/new"
-    | "/contracts/new"
-    | "/reports/active-veterinarians"
-    | "/reports/animal-care-schedule"
-    | "/reports/complementary-service-contracts"
-    | "/reports/food-supplier-contracts"
-    | "/reports/reconciled-veterinarian-contracts"
-    | "/reports/revenue-plan"
-    | "/adoptions/"
-    | "/animals/"
-    | "/clinics/"
-    | "/contracts/"
-    | "/adoptions/$adoptionId/edit"
-    | "/animals/$animalId/edit"
-    | "/clinics/$clinicId/edit"
-    | "/contracts/$contractId/edit";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/events'
+    | '/profit'
+    | '/top-users'
+    | '/activity-schedules/new'
+    | '/adoptions/new'
+    | '/animals/new'
+    | '/clinics/new'
+    | '/contracts/new'
+    | '/donations/new'
+    | '/reports/active-veterinarians'
+    | '/reports/animal-care-schedule'
+    | '/reports/complementary-service-contracts'
+    | '/reports/food-supplier-contracts'
+    | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
+    | '/services-offered/new'
+    | '/suppliers/new'
+    | '/transport-services/new'
+    | '/veterinarians/new'
+    | '/activity-schedules/'
+    | '/adoptions/'
+    | '/animals/'
+    | '/clinics/'
+    | '/contracts/'
+    | '/donations/'
+    | '/services-offered/'
+    | '/suppliers/'
+    | '/transport-services/'
+    | '/veterinarians/'
+    | '/activity-schedules/$scheduleId/edit'
+    | '/adoptions/$adoptionId/edit'
+    | '/animals/$animalId/edit'
+    | '/clinics/$clinicId/edit'
+    | '/contracts/$contractId/edit'
+    | '/donations/$donationId/edit'
+    | '/services-offered/$serviceId/edit'
+    | '/suppliers/$supplierId/edit'
+    | '/transport-services/$transportServiceId/edit'
+    | '/veterinarians/$veterinarianId/edit'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/events"
-    | "/profit"
-    | "/top-users"
-    | "/adoptions/new"
-    | "/animals/new"
-    | "/clinics/new"
-    | "/contracts/new"
-    | "/reports/active-veterinarians"
-    | "/reports/animal-care-schedule"
-    | "/reports/complementary-service-contracts"
-    | "/reports/food-supplier-contracts"
-    | "/reports/reconciled-veterinarian-contracts"
-    | "/reports/revenue-plan"
-    | "/adoptions"
-    | "/animals"
-    | "/clinics"
-    | "/contracts"
-    | "/adoptions/$adoptionId/edit"
-    | "/animals/$animalId/edit"
-    | "/clinics/$clinicId/edit"
-    | "/contracts/$contractId/edit";
+    | '/'
+    | '/events'
+    | '/profit'
+    | '/top-users'
+    | '/activity-schedules/new'
+    | '/adoptions/new'
+    | '/animals/new'
+    | '/clinics/new'
+    | '/contracts/new'
+    | '/donations/new'
+    | '/reports/active-veterinarians'
+    | '/reports/animal-care-schedule'
+    | '/reports/complementary-service-contracts'
+    | '/reports/food-supplier-contracts'
+    | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
+    | '/services-offered/new'
+    | '/suppliers/new'
+    | '/transport-services/new'
+    | '/veterinarians/new'
+    | '/activity-schedules'
+    | '/adoptions'
+    | '/animals'
+    | '/clinics'
+    | '/contracts'
+    | '/donations'
+    | '/services-offered'
+    | '/suppliers'
+    | '/transport-services'
+    | '/veterinarians'
+    | '/activity-schedules/$scheduleId/edit'
+    | '/adoptions/$adoptionId/edit'
+    | '/animals/$animalId/edit'
+    | '/clinics/$clinicId/edit'
+    | '/contracts/$contractId/edit'
+    | '/donations/$donationId/edit'
+    | '/services-offered/$serviceId/edit'
+    | '/suppliers/$supplierId/edit'
+    | '/transport-services/$transportServiceId/edit'
+    | '/veterinarians/$veterinarianId/edit'
   id:
-    | "__root__"
-    | "/"
-    | "/events"
-    | "/profit"
-    | "/top-users"
-    | "/adoptions/new"
-    | "/animals/new"
-    | "/clinics/new"
-    | "/contracts/new"
-    | "/reports/active-veterinarians"
-    | "/reports/animal-care-schedule"
-    | "/reports/complementary-service-contracts"
-    | "/reports/food-supplier-contracts"
-    | "/reports/reconciled-veterinarian-contracts"
-    | "/reports/revenue-plan"
-    | "/adoptions/"
-    | "/animals/"
-    | "/clinics/"
-    | "/contracts/"
-    | "/adoptions/$adoptionId/edit"
-    | "/animals/$animalId/edit"
-    | "/clinics/$clinicId/edit"
-    | "/contracts/$contractId/edit";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/events'
+    | '/profit'
+    | '/top-users'
+    | '/activity-schedules/new'
+    | '/adoptions/new'
+    | '/animals/new'
+    | '/clinics/new'
+    | '/contracts/new'
+    | '/donations/new'
+    | '/reports/active-veterinarians'
+    | '/reports/animal-care-schedule'
+    | '/reports/complementary-service-contracts'
+    | '/reports/food-supplier-contracts'
+    | '/reports/reconciled-veterinarian-contracts'
+    | '/reports/revenue-plan'
+    | '/services-offered/new'
+    | '/suppliers/new'
+    | '/transport-services/new'
+    | '/veterinarians/new'
+    | '/activity-schedules/'
+    | '/adoptions/'
+    | '/animals/'
+    | '/clinics/'
+    | '/contracts/'
+    | '/donations/'
+    | '/services-offered/'
+    | '/suppliers/'
+    | '/transport-services/'
+    | '/veterinarians/'
+    | '/activity-schedules/$scheduleId/edit'
+    | '/adoptions/$adoptionId/edit'
+    | '/animals/$animalId/edit'
+    | '/clinics/$clinicId/edit'
+    | '/contracts/$contractId/edit'
+    | '/donations/$donationId/edit'
+    | '/services-offered/$serviceId/edit'
+    | '/suppliers/$supplierId/edit'
+    | '/transport-services/$transportServiceId/edit'
+    | '/veterinarians/$veterinarianId/edit'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  EventsRoute: typeof EventsRoute;
-  ProfitRoute: typeof ProfitRoute;
-  TopUsersRoute: typeof TopUsersRoute;
-  AdoptionsNewRoute: typeof AdoptionsNewRoute;
-  AnimalsNewRoute: typeof AnimalsNewRoute;
-  ClinicsNewRoute: typeof ClinicsNewRoute;
-  ContractsNewRoute: typeof ContractsNewRoute;
-  ReportsActiveVeterinariansRoute: typeof ReportsActiveVeterinariansRoute;
-  ReportsAnimalCareScheduleRoute: typeof ReportsAnimalCareScheduleRoute;
-  ReportsComplementaryServiceContractsRoute: typeof ReportsComplementaryServiceContractsRoute;
-  ReportsFoodSupplierContractsRoute: typeof ReportsFoodSupplierContractsRoute;
-  ReportsReconciledVeterinarianContractsRoute: typeof ReportsReconciledVeterinarianContractsRoute;
-  ReportsRevenuePlanRoute: typeof ReportsRevenuePlanRoute;
-  AdoptionsIndexRoute: typeof AdoptionsIndexRoute;
-  AnimalsIndexRoute: typeof AnimalsIndexRoute;
-  ClinicsIndexRoute: typeof ClinicsIndexRoute;
-  ContractsIndexRoute: typeof ContractsIndexRoute;
-  AdoptionsAdoptionIdEditRoute: typeof AdoptionsAdoptionIdEditRoute;
-  AnimalsAnimalIdEditRoute: typeof AnimalsAnimalIdEditRoute;
-  ClinicsClinicIdEditRoute: typeof ClinicsClinicIdEditRoute;
-  ContractsContractIdEditRoute: typeof ContractsContractIdEditRoute;
+  IndexRoute: typeof IndexRoute
+  EventsRoute: typeof EventsRoute
+  ProfitRoute: typeof ProfitRoute
+  TopUsersRoute: typeof TopUsersRoute
+  ActivitySchedulesNewRoute: typeof ActivitySchedulesNewRoute
+  AdoptionsNewRoute: typeof AdoptionsNewRoute
+  AnimalsNewRoute: typeof AnimalsNewRoute
+  ClinicsNewRoute: typeof ClinicsNewRoute
+  ContractsNewRoute: typeof ContractsNewRoute
+  DonationsNewRoute: typeof DonationsNewRoute
+  ReportsActiveVeterinariansRoute: typeof ReportsActiveVeterinariansRoute
+  ReportsAnimalCareScheduleRoute: typeof ReportsAnimalCareScheduleRoute
+  ReportsComplementaryServiceContractsRoute: typeof ReportsComplementaryServiceContractsRoute
+  ReportsFoodSupplierContractsRoute: typeof ReportsFoodSupplierContractsRoute
+  ReportsReconciledVeterinarianContractsRoute: typeof ReportsReconciledVeterinarianContractsRoute
+  ReportsRevenuePlanRoute: typeof ReportsRevenuePlanRoute
+  ServicesOfferedNewRoute: typeof ServicesOfferedNewRoute
+  SuppliersNewRoute: typeof SuppliersNewRoute
+  TransportServicesNewRoute: typeof TransportServicesNewRoute
+  VeterinariansNewRoute: typeof VeterinariansNewRoute
+  ActivitySchedulesIndexRoute: typeof ActivitySchedulesIndexRoute
+  AdoptionsIndexRoute: typeof AdoptionsIndexRoute
+  AnimalsIndexRoute: typeof AnimalsIndexRoute
+  ClinicsIndexRoute: typeof ClinicsIndexRoute
+  ContractsIndexRoute: typeof ContractsIndexRoute
+  DonationsIndexRoute: typeof DonationsIndexRoute
+  ServicesOfferedIndexRoute: typeof ServicesOfferedIndexRoute
+  SuppliersIndexRoute: typeof SuppliersIndexRoute
+  TransportServicesIndexRoute: typeof TransportServicesIndexRoute
+  VeterinariansIndexRoute: typeof VeterinariansIndexRoute
+  ActivitySchedulesScheduleIdEditRoute: typeof ActivitySchedulesScheduleIdEditRoute
+  AdoptionsAdoptionIdEditRoute: typeof AdoptionsAdoptionIdEditRoute
+  AnimalsAnimalIdEditRoute: typeof AnimalsAnimalIdEditRoute
+  ClinicsClinicIdEditRoute: typeof ClinicsClinicIdEditRoute
+  ContractsContractIdEditRoute: typeof ContractsContractIdEditRoute
+  DonationsDonationIdEditRoute: typeof DonationsDonationIdEditRoute
+  ServicesOfferedServiceIdEditRoute: typeof ServicesOfferedServiceIdEditRoute
+  SuppliersSupplierIdEditRoute: typeof SuppliersSupplierIdEditRoute
+  TransportServicesTransportServiceIdEditRoute: typeof TransportServicesTransportServiceIdEditRoute
+  VeterinariansVeterinarianIdEditRoute: typeof VeterinariansVeterinarianIdEditRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/top-users": {
-      id: "/top-users";
-      path: "/top-users";
-      fullPath: "/top-users";
-      preLoaderRoute: typeof TopUsersRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/profit": {
-      id: "/profit";
-      path: "/profit";
-      fullPath: "/profit";
-      preLoaderRoute: typeof ProfitRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/events": {
-      id: "/events";
-      path: "/events";
-      fullPath: "/events";
-      preLoaderRoute: typeof EventsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/contracts/": {
-      id: "/contracts/";
-      path: "/contracts";
-      fullPath: "/contracts/";
-      preLoaderRoute: typeof ContractsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/clinics/": {
-      id: "/clinics/";
-      path: "/clinics";
-      fullPath: "/clinics/";
-      preLoaderRoute: typeof ClinicsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/animals/": {
-      id: "/animals/";
-      path: "/animals";
-      fullPath: "/animals/";
-      preLoaderRoute: typeof AnimalsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/adoptions/": {
-      id: "/adoptions/";
-      path: "/adoptions";
-      fullPath: "/adoptions/";
-      preLoaderRoute: typeof AdoptionsIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/revenue-plan": {
-      id: "/reports/revenue-plan";
-      path: "/reports/revenue-plan";
-      fullPath: "/reports/revenue-plan";
-      preLoaderRoute: typeof ReportsRevenuePlanRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/reconciled-veterinarian-contracts": {
-      id: "/reports/reconciled-veterinarian-contracts";
-      path: "/reports/reconciled-veterinarian-contracts";
-      fullPath: "/reports/reconciled-veterinarian-contracts";
-      preLoaderRoute: typeof ReportsReconciledVeterinarianContractsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/food-supplier-contracts": {
-      id: "/reports/food-supplier-contracts";
-      path: "/reports/food-supplier-contracts";
-      fullPath: "/reports/food-supplier-contracts";
-      preLoaderRoute: typeof ReportsFoodSupplierContractsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/complementary-service-contracts": {
-      id: "/reports/complementary-service-contracts";
-      path: "/reports/complementary-service-contracts";
-      fullPath: "/reports/complementary-service-contracts";
-      preLoaderRoute: typeof ReportsComplementaryServiceContractsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/animal-care-schedule": {
-      id: "/reports/animal-care-schedule";
-      path: "/reports/animal-care-schedule";
-      fullPath: "/reports/animal-care-schedule";
-      preLoaderRoute: typeof ReportsAnimalCareScheduleRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/reports/active-veterinarians": {
-      id: "/reports/active-veterinarians";
-      path: "/reports/active-veterinarians";
-      fullPath: "/reports/active-veterinarians";
-      preLoaderRoute: typeof ReportsActiveVeterinariansRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/contracts/new": {
-      id: "/contracts/new";
-      path: "/contracts/new";
-      fullPath: "/contracts/new";
-      preLoaderRoute: typeof ContractsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/clinics/new": {
-      id: "/clinics/new";
-      path: "/clinics/new";
-      fullPath: "/clinics/new";
-      preLoaderRoute: typeof ClinicsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/animals/new": {
-      id: "/animals/new";
-      path: "/animals/new";
-      fullPath: "/animals/new";
-      preLoaderRoute: typeof AnimalsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/adoptions/new": {
-      id: "/adoptions/new";
-      path: "/adoptions/new";
-      fullPath: "/adoptions/new";
-      preLoaderRoute: typeof AdoptionsNewRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/contracts/$contractId/edit": {
-      id: "/contracts/$contractId/edit";
-      path: "/contracts/$contractId/edit";
-      fullPath: "/contracts/$contractId/edit";
-      preLoaderRoute: typeof ContractsContractIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/clinics/$clinicId/edit": {
-      id: "/clinics/$clinicId/edit";
-      path: "/clinics/$clinicId/edit";
-      fullPath: "/clinics/$clinicId/edit";
-      preLoaderRoute: typeof ClinicsClinicIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/animals/$animalId/edit": {
-      id: "/animals/$animalId/edit";
-      path: "/animals/$animalId/edit";
-      fullPath: "/animals/$animalId/edit";
-      preLoaderRoute: typeof AnimalsAnimalIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/adoptions/$adoptionId/edit": {
-      id: "/adoptions/$adoptionId/edit";
-      path: "/adoptions/$adoptionId/edit";
-      fullPath: "/adoptions/$adoptionId/edit";
-      preLoaderRoute: typeof AdoptionsAdoptionIdEditRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/top-users': {
+      id: '/top-users'
+      path: '/top-users'
+      fullPath: '/top-users'
+      preLoaderRoute: typeof TopUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profit': {
+      id: '/profit'
+      path: '/profit'
+      fullPath: '/profit'
+      preLoaderRoute: typeof ProfitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/veterinarians/': {
+      id: '/veterinarians/'
+      path: '/veterinarians'
+      fullPath: '/veterinarians/'
+      preLoaderRoute: typeof VeterinariansIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transport-services/': {
+      id: '/transport-services/'
+      path: '/transport-services'
+      fullPath: '/transport-services/'
+      preLoaderRoute: typeof TransportServicesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/': {
+      id: '/suppliers/'
+      path: '/suppliers'
+      fullPath: '/suppliers/'
+      preLoaderRoute: typeof SuppliersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services-offered/': {
+      id: '/services-offered/'
+      path: '/services-offered'
+      fullPath: '/services-offered/'
+      preLoaderRoute: typeof ServicesOfferedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donations/': {
+      id: '/donations/'
+      path: '/donations'
+      fullPath: '/donations/'
+      preLoaderRoute: typeof DonationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contracts/': {
+      id: '/contracts/'
+      path: '/contracts'
+      fullPath: '/contracts/'
+      preLoaderRoute: typeof ContractsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinics/': {
+      id: '/clinics/'
+      path: '/clinics'
+      fullPath: '/clinics/'
+      preLoaderRoute: typeof ClinicsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals/': {
+      id: '/animals/'
+      path: '/animals'
+      fullPath: '/animals/'
+      preLoaderRoute: typeof AnimalsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adoptions/': {
+      id: '/adoptions/'
+      path: '/adoptions'
+      fullPath: '/adoptions/'
+      preLoaderRoute: typeof AdoptionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity-schedules/': {
+      id: '/activity-schedules/'
+      path: '/activity-schedules'
+      fullPath: '/activity-schedules/'
+      preLoaderRoute: typeof ActivitySchedulesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/veterinarians/new': {
+      id: '/veterinarians/new'
+      path: '/veterinarians/new'
+      fullPath: '/veterinarians/new'
+      preLoaderRoute: typeof VeterinariansNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transport-services/new': {
+      id: '/transport-services/new'
+      path: '/transport-services/new'
+      fullPath: '/transport-services/new'
+      preLoaderRoute: typeof TransportServicesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/new': {
+      id: '/suppliers/new'
+      path: '/suppliers/new'
+      fullPath: '/suppliers/new'
+      preLoaderRoute: typeof SuppliersNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services-offered/new': {
+      id: '/services-offered/new'
+      path: '/services-offered/new'
+      fullPath: '/services-offered/new'
+      preLoaderRoute: typeof ServicesOfferedNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/revenue-plan': {
+      id: '/reports/revenue-plan'
+      path: '/reports/revenue-plan'
+      fullPath: '/reports/revenue-plan'
+      preLoaderRoute: typeof ReportsRevenuePlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/reconciled-veterinarian-contracts': {
+      id: '/reports/reconciled-veterinarian-contracts'
+      path: '/reports/reconciled-veterinarian-contracts'
+      fullPath: '/reports/reconciled-veterinarian-contracts'
+      preLoaderRoute: typeof ReportsReconciledVeterinarianContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/food-supplier-contracts': {
+      id: '/reports/food-supplier-contracts'
+      path: '/reports/food-supplier-contracts'
+      fullPath: '/reports/food-supplier-contracts'
+      preLoaderRoute: typeof ReportsFoodSupplierContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/complementary-service-contracts': {
+      id: '/reports/complementary-service-contracts'
+      path: '/reports/complementary-service-contracts'
+      fullPath: '/reports/complementary-service-contracts'
+      preLoaderRoute: typeof ReportsComplementaryServiceContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/animal-care-schedule': {
+      id: '/reports/animal-care-schedule'
+      path: '/reports/animal-care-schedule'
+      fullPath: '/reports/animal-care-schedule'
+      preLoaderRoute: typeof ReportsAnimalCareScheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reports/active-veterinarians': {
+      id: '/reports/active-veterinarians'
+      path: '/reports/active-veterinarians'
+      fullPath: '/reports/active-veterinarians'
+      preLoaderRoute: typeof ReportsActiveVeterinariansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donations/new': {
+      id: '/donations/new'
+      path: '/donations/new'
+      fullPath: '/donations/new'
+      preLoaderRoute: typeof DonationsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contracts/new': {
+      id: '/contracts/new'
+      path: '/contracts/new'
+      fullPath: '/contracts/new'
+      preLoaderRoute: typeof ContractsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinics/new': {
+      id: '/clinics/new'
+      path: '/clinics/new'
+      fullPath: '/clinics/new'
+      preLoaderRoute: typeof ClinicsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals/new': {
+      id: '/animals/new'
+      path: '/animals/new'
+      fullPath: '/animals/new'
+      preLoaderRoute: typeof AnimalsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adoptions/new': {
+      id: '/adoptions/new'
+      path: '/adoptions/new'
+      fullPath: '/adoptions/new'
+      preLoaderRoute: typeof AdoptionsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity-schedules/new': {
+      id: '/activity-schedules/new'
+      path: '/activity-schedules/new'
+      fullPath: '/activity-schedules/new'
+      preLoaderRoute: typeof ActivitySchedulesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/veterinarians/$veterinarianId/edit': {
+      id: '/veterinarians/$veterinarianId/edit'
+      path: '/veterinarians/$veterinarianId/edit'
+      fullPath: '/veterinarians/$veterinarianId/edit'
+      preLoaderRoute: typeof VeterinariansVeterinarianIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/transport-services/$transportServiceId/edit': {
+      id: '/transport-services/$transportServiceId/edit'
+      path: '/transport-services/$transportServiceId/edit'
+      fullPath: '/transport-services/$transportServiceId/edit'
+      preLoaderRoute: typeof TransportServicesTransportServiceIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suppliers/$supplierId/edit': {
+      id: '/suppliers/$supplierId/edit'
+      path: '/suppliers/$supplierId/edit'
+      fullPath: '/suppliers/$supplierId/edit'
+      preLoaderRoute: typeof SuppliersSupplierIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services-offered/$serviceId/edit': {
+      id: '/services-offered/$serviceId/edit'
+      path: '/services-offered/$serviceId/edit'
+      fullPath: '/services-offered/$serviceId/edit'
+      preLoaderRoute: typeof ServicesOfferedServiceIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/donations/$donationId/edit': {
+      id: '/donations/$donationId/edit'
+      path: '/donations/$donationId/edit'
+      fullPath: '/donations/$donationId/edit'
+      preLoaderRoute: typeof DonationsDonationIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contracts/$contractId/edit': {
+      id: '/contracts/$contractId/edit'
+      path: '/contracts/$contractId/edit'
+      fullPath: '/contracts/$contractId/edit'
+      preLoaderRoute: typeof ContractsContractIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/clinics/$clinicId/edit': {
+      id: '/clinics/$clinicId/edit'
+      path: '/clinics/$clinicId/edit'
+      fullPath: '/clinics/$clinicId/edit'
+      preLoaderRoute: typeof ClinicsClinicIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/animals/$animalId/edit': {
+      id: '/animals/$animalId/edit'
+      path: '/animals/$animalId/edit'
+      fullPath: '/animals/$animalId/edit'
+      preLoaderRoute: typeof AnimalsAnimalIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/adoptions/$adoptionId/edit': {
+      id: '/adoptions/$adoptionId/edit'
+      path: '/adoptions/$adoptionId/edit'
+      fullPath: '/adoptions/$adoptionId/edit'
+      preLoaderRoute: typeof AdoptionsAdoptionIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activity-schedules/$scheduleId/edit': {
+      id: '/activity-schedules/$scheduleId/edit'
+      path: '/activity-schedules/$scheduleId/edit'
+      fullPath: '/activity-schedules/$scheduleId/edit'
+      preLoaderRoute: typeof ActivitySchedulesScheduleIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -485,10 +849,12 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   ProfitRoute: ProfitRoute,
   TopUsersRoute: TopUsersRoute,
+  ActivitySchedulesNewRoute: ActivitySchedulesNewRoute,
   AdoptionsNewRoute: AdoptionsNewRoute,
   AnimalsNewRoute: AnimalsNewRoute,
   ClinicsNewRoute: ClinicsNewRoute,
   ContractsNewRoute: ContractsNewRoute,
+  DonationsNewRoute: DonationsNewRoute,
   ReportsActiveVeterinariansRoute: ReportsActiveVeterinariansRoute,
   ReportsAnimalCareScheduleRoute: ReportsAnimalCareScheduleRoute,
   ReportsComplementaryServiceContractsRoute:
@@ -497,15 +863,32 @@ const rootRouteChildren: RootRouteChildren = {
   ReportsReconciledVeterinarianContractsRoute:
     ReportsReconciledVeterinarianContractsRoute,
   ReportsRevenuePlanRoute: ReportsRevenuePlanRoute,
+  ServicesOfferedNewRoute: ServicesOfferedNewRoute,
+  SuppliersNewRoute: SuppliersNewRoute,
+  TransportServicesNewRoute: TransportServicesNewRoute,
+  VeterinariansNewRoute: VeterinariansNewRoute,
+  ActivitySchedulesIndexRoute: ActivitySchedulesIndexRoute,
   AdoptionsIndexRoute: AdoptionsIndexRoute,
   AnimalsIndexRoute: AnimalsIndexRoute,
   ClinicsIndexRoute: ClinicsIndexRoute,
   ContractsIndexRoute: ContractsIndexRoute,
+  DonationsIndexRoute: DonationsIndexRoute,
+  ServicesOfferedIndexRoute: ServicesOfferedIndexRoute,
+  SuppliersIndexRoute: SuppliersIndexRoute,
+  TransportServicesIndexRoute: TransportServicesIndexRoute,
+  VeterinariansIndexRoute: VeterinariansIndexRoute,
+  ActivitySchedulesScheduleIdEditRoute: ActivitySchedulesScheduleIdEditRoute,
   AdoptionsAdoptionIdEditRoute: AdoptionsAdoptionIdEditRoute,
   AnimalsAnimalIdEditRoute: AnimalsAnimalIdEditRoute,
   ClinicsClinicIdEditRoute: ClinicsClinicIdEditRoute,
   ContractsContractIdEditRoute: ContractsContractIdEditRoute,
-};
+  DonationsDonationIdEditRoute: DonationsDonationIdEditRoute,
+  ServicesOfferedServiceIdEditRoute: ServicesOfferedServiceIdEditRoute,
+  SuppliersSupplierIdEditRoute: SuppliersSupplierIdEditRoute,
+  TransportServicesTransportServiceIdEditRoute:
+    TransportServicesTransportServiceIdEditRoute,
+  VeterinariansVeterinarianIdEditRoute: VeterinariansVeterinarianIdEditRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()

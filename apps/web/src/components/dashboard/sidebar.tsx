@@ -7,6 +7,12 @@ import {
   FileText,
   Building2,
   Heart,
+  Boxes,
+  HandCoins,
+  HandPlatter,
+  Stethoscope,
+  Truck,
+  CalendarClock,
 } from "lucide-react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "../../lib/cn";
@@ -23,6 +29,20 @@ export function Sidebar() {
     { to: "/contracts", label: "Contracts", icon: FileText },
     { to: "/clinics", label: "Clinics", icon: Building2 },
     { to: "/adoptions", label: "Adoptions", icon: Heart },
+    { to: "/suppliers", label: "Suppliers", icon: Boxes },
+    { to: "/veterinarians", label: "Veterinarians", icon: Stethoscope },
+    { to: "/services-offered", label: "Services Offered", icon: HandPlatter },
+    {
+      to: "/transport-services",
+      label: "Transport Services",
+      icon: Truck,
+    },
+    { to: "/donations", label: "Donations", icon: HandCoins },
+    {
+      to: "/activity-schedules",
+      label: "Activity Schedules",
+      icon: CalendarClock,
+    },
   ];
 
   return (
