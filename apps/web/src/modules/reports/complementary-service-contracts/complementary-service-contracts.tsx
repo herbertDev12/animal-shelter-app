@@ -10,8 +10,8 @@ export function ComplementaryServiceContractsComponent() {
   const columns = useMemo<ColumnDef<ComplementaryServiceContractDto>[]>(
     () => [
       {
-        header: "Service Type",
-        accessorKey: "service_type",
+        header: "Service",
+        accessorKey: "service_name",
         cell: ({ getValue }) => (
           <span className="text-sm font-bold text-white">
             {getValue() as string}

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryStates, parseAsString, parseAsInteger } from "nuqs";
+import { useQueryStates, parseAsInteger } from "nuqs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -12,9 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import type { ActivitySchedule } from "@repo/schemas";
+import type { Activity } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
-import { fetchActivitySchedules, deleteActivitySchedule } from "../services";
+import { fetchActivities, deleteActivity } from "../services";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -27,15 +27,14 @@ function formatDate(value: Date | string | null | undefined) {
   });
 }
 
-export function ActivitySchedulesList() {
+export function ActivitiesList() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const [filters, setFilters] = useQueryStates(
     {
       id_animal: parseAsInteger,
-      id_contract: parseAsInteger,
-      activity_type: parseAsString,
+      id_service: parseAsInteger,
       limit: parseAsInteger.withDefault(10),
       offset: parseAsInteger.withDefault(0),
     },
@@ -45,51 +44,48 @@ export function ActivitySchedulesList() {
   const queryFilters = useMemo(
     () => ({
       id_animal: filters.id_animal ?? undefined,
-      id_contract: filters.id_contract ?? undefined,
-      activity_type: filters.activity_type ?? undefined,
+      id_service: filters.id_service ?? undefined,
       limit: filters.limit,
       offset: filters.offset,
     }),
     [filters],
   );
 
-  const { data: schedules = [], isLoading } = useQuery({
-    queryKey: ["activity-schedules", queryFilters],
-    queryFn: () => fetchActivitySchedules(queryFilters),
+  const { data: activities = [], isLoading } = useQuery({
+    queryKey: ["activities", queryFilters],
+    queryFn: () => fetchActivities(queryFilters),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteActivitySchedule,
+    mutationFn: deleteActivity,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activity-schedules"] });
-      toast.success("Activity schedule deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      toast.success("Activity deleted successfully!");
     },
     onError: () => {
-      toast.error("Failed to delete activity schedule.");
+      toast.error("Failed to delete activity.");
     },
   });
 
-  const handleDelete = (schedule: ActivitySchedule) => {
+  const handleDelete = (activity: Activity) => {
     if (
       window.confirm(
-        `Are you sure you want to delete activity schedule #${schedule.id_schedule}?`,
+        `Are you sure you want to delete activity #${activity.id_activity}?`,
       )
     ) {
-      deleteMutation.mutate(schedule.id_schedule);
+      deleteMutation.mutate(activity.id_activity);
     }
   };
 
-  const columns = useMemo<ColumnDef<ActivitySchedule>[]>(
+  const columns = useMemo<ColumnDef<Activity>[]>(
     () => [
       {
         header: "Animal",
         cell: ({ row }) => row.original.animal_name ?? row.original.id_animal,
       },
-      { header: "Contract", accessorKey: "id_contract" },
       {
-        header: "Type",
-        accessorKey: "activity_type",
-        cell: ({ getValue }) => (getValue() as string) ?? "—",
+        header: "Service",
+        cell: ({ row }) => row.original.service_name ?? row.original.id_service,
       },
       {
         header: "Date",
@@ -97,9 +93,14 @@ export function ActivitySchedulesList() {
         cell: ({ getValue }) => formatDate(getValue() as string),
       },
       {
-        header: "Duration",
-        accessorKey: "duration_days",
-        cell: ({ getValue }) => `${getValue() as number} d`,
+        header: "Time",
+        accessorKey: "time",
+        cell: ({ getValue }) => (getValue() as string) ?? "—",
+      },
+      {
+        header: "Description",
+        accessorKey: "description",
+        cell: ({ getValue }) => (getValue() as string) ?? "—",
       },
       {
         id: "actions",
@@ -120,9 +121,9 @@ export function ActivitySchedulesList() {
                 type="button"
                 onClick={() =>
                   navigate({
-                    to: "/activity-schedules/$scheduleId/edit",
+                    to: "/activities/$activityId/edit",
                     params: {
-                      scheduleId: String(row.original.id_schedule),
+                      activityId: String(row.original.id_activity),
                     },
                   })
                 }
@@ -151,17 +152,15 @@ export function ActivitySchedulesList() {
     <div className="max-w-7xl mx-auto space-y-6 pt-4">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">
-            Activity Schedules
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tight">Activities</h2>
           <p className="text-gray-400 mt-1">
-            Manage activity schedules — create, edit, filter and remove.
+            Manage activities — create, edit, filter and remove.
           </p>
         </div>
-        <Link to="/activity-schedules/new">
+        <Link to="/activities/new">
           <Button className="rounded-lg bg-[#cc97ff] text-[#10131a] hover:bg-[#cc97ff]/90 font-bold">
             <Plus className="mr-2 h-4 w-4" />
-            Create Activity Schedule
+            Create Activity
           </Button>
         </Link>
       </div>
@@ -190,15 +189,15 @@ export function ActivitySchedulesList() {
 
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Contract ID
+            Service ID
           </label>
           <Input
             type="number"
             min={1}
-            value={filters.id_contract ?? ""}
+            value={filters.id_service ?? ""}
             onChange={(e) =>
               setFilters({
-                id_contract:
+                id_service:
                   e.target.value === "" ? null : Number(e.target.value),
                 offset: 0,
               })
@@ -207,36 +206,18 @@ export function ActivitySchedulesList() {
             className="w-28 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
           />
         </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Activity type
-          </label>
-          <Input
-            type="text"
-            value={filters.activity_type ?? ""}
-            onChange={(e) =>
-              setFilters({
-                activity_type: e.target.value === "" ? null : e.target.value,
-                offset: 0,
-              })
-            }
-            placeholder="Any"
-            className="w-40 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
-          />
-        </div>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center h-48">
-          <p className="text-gray-400">Loading activity schedules...</p>
+          <p className="text-gray-400">Loading activities...</p>
         </div>
       ) : (
         <>
-          <CustomTable columns={columns} data={schedules} />
+          <CustomTable columns={columns} data={activities} />
           <div className="flex items-center justify-end gap-2 text-sm text-gray-400">
             <span>
-              Showing {schedules.length} · page{" "}
+              Showing {activities.length} · page{" "}
               {Math.floor(filters.offset / filters.limit) + 1}
             </span>
             <Button
@@ -254,7 +235,7 @@ export function ActivitySchedulesList() {
               onClick={() =>
                 setFilters({ offset: filters.offset + filters.limit })
               }
-              disabled={schedules.length < filters.limit}
+              disabled={activities.length < filters.limit}
               className="px-3 py-1 rounded bg-[#10131a] border border-gray-800 hover:bg-[#1f2937] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next

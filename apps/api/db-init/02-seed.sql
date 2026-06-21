@@ -2,13 +2,7 @@
 -- Runs automatically via docker-entrypoint-initdb.d
 
 -- ============================================
--- 1. ShelterConfiguration
--- ============================================
-INSERT INTO "ShelterConfiguration" (id_config, maintenance_percentage)
-VALUES (1, 15.00);
-
--- ============================================
--- 2. Clinic
+-- 1. Clinic
 -- ============================================
 INSERT INTO "Clinic" (id_clinic, name, province, address) VALUES
 (1, 'VetCare Central', 'San Jose', 'Avenida Central, 125'),
@@ -34,11 +28,11 @@ INSERT INTO "Veterinarian" (id_supplier, id_clinic, modality, specialty, fax, ve
 -- ============================================
 -- 5. Contract
 -- ============================================
-INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, status, base_price, surcharge) VALUES
-(1, 1, 'Veterinarian', '2026-01-01', '2026-12-31', '2026-01-15', 'Annual veterinary supplies contract', 'Active', 35.00, 5.00),
-(2, 2, 'Food', '2026-03-01', '2026-12-31', NULL, 'Premium dog and cat food supply', 'Active', 42.50, 0.00),
-(3, 3, 'Service', '2026-06-01', '2027-05-31', NULL, 'Animal transport for vet appointments', 'Active', 25.00, 10.00),
-(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired', 30.00, 0.00);
+INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, status) VALUES
+(1, 1, 'Veterinarian', '2026-01-01', '2026-12-31', '2026-01-15', 'Annual veterinary supplies contract', 'Active'),
+(2, 2, 'Food', '2026-03-01', '2026-12-31', NULL, 'Premium dog and cat food supply', 'Active'),
+(3, 3, 'Service', '2026-06-01', '2027-05-31', NULL, 'Animal transport for vet appointments', 'Active'),
+(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired');
 
 -- ============================================
 -- 6. TransportService
@@ -50,13 +44,14 @@ INSERT INTO "TransportService" (id_contract, vehicle, transport_modality) VALUES
 -- ============================================
 -- 7. ServiceOffered
 -- ============================================
-INSERT INTO "ServiceOffered" (id_service, id_contract, name, service_type, food_type) VALUES
-(1, 1, 'Consulta General', 'Veterinary Consultation', NULL),
-(2, 1, 'Vacunación Completa', 'Vaccination', NULL),
-(3, 2, 'Saco de Pienso 20kg', 'Food', 'Pienso'),
-(4, 2, 'Alimento Húmedo Premium', 'Food', 'Húmeda'),
-(5, 3, 'Traslado Local', 'Transport', NULL),
-(6, 3, 'Traslado Interprovincial', 'Transport', NULL);
+-- base_price = precio base del servicio específico; surcharge = recargo opcional
+INSERT INTO "ServiceOffered" (id_service, id_contract, name, food_type, base_price, surcharge) VALUES
+(1, 1, 'Consulta General', NULL, 35.00, 5.00),
+(2, 1, 'Vacunación Completa', NULL, 40.00, 0.00),
+(3, 2, 'Saco de Pienso 20kg', 'Pienso', 42.50, 0.00),
+(4, 2, 'Alimento Húmedo Premium', 'Húmeda', 30.00, 0.00),
+(5, 3, 'Traslado Local', NULL, 25.00, 10.00),
+(6, 3, 'Traslado Interprovincial', NULL, 50.00, 15.00);
 
 -- ============================================
 -- 8. Animal (SERIAL PK table)
@@ -72,24 +67,31 @@ INSERT INTO "Animal" (id_animal, name, species, breed, birth_date, weight, entry
 (8, 'Simba', 'Cat', 'Maine Coon', '2023-12-25', 6.10, '2025-05-30', 'deceased');
 
 -- Synchronize sequences for SERIAL columns
-SELECT setval(pg_get_serial_sequence('"ShelterConfiguration"', 'id_config'), COALESCE(MAX(id_config), 1)) FROM "ShelterConfiguration";
 SELECT setval(pg_get_serial_sequence('"Clinic"', 'id_clinic'), COALESCE(MAX(id_clinic), 1)) FROM "Clinic";
 SELECT setval(pg_get_serial_sequence('"Supplier"', 'id_supplier'), COALESCE(MAX(id_supplier), 1)) FROM "Supplier";
 SELECT setval(pg_get_serial_sequence('"Contract"', 'id_contract'), COALESCE(MAX(id_contract), 1)) FROM "Contract";
 SELECT setval(pg_get_serial_sequence('"ServiceOffered"', 'id_service'), COALESCE(MAX(id_service), 1)) FROM "ServiceOffered";
 SELECT setval(pg_get_serial_sequence('"Animal"', 'id_animal'), COALESCE(MAX(id_animal), 1)) FROM "Animal";
-SELECT setval(pg_get_serial_sequence('"ActivitySchedule"', 'id_schedule'), COALESCE(MAX(id_schedule), 1)) FROM "ActivitySchedule";
+SELECT setval(pg_get_serial_sequence('"Activity"', 'id_activity'), COALESCE(MAX(id_activity), 1)) FROM "Activity";
 SELECT setval(pg_get_serial_sequence('"Adoption"', 'id_adoption'), COALESCE(MAX(id_adoption), 1)) FROM "Adoption";
 SELECT setval(pg_get_serial_sequence('"Donation"', 'id_donation'), COALESCE(MAX(id_donation), 1)) FROM "Donation";
 
 -- ============================================
--- 9. ActivitySchedule
+-- 9. Activity
+-- Cada fila = una ocurrencia en una fecha (programa de actividades diarias).
+-- La "cantidad de días" de un servicio sale del número de filas; el precio total
+-- se obtiene agregando (base_price + surcharge) por fila. El plan de alimentación
+-- de Luna (animal 2) se modela con varias filas diarias del servicio 3.
 -- ============================================
-INSERT INTO "ActivitySchedule" (id_schedule, id_animal, id_contract, activity_type, description, date, time, duration_days) VALUES
-(1, 1, 1, 'Vaccination', 'Annual rabies and distemper vaccination', '2026-07-15', '09:00:00', 1),
-(2, 2, 2, 'Feeding', 'Daily nutrition plan - senior cat formula', '2026-07-10', '08:00:00', 30),
-(3, 5, 3, 'Transport', 'Transport to VetCare Central for check-up', '2026-08-01', '10:30:00', 1),
-(4, 4, 1, 'Medical Checkup', 'Routine health examination', '2026-07-20', '14:00:00', 1);
+INSERT INTO "Activity" (id_activity, id_animal, id_service, description, date, time) VALUES
+(1, 1, 2, 'Annual rabies and distemper vaccination', '2026-07-15', '09:00:00'),
+(2, 2, 3, 'Daily nutrition plan - senior cat formula (day 1)', '2026-07-10', '08:00:00'),
+(3, 2, 3, 'Daily nutrition plan - senior cat formula (day 2)', '2026-07-11', '08:00:00'),
+(4, 2, 3, 'Daily nutrition plan - senior cat formula (day 3)', '2026-07-12', '08:00:00'),
+(5, 2, 3, 'Daily nutrition plan - senior cat formula (day 4)', '2026-07-13', '08:00:00'),
+(6, 2, 3, 'Daily nutrition plan - senior cat formula (day 5)', '2026-07-14', '08:00:00'),
+(7, 5, 5, 'Transport to VetCare Central for check-up', '2026-08-01', '10:30:00'),
+(8, 4, 1, 'Routine health examination', '2026-07-20', '14:00:00');
 
 -- ============================================
 -- 10. Adoption

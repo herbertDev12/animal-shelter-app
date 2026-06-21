@@ -23,7 +23,6 @@ export function ServicesOfferedList() {
   const [filters, setFilters] = useQueryStates(
     {
       id_contract: parseAsInteger,
-      service_type: parseAsString,
       food_type: parseAsString,
       limit: parseAsInteger.withDefault(10),
       offset: parseAsInteger.withDefault(0),
@@ -34,7 +33,6 @@ export function ServicesOfferedList() {
   const queryFilters = useMemo(
     () => ({
       id_contract: filters.id_contract ?? undefined,
-      service_type: filters.service_type ?? undefined,
       food_type: filters.food_type ?? undefined,
       limit: filters.limit,
       offset: filters.offset,
@@ -73,14 +71,19 @@ export function ServicesOfferedList() {
       { header: "Name", accessorKey: "name" },
       { header: "Contract", accessorKey: "id_contract" },
       {
-        header: "Service type",
-        accessorKey: "service_type",
-        cell: ({ getValue }) => (getValue() as string) ?? "—",
-      },
-      {
         header: "Food type",
         accessorKey: "food_type",
         cell: ({ getValue }) => (getValue() as string) ?? "—",
+      },
+      {
+        header: "Base price",
+        accessorKey: "base_price",
+        cell: ({ getValue }) => `$${getValue() as number}`,
+      },
+      {
+        header: "Surcharge",
+        accessorKey: "surcharge",
+        cell: ({ getValue }) => `$${getValue() as number}`,
       },
       {
         id: "actions",
@@ -161,20 +164,6 @@ export function ServicesOfferedList() {
               })
             }
             placeholder="Any contract"
-            className="w-40 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Service type
-          </label>
-          <Input
-            value={filters.service_type ?? ""}
-            onChange={(e) =>
-              setFilters({ service_type: e.target.value || null, offset: 0 })
-            }
-            placeholder="Any service type"
             className="w-40 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
           />
         </div>

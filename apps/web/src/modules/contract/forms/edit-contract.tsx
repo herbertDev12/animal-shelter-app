@@ -48,8 +48,6 @@ export function EditContractForm({
         : undefined,
       description: contract.description ?? "",
       status: contract.status,
-      base_price: contract.base_price,
-      surcharge: contract.surcharge,
     });
   }, [contract, reset]);
 

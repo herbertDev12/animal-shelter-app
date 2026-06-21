@@ -13,8 +13,9 @@ interface ServiceOfferedRow extends QueryResultRow {
   id_service: number;
   id_contract: number;
   name: string;
-  service_type: string | null;
   food_type: string | null;
+  base_price: string;
+  surcharge: string;
 }
 
 @Injectable()
@@ -25,7 +26,8 @@ export class ServiceOfferedRepository extends BaseRepository {
 
   async findAll(): Promise<ServiceOffered[]> {
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type
+      SELECT id_service, id_contract, name, food_type,
+             base_price::float8 as base_price, surcharge::float8 as surcharge
       FROM "ServiceOffered"
       ORDER BY id_service ASC
     `;
@@ -35,7 +37,8 @@ export class ServiceOfferedRepository extends BaseRepository {
 
   async findById(id: number): Promise<ServiceOffered | null> {
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type
+      SELECT id_service, id_contract, name, food_type,
+             base_price::float8 as base_price, surcharge::float8 as surcharge
       FROM "ServiceOffered"
       WHERE id_service = $1
     `;
@@ -54,12 +57,6 @@ export class ServiceOfferedRepository extends BaseRepository {
       paramCount++;
       conditions.push(`id_contract = $${paramCount}`);
       params.push(filters.id_contract);
-    }
-
-    if (filters.service_type) {
-      paramCount++;
-      conditions.push(`service_type = $${paramCount}`);
-      params.push(filters.service_type);
     }
 
     if (filters.food_type) {
@@ -83,7 +80,8 @@ export class ServiceOfferedRepository extends BaseRepository {
     const offsetParam = paramCount;
 
     const query = `
-      SELECT id_service, id_contract, name, service_type, food_type
+      SELECT id_service, id_contract, name, food_type,
+             base_price::float8 as base_price, surcharge::float8 as surcharge
       FROM "ServiceOffered"
       ${whereClause}
       ORDER BY id_service ASC
@@ -101,8 +99,9 @@ export class ServiceOfferedRepository extends BaseRepository {
     const record: Record<string, unknown> = {
       id_contract: data.id_contract,
       name: data.name,
-      service_type: data.service_type || null,
       food_type: data.food_type || null,
+      base_price: data.base_price,
+      surcharge: data.surcharge ?? 0,
     };
     const result = await this.create<ServiceOfferedRow>(
       'ServiceOffered',
@@ -139,8 +138,9 @@ export class ServiceOfferedRepository extends BaseRepository {
       id: row.id_service,
       id_contract: row.id_contract,
       name: row.name,
-      service_type: row.service_type,
       food_type: row.food_type,
+      base_price: parseFloat(row.base_price),
+      surcharge: parseFloat(row.surcharge),
     };
   }
 }

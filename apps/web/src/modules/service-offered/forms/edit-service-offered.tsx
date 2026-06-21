@@ -39,8 +39,9 @@ export function EditServiceOfferedForm({
     reset({
       id_contract: service.id_contract,
       name: service.name,
-      service_type: service.service_type ?? "",
       food_type: service.food_type ?? "",
+      base_price: service.base_price,
+      surcharge: service.surcharge,
     });
   }, [service, reset]);
 

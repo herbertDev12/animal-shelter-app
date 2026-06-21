@@ -19,7 +19,7 @@ import { Route as ContractsIndexRouteImport } from "./routes/contracts/index";
 import { Route as ClinicsIndexRouteImport } from "./routes/clinics/index";
 import { Route as AnimalsIndexRouteImport } from "./routes/animals/index";
 import { Route as AdoptionsIndexRouteImport } from "./routes/adoptions/index";
-import { Route as ActivitySchedulesIndexRouteImport } from "./routes/activity-schedules/index";
+import { Route as ActivitiesIndexRouteImport } from "./routes/activities/index";
 import { Route as VeterinariansNewRouteImport } from "./routes/veterinarians/new";
 import { Route as TransportServicesNewRouteImport } from "./routes/transport-services/new";
 import { Route as SuppliersNewRouteImport } from "./routes/suppliers/new";
@@ -35,7 +35,7 @@ import { Route as ContractsNewRouteImport } from "./routes/contracts/new";
 import { Route as ClinicsNewRouteImport } from "./routes/clinics/new";
 import { Route as AnimalsNewRouteImport } from "./routes/animals/new";
 import { Route as AdoptionsNewRouteImport } from "./routes/adoptions/new";
-import { Route as ActivitySchedulesNewRouteImport } from "./routes/activity-schedules/new";
+import { Route as ActivitiesNewRouteImport } from "./routes/activities/new";
 import { Route as VeterinariansVeterinarianIdEditRouteImport } from "./routes/veterinarians/$veterinarianId.edit";
 import { Route as TransportServicesTransportServiceIdEditRouteImport } from "./routes/transport-services/$transportServiceId.edit";
 import { Route as SuppliersSupplierIdEditRouteImport } from "./routes/suppliers/$supplierId.edit";
@@ -45,7 +45,7 @@ import { Route as ContractsContractIdEditRouteImport } from "./routes/contracts/
 import { Route as ClinicsClinicIdEditRouteImport } from "./routes/clinics/$clinicId.edit";
 import { Route as AnimalsAnimalIdEditRouteImport } from "./routes/animals/$animalId.edit";
 import { Route as AdoptionsAdoptionIdEditRouteImport } from "./routes/adoptions/$adoptionId.edit";
-import { Route as ActivitySchedulesScheduleIdEditRouteImport } from "./routes/activity-schedules/$scheduleId.edit";
+import { Route as ActivitiesActivityIdEditRouteImport } from "./routes/activities/$activityId.edit";
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -97,9 +97,9 @@ const AdoptionsIndexRoute = AdoptionsIndexRouteImport.update({
   path: "/adoptions/",
   getParentRoute: () => rootRouteImport,
 } as any);
-const ActivitySchedulesIndexRoute = ActivitySchedulesIndexRouteImport.update({
-  id: "/activity-schedules/",
-  path: "/activity-schedules/",
+const ActivitiesIndexRoute = ActivitiesIndexRouteImport.update({
+  id: "/activities/",
+  path: "/activities/",
   getParentRoute: () => rootRouteImport,
 } as any);
 const VeterinariansNewRoute = VeterinariansNewRouteImport.update({
@@ -182,9 +182,9 @@ const AdoptionsNewRoute = AdoptionsNewRouteImport.update({
   path: "/adoptions/new",
   getParentRoute: () => rootRouteImport,
 } as any);
-const ActivitySchedulesNewRoute = ActivitySchedulesNewRouteImport.update({
-  id: "/activity-schedules/new",
-  path: "/activity-schedules/new",
+const ActivitiesNewRoute = ActivitiesNewRouteImport.update({
+  id: "/activities/new",
+  path: "/activities/new",
   getParentRoute: () => rootRouteImport,
 } as any);
 const VeterinariansVeterinarianIdEditRoute =
@@ -235,16 +235,16 @@ const AdoptionsAdoptionIdEditRoute = AdoptionsAdoptionIdEditRouteImport.update({
   path: "/adoptions/$adoptionId/edit",
   getParentRoute: () => rootRouteImport,
 } as any);
-const ActivitySchedulesScheduleIdEditRoute =
-  ActivitySchedulesScheduleIdEditRouteImport.update({
-    id: "/activity-schedules/$scheduleId/edit",
-    path: "/activity-schedules/$scheduleId/edit",
+const ActivitiesActivityIdEditRoute =
+  ActivitiesActivityIdEditRouteImport.update({
+    id: "/activities/$activityId/edit",
+    path: "/activities/$activityId/edit",
     getParentRoute: () => rootRouteImport,
   } as any);
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
-  "/activity-schedules/new": typeof ActivitySchedulesNewRoute;
+  "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
   "/clinics/new": typeof ClinicsNewRoute;
@@ -260,7 +260,7 @@ export interface FileRoutesByFullPath {
   "/suppliers/new": typeof SuppliersNewRoute;
   "/transport-services/new": typeof TransportServicesNewRoute;
   "/veterinarians/new": typeof VeterinariansNewRoute;
-  "/activity-schedules/": typeof ActivitySchedulesIndexRoute;
+  "/activities/": typeof ActivitiesIndexRoute;
   "/adoptions/": typeof AdoptionsIndexRoute;
   "/animals/": typeof AnimalsIndexRoute;
   "/clinics/": typeof ClinicsIndexRoute;
@@ -270,7 +270,7 @@ export interface FileRoutesByFullPath {
   "/suppliers/": typeof SuppliersIndexRoute;
   "/transport-services/": typeof TransportServicesIndexRoute;
   "/veterinarians/": typeof VeterinariansIndexRoute;
-  "/activity-schedules/$scheduleId/edit": typeof ActivitySchedulesScheduleIdEditRoute;
+  "/activities/$activityId/edit": typeof ActivitiesActivityIdEditRoute;
   "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
   "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
   "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
@@ -283,7 +283,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
-  "/activity-schedules/new": typeof ActivitySchedulesNewRoute;
+  "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
   "/clinics/new": typeof ClinicsNewRoute;
@@ -299,7 +299,7 @@ export interface FileRoutesByTo {
   "/suppliers/new": typeof SuppliersNewRoute;
   "/transport-services/new": typeof TransportServicesNewRoute;
   "/veterinarians/new": typeof VeterinariansNewRoute;
-  "/activity-schedules": typeof ActivitySchedulesIndexRoute;
+  "/activities": typeof ActivitiesIndexRoute;
   "/adoptions": typeof AdoptionsIndexRoute;
   "/animals": typeof AnimalsIndexRoute;
   "/clinics": typeof ClinicsIndexRoute;
@@ -309,7 +309,7 @@ export interface FileRoutesByTo {
   "/suppliers": typeof SuppliersIndexRoute;
   "/transport-services": typeof TransportServicesIndexRoute;
   "/veterinarians": typeof VeterinariansIndexRoute;
-  "/activity-schedules/$scheduleId/edit": typeof ActivitySchedulesScheduleIdEditRoute;
+  "/activities/$activityId/edit": typeof ActivitiesActivityIdEditRoute;
   "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
   "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
   "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
@@ -323,7 +323,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
-  "/activity-schedules/new": typeof ActivitySchedulesNewRoute;
+  "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
   "/clinics/new": typeof ClinicsNewRoute;
@@ -339,7 +339,7 @@ export interface FileRoutesById {
   "/suppliers/new": typeof SuppliersNewRoute;
   "/transport-services/new": typeof TransportServicesNewRoute;
   "/veterinarians/new": typeof VeterinariansNewRoute;
-  "/activity-schedules/": typeof ActivitySchedulesIndexRoute;
+  "/activities/": typeof ActivitiesIndexRoute;
   "/adoptions/": typeof AdoptionsIndexRoute;
   "/animals/": typeof AnimalsIndexRoute;
   "/clinics/": typeof ClinicsIndexRoute;
@@ -349,7 +349,7 @@ export interface FileRoutesById {
   "/suppliers/": typeof SuppliersIndexRoute;
   "/transport-services/": typeof TransportServicesIndexRoute;
   "/veterinarians/": typeof VeterinariansIndexRoute;
-  "/activity-schedules/$scheduleId/edit": typeof ActivitySchedulesScheduleIdEditRoute;
+  "/activities/$activityId/edit": typeof ActivitiesActivityIdEditRoute;
   "/adoptions/$adoptionId/edit": typeof AdoptionsAdoptionIdEditRoute;
   "/animals/$animalId/edit": typeof AnimalsAnimalIdEditRoute;
   "/clinics/$clinicId/edit": typeof ClinicsClinicIdEditRoute;
@@ -364,7 +364,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
-    | "/activity-schedules/new"
+    | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
     | "/clinics/new"
@@ -380,7 +380,7 @@ export interface FileRouteTypes {
     | "/suppliers/new"
     | "/transport-services/new"
     | "/veterinarians/new"
-    | "/activity-schedules/"
+    | "/activities/"
     | "/adoptions/"
     | "/animals/"
     | "/clinics/"
@@ -390,7 +390,7 @@ export interface FileRouteTypes {
     | "/suppliers/"
     | "/transport-services/"
     | "/veterinarians/"
-    | "/activity-schedules/$scheduleId/edit"
+    | "/activities/$activityId/edit"
     | "/adoptions/$adoptionId/edit"
     | "/animals/$animalId/edit"
     | "/clinics/$clinicId/edit"
@@ -403,7 +403,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
-    | "/activity-schedules/new"
+    | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
     | "/clinics/new"
@@ -419,7 +419,7 @@ export interface FileRouteTypes {
     | "/suppliers/new"
     | "/transport-services/new"
     | "/veterinarians/new"
-    | "/activity-schedules"
+    | "/activities"
     | "/adoptions"
     | "/animals"
     | "/clinics"
@@ -429,7 +429,7 @@ export interface FileRouteTypes {
     | "/suppliers"
     | "/transport-services"
     | "/veterinarians"
-    | "/activity-schedules/$scheduleId/edit"
+    | "/activities/$activityId/edit"
     | "/adoptions/$adoptionId/edit"
     | "/animals/$animalId/edit"
     | "/clinics/$clinicId/edit"
@@ -442,7 +442,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
-    | "/activity-schedules/new"
+    | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
     | "/clinics/new"
@@ -458,7 +458,7 @@ export interface FileRouteTypes {
     | "/suppliers/new"
     | "/transport-services/new"
     | "/veterinarians/new"
-    | "/activity-schedules/"
+    | "/activities/"
     | "/adoptions/"
     | "/animals/"
     | "/clinics/"
@@ -468,7 +468,7 @@ export interface FileRouteTypes {
     | "/suppliers/"
     | "/transport-services/"
     | "/veterinarians/"
-    | "/activity-schedules/$scheduleId/edit"
+    | "/activities/$activityId/edit"
     | "/adoptions/$adoptionId/edit"
     | "/animals/$animalId/edit"
     | "/clinics/$clinicId/edit"
@@ -482,7 +482,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
-  ActivitySchedulesNewRoute: typeof ActivitySchedulesNewRoute;
+  ActivitiesNewRoute: typeof ActivitiesNewRoute;
   AdoptionsNewRoute: typeof AdoptionsNewRoute;
   AnimalsNewRoute: typeof AnimalsNewRoute;
   ClinicsNewRoute: typeof ClinicsNewRoute;
@@ -498,7 +498,7 @@ export interface RootRouteChildren {
   SuppliersNewRoute: typeof SuppliersNewRoute;
   TransportServicesNewRoute: typeof TransportServicesNewRoute;
   VeterinariansNewRoute: typeof VeterinariansNewRoute;
-  ActivitySchedulesIndexRoute: typeof ActivitySchedulesIndexRoute;
+  ActivitiesIndexRoute: typeof ActivitiesIndexRoute;
   AdoptionsIndexRoute: typeof AdoptionsIndexRoute;
   AnimalsIndexRoute: typeof AnimalsIndexRoute;
   ClinicsIndexRoute: typeof ClinicsIndexRoute;
@@ -508,7 +508,7 @@ export interface RootRouteChildren {
   SuppliersIndexRoute: typeof SuppliersIndexRoute;
   TransportServicesIndexRoute: typeof TransportServicesIndexRoute;
   VeterinariansIndexRoute: typeof VeterinariansIndexRoute;
-  ActivitySchedulesScheduleIdEditRoute: typeof ActivitySchedulesScheduleIdEditRoute;
+  ActivitiesActivityIdEditRoute: typeof ActivitiesActivityIdEditRoute;
   AdoptionsAdoptionIdEditRoute: typeof AdoptionsAdoptionIdEditRoute;
   AnimalsAnimalIdEditRoute: typeof AnimalsAnimalIdEditRoute;
   ClinicsClinicIdEditRoute: typeof ClinicsClinicIdEditRoute;
@@ -592,11 +592,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AdoptionsIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/activity-schedules/": {
-      id: "/activity-schedules/";
-      path: "/activity-schedules";
-      fullPath: "/activity-schedules/";
-      preLoaderRoute: typeof ActivitySchedulesIndexRouteImport;
+    "/activities/": {
+      id: "/activities/";
+      path: "/activities";
+      fullPath: "/activities/";
+      preLoaderRoute: typeof ActivitiesIndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/veterinarians/new": {
@@ -704,11 +704,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AdoptionsNewRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/activity-schedules/new": {
-      id: "/activity-schedules/new";
-      path: "/activity-schedules/new";
-      fullPath: "/activity-schedules/new";
-      preLoaderRoute: typeof ActivitySchedulesNewRouteImport;
+    "/activities/new": {
+      id: "/activities/new";
+      path: "/activities/new";
+      fullPath: "/activities/new";
+      preLoaderRoute: typeof ActivitiesNewRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/veterinarians/$veterinarianId/edit": {
@@ -774,11 +774,11 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AdoptionsAdoptionIdEditRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/activity-schedules/$scheduleId/edit": {
-      id: "/activity-schedules/$scheduleId/edit";
-      path: "/activity-schedules/$scheduleId/edit";
-      fullPath: "/activity-schedules/$scheduleId/edit";
-      preLoaderRoute: typeof ActivitySchedulesScheduleIdEditRouteImport;
+    "/activities/$activityId/edit": {
+      id: "/activities/$activityId/edit";
+      path: "/activities/$activityId/edit";
+      fullPath: "/activities/$activityId/edit";
+      preLoaderRoute: typeof ActivitiesActivityIdEditRouteImport;
       parentRoute: typeof rootRouteImport;
     };
   }
@@ -786,7 +786,7 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActivitySchedulesNewRoute: ActivitySchedulesNewRoute,
+  ActivitiesNewRoute: ActivitiesNewRoute,
   AdoptionsNewRoute: AdoptionsNewRoute,
   AnimalsNewRoute: AnimalsNewRoute,
   ClinicsNewRoute: ClinicsNewRoute,
@@ -804,7 +804,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuppliersNewRoute: SuppliersNewRoute,
   TransportServicesNewRoute: TransportServicesNewRoute,
   VeterinariansNewRoute: VeterinariansNewRoute,
-  ActivitySchedulesIndexRoute: ActivitySchedulesIndexRoute,
+  ActivitiesIndexRoute: ActivitiesIndexRoute,
   AdoptionsIndexRoute: AdoptionsIndexRoute,
   AnimalsIndexRoute: AnimalsIndexRoute,
   ClinicsIndexRoute: ClinicsIndexRoute,
@@ -814,7 +814,7 @@ const rootRouteChildren: RootRouteChildren = {
   SuppliersIndexRoute: SuppliersIndexRoute,
   TransportServicesIndexRoute: TransportServicesIndexRoute,
   VeterinariansIndexRoute: VeterinariansIndexRoute,
-  ActivitySchedulesScheduleIdEditRoute: ActivitySchedulesScheduleIdEditRoute,
+  ActivitiesActivityIdEditRoute: ActivitiesActivityIdEditRoute,
   AdoptionsAdoptionIdEditRoute: AdoptionsAdoptionIdEditRoute,
   AnimalsAnimalIdEditRoute: AnimalsAnimalIdEditRoute,
   ClinicsClinicIdEditRoute: ClinicsClinicIdEditRoute,

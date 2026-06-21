@@ -10,7 +10,7 @@ import { ContractModule } from './modules/contract/contract.module';
 import { TransportServiceModule } from './modules/transport-service/transport-service.module';
 import { VeterinarianModule } from './modules/veterinarian/veterinarian.module';
 import { ServiceOfferedModule } from './modules/service-offered/service-offered.module';
-import { ActivityScheduleModule } from './modules/activity-schedule/activity-schedule.module';
+import { ActivityModule } from './modules/activity/activity.module';
 import { DonationModule } from './modules/donation/donation.module';
 import { AdoptionModule } from './modules/adoption/adoption.module';
 
@@ -25,7 +25,7 @@ import { AdoptionModule } from './modules/adoption/adoption.module';
     TransportServiceModule,
     VeterinarianModule,
     ServiceOfferedModule,
-    ActivityScheduleModule,
+    ActivityModule,
     DonationModule,
     AdoptionModule,
   ],

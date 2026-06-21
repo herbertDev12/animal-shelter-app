@@ -11,6 +11,6 @@ export * from "./contract";
 export * from "./service-offered";
 export * from "./transport-service";
 export * from "./veterinarian";
-export * from "./activity-schedule";
+export * from "./activity";
 export * from "./donation";
 export * from "./adoption";

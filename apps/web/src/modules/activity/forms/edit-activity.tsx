@@ -6,67 +6,61 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
-  createActivityScheduleSchema,
-  type ActivitySchedule,
-  type CreateActivitySchedule,
+  createActivitySchema,
+  type Activity,
+  type CreateActivity,
 } from "@repo/schemas";
-import { updateActivitySchedule } from "../services";
-import { ActivityScheduleFormFields } from "./activity-schedule-form-fields";
+import { updateActivity } from "../services";
+import { ActivityFormFields } from "./activity-form-fields";
 
-interface EditActivityScheduleFormProps {
-  schedule: ActivitySchedule;
+interface EditActivityFormProps {
+  activity: Activity;
   onSaved?: () => void;
   onCancel?: () => void;
 }
 
-export function EditActivityScheduleForm({
-  schedule,
+export function EditActivityForm({
+  activity,
   onSaved,
   onCancel,
-}: EditActivityScheduleFormProps) {
+}: EditActivityFormProps) {
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, reset } = useForm<CreateActivitySchedule>({
-    resolver: zodResolver(
-      createActivityScheduleSchema,
-    ) as Resolver<CreateActivitySchedule>,
+  const { control, handleSubmit, reset } = useForm<CreateActivity>({
+    resolver: zodResolver(createActivitySchema) as Resolver<CreateActivity>,
     defaultValues: {
-      duration_days: 1,
-      activity_type: "",
       description: "",
     },
   });
 
   useEffect(() => {
     reset({
-      id_animal: schedule.id_animal,
-      id_contract: schedule.id_contract,
-      activity_type: schedule.activity_type ?? "",
-      date: schedule.date ?? "",
-      time: schedule.time ?? "",
-      duration_days: schedule.duration_days,
-      description: schedule.description ?? "",
+      id_animal: activity.id_animal,
+      id_service: activity.id_service,
+      date: activity.date ?? "",
+      time: activity.time ?? "",
+      description: activity.description ?? "",
     });
-  }, [schedule, reset]);
+  }, [activity, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: CreateActivitySchedule) =>
-      updateActivitySchedule(schedule.id_schedule, data),
+    mutationFn: (data: CreateActivity) =>
+      updateActivity(activity.id_activity, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activity-schedules"] });
-      toast.success("Activity schedule updated successfully!");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      toast.success("Activity updated successfully!");
       onSaved?.();
     },
     onError: () => {
-      toast.error("Failed to update activity schedule. Please try again.");
+      toast.error("Failed to update activity. Please try again.");
     },
   });
 
-  const onSubmit = (data: CreateActivitySchedule) => {
+  const onSubmit = (data: CreateActivity) => {
     mutation.mutate(data);
   };
 
-  const onInvalid = (errors: FieldErrors<CreateActivitySchedule>) => {
+  const onInvalid = (errors: FieldErrors<CreateActivity>) => {
     const messages = Object.values(errors)
       .map((e) => e?.message)
       .filter(Boolean) as string[];
@@ -82,11 +76,11 @@ export function EditActivityScheduleForm({
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
-        Edit Activity Schedule{" "}
-        <span className="text-[#cc97ff]">#{schedule.id_schedule}</span>
+        Edit Activity{" "}
+        <span className="text-[#cc97ff]">#{activity.id_activity}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
-        <ActivityScheduleFormFields control={control} />
+        <ActivityFormFields control={control} />
         <div className="flex justify-end gap-3 pt-2">
           {onCancel && (
             <Button

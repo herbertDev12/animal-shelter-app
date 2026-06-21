@@ -15,6 +15,6 @@ export * from "./contract/contract";
 export * from "./service-offered/service-offered";
 export * from "./transport-service/transport-service";
 export * from "./veterinarian/veterinarian";
-export * from "./activity-schedule/activity-schedule";
+export * from "./activity/activity";
 export * from "./donation/donation";
 export * from "./adoption/adoption";

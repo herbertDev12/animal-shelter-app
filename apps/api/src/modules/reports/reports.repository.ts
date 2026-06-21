@@ -24,6 +24,15 @@ export class ReportsRepository extends BaseRepository {
   }
 
   /**
+   * Shelter maintenance percentage applied to each animal's activity cost.
+   * Configured via the MAINTENANCE_PERCENTAGE env var (defaults to 15).
+   */
+  private getMaintenancePercentage(): number {
+    const pct = Number(process.env.MAINTENANCE_PERCENTAGE ?? 15);
+    return Number.isFinite(pct) ? pct : 15;
+  }
+
+  /**
    * Get reconciled veterinarian contracts with JOIN across tables
    * Returns contracts where reconciliation_date IS NOT NULL
    */
@@ -167,13 +176,13 @@ export class ReportsRepository extends BaseRepository {
     params.push(offset);
 
     const dataQuery = `
-     SELECT 
+     SELECT
       ct.start_date,
       ct.end_date,
       ct.reconciliation_date,
       ct.description,
-      so.service_type,
-      ct.base_price as cost_per_service,
+      so.name as service_name,
+      (COALESCE(so.base_price, 0) + COALESCE(so.surcharge, 0))::float8 as cost_per_service,
       s.province
      FROM "Contract" ct
      INNER JOIN "ServiceOffered" so ON ct.id_contract = so.id_contract
@@ -293,8 +302,8 @@ export class ReportsRepository extends BaseRepository {
 
     const countQuery = `
       SELECT COUNT(*) as count
-      FROM "ActivitySchedule" asched
-      INNER JOIN "Animal" a ON asched.id_animal = a.id_animal
+      FROM "Activity" act
+      INNER JOIN "Animal" a ON act.id_animal = a.id_animal
       WHERE a.id_animal = $1;
     `;
 
@@ -316,52 +325,52 @@ export class ReportsRepository extends BaseRepository {
         EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
         a.weight,
         (CURRENT_DATE - a.entry_date)::int                      as days_in_shelter,
-        asched.date         as "day",
-        asched.time         as hour,
-        asched.description  as activity_description,
-        asched.duration_days * (COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0)) as price,
+        act.date            as "day",
+        act.time            as hour,
+        act.description     as activity_description,
+        (COALESCE(so.base_price, 0) + COALESCE(so.surcharge, 0))::float8 as price,
         vet_s.name          as assigned_veterinarian_name,
-        food_so.food_type   as assigned_food_type,
+        so.food_type        as assigned_food_type,
 
-        (SELECT COALESCE(SUM(asched_vet.duration_days * (COALESCE(ct_vet.base_price, 0) + COALESCE(ct_vet.surcharge, 0))), 0)
-         FROM "ActivitySchedule" asched_vet
-         INNER JOIN "Contract" ct_vet ON asched_vet.id_contract = ct_vet.id_contract
-         WHERE asched_vet.id_animal = a.id_animal
+        (SELECT COALESCE(SUM(COALESCE(so_vet.base_price, 0) + COALESCE(so_vet.surcharge, 0)), 0)
+         FROM "Activity" act_vet
+         INNER JOIN "ServiceOffered" so_vet ON act_vet.id_service = so_vet.id_service
+         INNER JOIN "Contract" ct_vet ON so_vet.id_contract = ct_vet.id_contract
+         WHERE act_vet.id_animal = a.id_animal
            AND ct_vet.contract_category = 'Veterinarian'
         ) as total_veterinary_care_price,
 
-        (SELECT COALESCE(SUM(asched_transp.duration_days * (COALESCE(ct_transp.base_price, 0) + COALESCE(ct_transp.surcharge, 0))), 0)
-         FROM "ActivitySchedule" asched_transp
-         INNER JOIN "Contract" ct_transp ON asched_transp.id_contract = ct_transp.id_contract
+        (SELECT COALESCE(SUM(COALESCE(so_transp.base_price, 0) + COALESCE(so_transp.surcharge, 0)), 0)
+         FROM "Activity" act_transp
+         INNER JOIN "ServiceOffered" so_transp ON act_transp.id_service = so_transp.id_service
+         INNER JOIN "Contract" ct_transp ON so_transp.id_contract = ct_transp.id_contract
          INNER JOIN "TransportService" ts ON ct_transp.id_contract = ts.id_contract
-         WHERE asched_transp.id_animal = a.id_animal
+         WHERE act_transp.id_animal = a.id_animal
         ) as transport_price,
 
-        (SELECT COALESCE(SUM(asched_food.duration_days * (COALESCE(ct_food.base_price, 0) + COALESCE(ct_food.surcharge, 0))), 0)
-         FROM "ActivitySchedule" asched_food
-         INNER JOIN "Contract" ct_food ON asched_food.id_contract = ct_food.id_contract
-         WHERE asched_food.id_animal = a.id_animal
+        (SELECT COALESCE(SUM(COALESCE(so_food.base_price, 0) + COALESCE(so_food.surcharge, 0)), 0)
+         FROM "Activity" act_food
+         INNER JOIN "ServiceOffered" so_food ON act_food.id_service = so_food.id_service
+         INNER JOIN "Contract" ct_food ON so_food.id_contract = ct_food.id_contract
+         WHERE act_food.id_animal = a.id_animal
            AND ct_food.contract_category = 'Food'
         ) as total_food_price,
 
-        (SELECT sc.maintenance_percentage FROM "ShelterConfiguration" sc LIMIT 1) as maintenance_percentage,
-
-        (SELECT COALESCE(SUM(asched_all.duration_days * (COALESCE(ct_all.base_price, 0) + COALESCE(ct_all.surcharge, 0))), 0)
-         FROM "ActivitySchedule" asched_all
-         LEFT JOIN "Contract" ct_all ON asched_all.id_contract = ct_all.id_contract
-         WHERE asched_all.id_animal = a.id_animal
+        (SELECT COALESCE(SUM(COALESCE(so_all.base_price, 0) + COALESCE(so_all.surcharge, 0)), 0)
+         FROM "Activity" act_all
+         INNER JOIN "ServiceOffered" so_all ON act_all.id_service = so_all.id_service
+         WHERE act_all.id_animal = a.id_animal
         ) as total_activity_cost
 
       FROM "Animal" a
-      INNER JOIN "ActivitySchedule" asched ON a.id_animal = asched.id_animal
-      LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
+      INNER JOIN "Activity" act ON a.id_animal = act.id_animal
+      LEFT JOIN "ServiceOffered" so ON act.id_service = so.id_service
+      LEFT JOIN "Contract" ct ON so.id_contract = ct.id_contract
       LEFT JOIN "Veterinarian" v ON ct.id_supplier = v.id_supplier
         AND ct.contract_category = 'Veterinarian'
       LEFT JOIN "Supplier" vet_s ON v.id_supplier = vet_s.id_supplier
-      LEFT JOIN "ServiceOffered" food_so ON ct.id_contract = food_so.id_contract
-        AND ct.contract_category = 'Food'
       WHERE a.id_animal = $1
-      ORDER BY asched.date, asched.time
+      ORDER BY act.date, act.time
       LIMIT $${paramCount - 2}
       OFFSET $${paramCount - 1}
     `;
@@ -370,11 +379,11 @@ export class ReportsRepository extends BaseRepository {
       AnimalCareSchedule & { total_activity_cost: number }
     >(mainQuery, params);
 
+    const pct = this.getMaintenancePercentage();
     const data = rows.map((row) => ({
       ...row,
-      total_maintenance_cost:
-        Number(row.total_activity_cost) *
-        (1 + (Number(row.maintenance_percentage) ?? 0) / 100),
+      maintenance_percentage: pct,
+      total_maintenance_cost: Number(row.total_activity_cost) * (1 + pct / 100),
     }));
 
     return {
@@ -415,12 +424,11 @@ export class ReportsRepository extends BaseRepository {
         a.breed,
         EXTRACT(YEAR FROM age(CURRENT_DATE, a.birth_date))::int as age,
         (
-          SELECT COALESCE(SUM(asched.duration_days * (COALESCE(ct.base_price, 0) + COALESCE(ct.surcharge, 0))), 0)
-          FROM "ActivitySchedule" asched
-          LEFT JOIN "Contract" ct ON asched.id_contract = ct.id_contract
-          WHERE asched.id_animal = a.id_animal
-        ) * (1 + COALESCE((SELECT maintenance_percentage FROM "ShelterConfiguration" LIMIT 1), 0) / 100)
-        as total_maintenance_cost,
+          SELECT COALESCE(SUM(COALESCE(so.base_price, 0) + COALESCE(so.surcharge, 0)), 0)
+          FROM "Activity" act
+          INNER JOIN "ServiceOffered" so ON act.id_service = so.id_service
+          WHERE act.id_animal = a.id_animal
+        ) as total_activity_cost,
         COALESCE(
           (SELECT SUM(adp.adoption_price) FROM "Adoption" adp WHERE adp.id_animal = a.id_animal),
           0
@@ -446,7 +454,14 @@ export class ReportsRepository extends BaseRepository {
       OFFSET $${paramCount}
     `;
 
-    const data = await this.query<RevenuePlan>(dataQuery, params);
+    const pct = this.getMaintenancePercentage();
+    const rows = await this.query<
+      RevenuePlan & { total_activity_cost: number }
+    >(dataQuery, params);
+    const data = rows.map((row) => ({
+      ...row,
+      total_maintenance_cost: Number(row.total_activity_cost) * (1 + pct / 100),
+    }));
 
     return {
       data,

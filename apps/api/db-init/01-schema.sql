@@ -1,9 +1,4 @@
 
-CREATE TABLE "ShelterConfiguration" (
-    id_config SERIAL PRIMARY KEY,
-    maintenance_percentage DECIMAL(5,2) NOT NULL 
-);
-
 CREATE TABLE "Clinic" (
     id_clinic SERIAL PRIMARY KEY,
     name      VARCHAR(100) NOT NULL,
@@ -43,8 +38,6 @@ CREATE TABLE "Contract" (
     reconciliation_date DATE,
     description         VARCHAR(300),
     status              VARCHAR(20) DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'Expired')),
-    base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),
-    surcharge       DECIMAL(10,2) DEFAULT 0 CHECK (surcharge >= 0),
 
     CHECK (end_date >= start_date),
     FOREIGN KEY (id_supplier) REFERENCES "Supplier"(id_supplier)
@@ -61,9 +54,10 @@ CREATE TABLE "ServiceOffered" (
     id_service      SERIAL PRIMARY KEY,
     id_contract     INT NOT NULL,
     name            VARCHAR(100) NOT NULL, -- Ej: "Consulta General", "Saco de Pienso 20kg", "Traslado Local"
-    service_type    VARCHAR(100),          -- Clasificación general
     food_type       VARCHAR(100),          -- Solo se llena si es un contrato de alimentos (pienso, húmeda, suplemento)
-    
+    base_price      DECIMAL(10,2) NOT NULL CHECK (base_price >= 0),  -- precio base del servicio específico
+    surcharge       DECIMAL(10,2) DEFAULT 0 CHECK (surcharge >= 0),  -- recargo opcional
+
     FOREIGN KEY (id_contract) REFERENCES "Contract"(id_contract)
 );
 
@@ -78,17 +72,15 @@ CREATE TABLE "Animal" (
     status     VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'adopted', 'reserved', 'deceased'))
 );
 
-CREATE TABLE "ActivitySchedule" (
-    id_schedule          SERIAL PRIMARY KEY,
+CREATE TABLE "Activity" (
+    id_activity          SERIAL PRIMARY KEY,
     id_animal            INT NOT NULL,
-    id_contract          INT NOT NULL,
-    activity_type        VARCHAR(50), 
+    id_service           INT NOT NULL,
     description          VARCHAR(300),
     date                 DATE NOT NULL,
     time                 TIME,
-    duration_days        INT DEFAULT 1,
     FOREIGN KEY (id_animal) REFERENCES "Animal"(id_animal),
-    FOREIGN KEY (id_contract) REFERENCES "Contract"(id_contract)
+    FOREIGN KEY (id_service) REFERENCES "ServiceOffered"(id_service)
 );
 
 CREATE TABLE "Adoption" (
@@ -114,7 +106,8 @@ CREATE INDEX idx_supplier_type ON "Supplier"("type");
 CREATE INDEX idx_contract_category ON "Contract"("contract_category");
 CREATE INDEX idx_contract_dates ON "Contract"("start_date", "end_date");
 CREATE INDEX idx_contract_status ON "Contract"("status");
-CREATE INDEX idx_activity_date ON "ActivitySchedule"("date");
+CREATE INDEX idx_activity_date ON "Activity"("date");
+CREATE INDEX idx_activity_service ON "Activity"("id_service");
 CREATE INDEX idx_animals_species ON "Animal"("species");
 CREATE INDEX idx_animals_status ON "Animal"("status");
 CREATE INDEX idx_animals_created_at ON "Animal"("entry_date" DESC);
@@ -139,18 +132,23 @@ CREATE OR REPLACE FUNCTION fn_validate_contract_active()
 RETURNS TRIGGER AS $$
 DECLARE
   v_status VARCHAR(20);
+  v_id_contract INT;
 BEGIN
-  SELECT status INTO v_status FROM "Contract" WHERE id_contract = NEW.id_contract;
-  IF v_status IS NULL THEN
-    RAISE EXCEPTION 'Contract % does not exist', NEW.id_contract;
+  SELECT c.id_contract, c.status
+    INTO v_id_contract, v_status
+  FROM "ServiceOffered" so
+  JOIN "Contract" c ON c.id_contract = so.id_contract
+  WHERE so.id_service = NEW.id_service;
+  IF v_id_contract IS NULL THEN
+    RAISE EXCEPTION 'Service % does not exist or has no contract', NEW.id_service;
   END IF;
   IF v_status <> 'Active' THEN
-    RAISE EXCEPTION 'Contract % is not active (status: %)', NEW.id_contract, v_status;
+    RAISE EXCEPTION 'Contract % is not active (status: %)', v_id_contract, v_status;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_validate_contract_active
-BEFORE INSERT OR UPDATE ON "ActivitySchedule"
+BEFORE INSERT OR UPDATE ON "Activity"
 FOR EACH ROW EXECUTE FUNCTION fn_validate_contract_active();

@@ -1,15 +1,14 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { Label } from "@repo/ui";
 import { RHFInput } from "@/components/fields/rhf-input";
-import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
 import { fetchAnimals } from "@/modules/animal/services";
-import { fetchContracts } from "@/modules/contract/services";
+import { fetchServicesOffered } from "@/modules/service-offered/services";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
 
-export function ActivityScheduleFormFields<T extends FieldValues>({
+export function ActivityFormFields<T extends FieldValues>({
   control,
 }: {
   control: Control<T>;
@@ -29,23 +28,19 @@ export function ActivityScheduleFormFields<T extends FieldValues>({
         }
       />
       <RHFFkSelect
-        name={"id_contract" as Path<T>}
+        name={"id_service" as Path<T>}
         control={control}
-        label="Contract"
-        placeholder="Select a contract"
-        queryKey={["contracts", "options"]}
+        label="Service"
+        placeholder="Select a service"
+        queryKey={["services-offered", "options"]}
         queryFn={() =>
-          fetchContracts({ limit: 100 }).then((rows) =>
-            rows.map((c) => ({ id: c.id, label: `Contract #${c.id}` })),
+          fetchServicesOffered({ limit: 100 }).then((rows) =>
+            rows.map((s) => ({
+              id: s.id,
+              label: `${s.name} (Contract #${s.id_contract})`,
+            })),
           )
         }
-      />
-      <RHFInput
-        name={"activity_type" as Path<T>}
-        control={control}
-        label="Activity type"
-        placeholder="e.g. Grooming"
-        className={fieldClassName}
       />
       <Controller
         name={"date" as Path<T>}
@@ -73,12 +68,6 @@ export function ActivityScheduleFormFields<T extends FieldValues>({
         label="Time"
         placeholder="e.g. 14:30"
         className={fieldClassName}
-      />
-      <RHFNumberInput
-        name={"duration_days" as Path<T>}
-        control={control}
-        label="Duration (days)"
-        min={1}
       />
       <RHFInput
         name={"description" as Path<T>}

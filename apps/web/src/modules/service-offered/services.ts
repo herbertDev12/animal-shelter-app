@@ -13,7 +13,6 @@ export const fetchServicesOffered = async (
 
   if (filters.id_contract != null)
     params.append("id_contract", String(filters.id_contract));
-  if (filters.service_type) params.append("service_type", filters.service_type);
   if (filters.food_type) params.append("food_type", filters.food_type);
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));

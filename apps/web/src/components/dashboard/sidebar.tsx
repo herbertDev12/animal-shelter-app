@@ -35,8 +35,8 @@ export function Sidebar() {
     },
     { to: "/donations", label: "Donations", icon: HandCoins },
     {
-      to: "/activity-schedules",
-      label: "Activity Schedules",
+      to: "/activities",
+      label: "Activities",
       icon: CalendarClock,
     },
   ];

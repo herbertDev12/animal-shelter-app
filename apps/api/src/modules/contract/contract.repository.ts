@@ -20,8 +20,6 @@ interface ContractRow extends QueryResultRow {
   reconciliation_date: Date | null;
   description: string | null;
   status: string;
-  base_price: string;
-  surcharge: string;
 }
 
 @Injectable()
@@ -40,9 +38,7 @@ export class ContractRepository extends BaseRepository {
         end_date,
         reconciliation_date,
         description,
-        status,
-        base_price::float8 as base_price,
-        surcharge::float8 as surcharge
+        status
       FROM "Contract"
       ORDER BY start_date DESC
     `;
@@ -59,9 +55,7 @@ export class ContractRepository extends BaseRepository {
         end_date,
         reconciliation_date,
         description,
-        status,
-        base_price::float8 as base_price,
-        surcharge::float8 as surcharge
+        status
       FROM "Contract"
       WHERE id_contract = $1
     `;
@@ -112,9 +106,7 @@ export class ContractRepository extends BaseRepository {
         end_date,
         reconciliation_date,
         description,
-        status,
-        base_price::float8 as base_price,
-        surcharge::float8 as surcharge
+        status
       FROM "Contract" c
       ${whereClause}
       ORDER BY c.start_date DESC
@@ -134,8 +126,6 @@ export class ContractRepository extends BaseRepository {
       reconciliation_date: data.reconciliation_date || null,
       description: data.description || null,
       status: data.status || 'Active',
-      base_price: data.base_price,
-      surcharge: data.surcharge ?? 0,
     };
 
     const result = await this.create<ContractRow>('Contract', record);
@@ -148,8 +138,6 @@ export class ContractRepository extends BaseRepository {
       reconciliation_date: result.reconciliation_date || undefined,
       description: result.description || undefined,
       status: result.status as ContractStatus,
-      base_price: parseFloat(result.base_price),
-      surcharge: parseFloat(result.surcharge),
     };
   }
 
@@ -170,8 +158,6 @@ export class ContractRepository extends BaseRepository {
       reconciliation_date: result.reconciliation_date || undefined,
       description: result.description || undefined,
       status: result.status as ContractStatus,
-      base_price: parseFloat(result.base_price),
-      surcharge: parseFloat(result.surcharge),
     };
   }
 

@@ -5,7 +5,7 @@ export const complementaryServiceContractSchema = z.object({
   end_date: z.date(),
   reconciliation_date: z.date(),
   description: z.string().min(1),
-  service_type: z.string().min(1),
+  service_name: z.string().min(1),
   cost_per_service: z.number(),
   province: z.string().min(1),
 });

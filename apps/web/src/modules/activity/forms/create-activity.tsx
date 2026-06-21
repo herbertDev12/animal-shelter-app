@@ -4,57 +4,50 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
-import {
-  createActivityScheduleSchema,
-  type CreateActivitySchedule,
-} from "@repo/schemas";
-import { createActivitySchedule } from "../services";
-import { ActivityScheduleFormFields } from "./activity-schedule-form-fields";
+import { createActivitySchema, type CreateActivity } from "@repo/schemas";
+import { createActivity } from "../services";
+import { ActivityFormFields } from "./activity-form-fields";
 
-interface CreateActivityScheduleFormProps {
+interface CreateActivityFormProps {
   onCreated?: () => void;
   onCancel?: () => void;
 }
 
-export function CreateActivityScheduleForm({
+export function CreateActivityForm({
   onCreated,
   onCancel,
-}: CreateActivityScheduleFormProps) {
+}: CreateActivityFormProps) {
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, reset } = useForm<CreateActivitySchedule>({
-    resolver: zodResolver(
-      createActivityScheduleSchema,
-    ) as Resolver<CreateActivitySchedule>,
+  const { control, handleSubmit, reset } = useForm<CreateActivity>({
+    resolver: zodResolver(createActivitySchema) as Resolver<CreateActivity>,
     defaultValues: {
-      duration_days: 1,
-      activity_type: "",
       description: "",
     },
   });
 
   const mutation = useMutation({
-    mutationFn: createActivitySchedule,
+    mutationFn: createActivity,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activity-schedules"] });
-      toast.success("Activity schedule created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      toast.success("Activity created successfully!");
       reset();
       onCreated?.();
     },
     onError: () => {
-      toast.error("Failed to create activity schedule. Please try again.");
+      toast.error("Failed to create activity. Please try again.");
     },
   });
 
-  const onSubmit = (data: CreateActivitySchedule) => {
+  const onSubmit = (data: CreateActivity) => {
     mutation.mutate(data);
   };
 
-  const onInvalid = (errors: FieldErrors<CreateActivitySchedule>) => {
+  const onInvalid = (errors: FieldErrors<CreateActivity>) => {
     const messages = Object.values(errors)
       .map((e) => e?.message)
       .filter(Boolean) as string[];
-    toast.error("Couldn't create activity schedule", {
+    toast.error("Couldn't create activity", {
       description:
         messages.length > 0
           ? messages.map((m) => `• ${m}`).join("  ")
@@ -65,11 +58,9 @@ export function CreateActivityScheduleForm({
 
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
-      <h3 className="text-lg font-bold text-white mb-4">
-        Create Activity Schedule
-      </h3>
+      <h3 className="text-lg font-bold text-white mb-4">Create Activity</h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
-        <ActivityScheduleFormFields control={control} />
+        <ActivityFormFields control={control} />
         <div className="flex justify-end gap-3 pt-2">
           {onCancel && (
             <Button
@@ -91,7 +82,7 @@ export function CreateActivityScheduleForm({
                 Creating...
               </>
             ) : (
-              "Create Activity Schedule"
+              "Create Activity"
             )}
           </Button>
         </div>
