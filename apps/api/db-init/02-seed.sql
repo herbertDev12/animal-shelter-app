@@ -35,9 +35,9 @@ INSERT INTO "Veterinarian" (id_supplier, id_clinic, modality, specialty, fax, ve
 -- 5. Contract
 -- ============================================
 INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date, end_date, reconciliation_date, description, status, base_price, surcharge) VALUES
-(1, 1, 'Veterinarian', '2025-01-01', '2025-12-31', '2025-06-30', 'Annual veterinary supplies contract', 'Active', 35.00, 5.00),
-(2, 2, 'Food', '2025-03-01', '2025-12-31', NULL, 'Premium dog and cat food supply', 'Active', 42.50, 0.00),
-(3, 3, 'Service', '2025-06-01', '2026-05-31', NULL, 'Animal transport for vet appointments', 'Active', 25.00, 10.00),
+(1, 1, 'Veterinarian', '2026-01-01', '2026-12-31', '2026-01-15', 'Annual veterinary supplies contract', 'Active', 35.00, 5.00),
+(2, 2, 'Food', '2026-03-01', '2026-12-31', NULL, 'Premium dog and cat food supply', 'Active', 42.50, 0.00),
+(3, 3, 'Service', '2026-06-01', '2027-05-31', NULL, 'Animal transport for vet appointments', 'Active', 25.00, 10.00),
 (4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired', 30.00, 0.00);
 
 -- ============================================
@@ -86,10 +86,10 @@ SELECT setval(pg_get_serial_sequence('"Donation"', 'id_donation'), COALESCE(MAX(
 -- 9. ActivitySchedule
 -- ============================================
 INSERT INTO "ActivitySchedule" (id_schedule, id_animal, id_contract, activity_type, description, date, time, duration_days) VALUES
-(1, 1, 1, 'Vaccination', 'Annual rabies and distemper vaccination', '2025-07-15', '09:00:00', 1),
-(2, 2, 2, 'Feeding', 'Daily nutrition plan - senior cat formula', '2025-07-10', '08:00:00', 30),
-(3, 5, 3, 'Transport', 'Transport to VetCare Central for check-up', '2025-08-01', '10:30:00', 1),
-(4, 4, 1, 'Medical Checkup', 'Routine health examination', '2025-07-20', '14:00:00', 1);
+(1, 1, 1, 'Vaccination', 'Annual rabies and distemper vaccination', '2026-07-15', '09:00:00', 1),
+(2, 2, 2, 'Feeding', 'Daily nutrition plan - senior cat formula', '2026-07-10', '08:00:00', 30),
+(3, 5, 3, 'Transport', 'Transport to VetCare Central for check-up', '2026-08-01', '10:30:00', 1),
+(4, 4, 1, 'Medical Checkup', 'Routine health examination', '2026-07-20', '14:00:00', 1);
 
 -- ============================================
 -- 10. Adoption
