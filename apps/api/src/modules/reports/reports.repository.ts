@@ -428,15 +428,15 @@ export class ReportsRepository extends BaseRepository {
           FROM "Activity" act
           INNER JOIN "ServiceOffered" so ON act.id_service = so.id_service
           WHERE act.id_animal = a.id_animal
-        ) as total_activity_cost,
+        )::float8 as total_activity_cost,
         COALESCE(
           (SELECT SUM(adp.adoption_price) FROM "Adoption" adp WHERE adp.id_animal = a.id_animal),
           0
-        ) as total_adoption_fee,
+        )::float8 as total_adoption_fee,
         COALESCE(
           (SELECT SUM(d.amount) FROM "Donation" d WHERE d.id_animal = a.id_animal),
           0
-        ) as total_donations,
+        )::float8 as total_donations,
         (
           COALESCE(
             (SELECT SUM(adp.adoption_price) FROM "Adoption" adp WHERE adp.id_animal = a.id_animal),
@@ -447,7 +447,7 @@ export class ReportsRepository extends BaseRepository {
             (SELECT SUM(d.amount) FROM "Donation" d WHERE d.id_animal = a.id_animal),
             0
           )
-        ) as total_revenue
+        )::float8 as total_revenue
       FROM "Animal" a
       ORDER BY a.name
       LIMIT $${paramCount - 1}

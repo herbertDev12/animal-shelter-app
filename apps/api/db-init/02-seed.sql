@@ -32,7 +32,9 @@ INSERT INTO "Contract" (id_contract, id_supplier, contract_category, start_date,
 (1, 1, 'Veterinarian', '2026-01-01', '2026-12-31', '2026-01-15', 'Annual veterinary supplies contract', 'Active'),
 (2, 2, 'Food', '2026-03-01', '2026-12-31', NULL, 'Premium dog and cat food supply', 'Active'),
 (3, 3, 'Service', '2026-06-01', '2027-05-31', NULL, 'Animal transport for vet appointments', 'Active'),
-(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired');
+(4, 1, 'Veterinarian', '2024-01-01', '2024-12-31', '2024-06-30', 'Previous year veterinary contract', 'Expired'),
+(5, 4, 'Service', '2026-01-01', '2027-12-31', '2026-03-15', 'Mobile vet transport - reconciled', 'Active'),
+(6, 2, 'Food', '2026-01-01', '2027-12-31', '2026-04-10', 'Premium food supply - reconciled', 'Active');
 
 -- ============================================
 -- 6. TransportService
@@ -51,7 +53,9 @@ INSERT INTO "ServiceOffered" (id_service, id_contract, name, food_type, base_pri
 (3, 2, 'Saco de Pienso 20kg', 'Pienso', 42.50, 0.00),
 (4, 2, 'Alimento Húmedo Premium', 'Húmeda', 30.00, 0.00),
 (5, 3, 'Traslado Local', NULL, 25.00, 10.00),
-(6, 3, 'Traslado Interprovincial', NULL, 50.00, 15.00);
+(6, 3, 'Traslado Interprovincial', NULL, 50.00, 15.00),
+(7, 5, 'Traslado Veterinario Mensual', NULL, 60.00, 5.00),
+(8, 6, 'Saco de Pienso Mensual', 'Pienso', 45.00, 0.00);
 
 -- ============================================
 -- 8. Animal (SERIAL PK table)
