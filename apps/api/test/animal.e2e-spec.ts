@@ -112,10 +112,23 @@ describe('Animals (e2e)', () => {
         .expect(400);
     });
 
-    it('rejects a non-integer / negative age', async () => {
+    it('rejects missing required fields (breed, birth_date, weight)', async () => {
       await request(server)
         .post('/animals')
-        .send({ name: 'Rex', species: 'Dog', age: -1 })
+        .send({ name: 'Rex', species: 'Dog' })
+        .expect(400);
+    });
+
+    it('rejects a birth_date after the entry date (future date)', async () => {
+      await request(server)
+        .post('/animals')
+        .send({
+          name: 'Rex',
+          species: 'Dog',
+          breed: 'Mixed',
+          birth_date: '2999-01-01',
+          weight: 5,
+        })
         .expect(400);
     });
   });
@@ -123,15 +136,21 @@ describe('Animals (e2e)', () => {
   describe('CRUD round-trip', () => {
     let createdId: number;
 
-    it('creates an animal with default status and age->birth_date conversion', async () => {
+    it('creates an animal with all required fields and default status', async () => {
       const res = await request(server)
         .post('/animals')
-        .send({ name: 'E2E Test Dog', species: 'Dog', age: 3 })
+        .send({
+          name: 'E2E Test Dog',
+          species: 'Dog',
+          breed: 'Mixed',
+          birth_date: '2020-01-01',
+          weight: 10,
+        })
         .expect(201);
 
       expect(res.body.id).toBeDefined();
       expect(res.body.status).toBe('available'); // default applied
-      expect(res.body.birth_date).toBeTruthy(); // age converted to birth_date
+      expect(res.body.birth_date).toBeTruthy();
       createdId = res.body.id;
     });
 

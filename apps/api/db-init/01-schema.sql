@@ -69,7 +69,9 @@ CREATE TABLE "Animal" (
     birth_date DATE,
     weight     DECIMAL(6,2),
     entry_date DATE NOT NULL,
-    status     VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'adopted', 'reserved', 'deceased'))
+    status     VARCHAR(20) DEFAULT 'available' CHECK (status IN ('available', 'adopted', 'reserved', 'deceased')),
+
+    CONSTRAINT chk_animal_birth_before_entry CHECK (birth_date IS NULL OR birth_date <= entry_date)
 );
 
 CREATE TABLE "Activity" (

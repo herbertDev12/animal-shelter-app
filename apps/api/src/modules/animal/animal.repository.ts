@@ -141,12 +141,6 @@ export class AnimalRepository extends BaseRepository {
       birth_date: data.birth_date || null,
     };
 
-    if (data.age !== undefined && !record.birth_date) {
-      const birthDate = new Date();
-      birthDate.setFullYear(birthDate.getFullYear() - data.age);
-      record.birth_date = birthDate;
-    }
-
     const result = await this.create<AnimalRow>('Animal', record);
     return {
       id: result.id_animal,
@@ -155,7 +149,6 @@ export class AnimalRepository extends BaseRepository {
       status: result.status,
       entry_date: result.entry_date,
       breed: result.breed || undefined,
-      age: data.age,
       birth_date: result.birth_date || undefined,
       weight: result.weight || undefined,
     };
@@ -163,13 +156,6 @@ export class AnimalRepository extends BaseRepository {
 
   async updateAnimal(id: number, data: Partial<CreateAnimal>): Promise<Animal> {
     const record: Record<string, unknown> = { ...data };
-    delete record.age;
-
-    if (data.age !== undefined && !data.birth_date) {
-      const birthDate = new Date();
-      birthDate.setFullYear(birthDate.getFullYear() - data.age);
-      record.birth_date = birthDate;
-    }
 
     const result = await this.update<AnimalRow>('Animal', id, record, {
       idColumn: 'id_animal',

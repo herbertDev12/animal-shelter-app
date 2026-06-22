@@ -6,9 +6,9 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
-  createAnimalSchema,
+  updateAnimalSchema,
   type Animal,
-  type CreateAnimal,
+  type UpdateAnimal,
 } from "@repo/schemas";
 import { updateAnimal } from "../services";
 import { AnimalFormFields } from "./animal-form-fields";
@@ -26,8 +26,8 @@ export function EditAnimalForm({
 }: EditAnimalFormProps) {
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, reset } = useForm<CreateAnimal>({
-    resolver: zodResolver(createAnimalSchema) as Resolver<CreateAnimal>,
+  const { control, handleSubmit, reset } = useForm<UpdateAnimal>({
+    resolver: zodResolver(updateAnimalSchema) as Resolver<UpdateAnimal>,
     defaultValues: {
       name: "",
       species: "",
@@ -41,7 +41,6 @@ export function EditAnimalForm({
       name: animal.name,
       species: animal.species,
       breed: animal.breed ?? "",
-      age: animal.age,
       weight: animal.weight,
       birth_date: animal.birth_date ? new Date(animal.birth_date) : undefined,
       status: animal.status,
@@ -49,7 +48,7 @@ export function EditAnimalForm({
   }, [animal, reset]);
 
   const mutation = useMutation({
-    mutationFn: (data: CreateAnimal) => updateAnimal(animal.id, data),
+    mutationFn: (data: UpdateAnimal) => updateAnimal(animal.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["animals"] });
       toast.success("Animal updated successfully!");
@@ -60,11 +59,11 @@ export function EditAnimalForm({
     },
   });
 
-  const onSubmit = (data: CreateAnimal) => {
+  const onSubmit = (data: UpdateAnimal) => {
     mutation.mutate(data);
   };
 
-  const onInvalid = (errors: FieldErrors<CreateAnimal>) => {
+  const onInvalid = (errors: FieldErrors<UpdateAnimal>) => {
     const messages = Object.values(errors)
       .map((e) => e?.message)
       .filter(Boolean) as string[];

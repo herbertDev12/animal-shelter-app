@@ -2,17 +2,35 @@ import { z } from "zod";
 
 const animalStatusEnum = z.enum(["available", "adopted", "reserved"]);
 
-export const createAnimalSchema = z.object({
+const animalBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
   species: z.string().min(1, "Species is required"),
-  breed: z.string().optional(),
-  age: z.number().int().min(0).optional(),
-  birth_date: z.coerce.date().optional(),
-  weight: z.number().min(0).optional(),
+  breed: z.string().min(1, "Breed is required"),
+  birth_date: z.coerce.date({ error: "Birth date is required" }),
+  weight: z.number({ error: "Weight is required" }).min(0),
   status: animalStatusEnum.default("available"),
 });
 
-export const updateAnimalSchema = createAnimalSchema.partial();
+const birthDateNotInFuture = (data: { birth_date?: Date }) =>
+  !data.birth_date || data.birth_date <= new Date();
+
+const birthDateRefineOptions = {
+  message: "Birth date cannot be after entry date",
+  path: ["birth_date"],
+};
+
+export const createAnimalSchema = animalBaseSchema.refine(
+  birthDateNotInFuture,
+  birthDateRefineOptions,
+);
+
+export const updateAnimalSchema = animalBaseSchema
+  .partial()
+  .refine((data) => Object.values(data).some((v) => v !== undefined), {
+    message: "At least one field must be provided",
+    path: ["name"],
+  })
+  .refine(birthDateNotInFuture, birthDateRefineOptions);
 
 export const searchAnimalsFiltersSchema = z.object({
   species: z.string().optional(),
@@ -24,8 +42,15 @@ export const searchAnimalsFiltersSchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
-export const animalSchema = createAnimalSchema.extend({
+export const animalSchema = z.object({
   id: z.number().int(),
+  name: z.string(),
+  species: z.string(),
+  breed: z.string().optional(),
+  age: z.number().int().min(0).optional(),
+  birth_date: z.coerce.date().optional(),
+  weight: z.number().min(0).optional(),
+  status: animalStatusEnum,
   entry_date: z.date(),
 });
 

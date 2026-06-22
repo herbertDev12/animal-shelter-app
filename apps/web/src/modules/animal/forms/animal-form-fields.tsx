@@ -44,33 +44,6 @@ export function AnimalFormFields<T extends FieldValues>({
       />
 
       <Controller
-        name={"age" as Path<T>}
-        control={control}
-        render={({ field, fieldState: { error } }) => (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="age">Age (years)</Label>
-            <input
-              id="age"
-              type="number"
-              min={0}
-              value={field.value ?? ""}
-              onChange={(e) =>
-                field.onChange(
-                  e.target.value === "" ? undefined : e.target.valueAsNumber,
-                )
-              }
-              onBlur={field.onBlur}
-              placeholder="e.g. 3"
-              className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm ${fieldClassName} ${
-                error ? "border-red-500" : ""
-              }`}
-            />
-            {error && <p className="text-sm text-red-500">{error.message}</p>}
-          </div>
-        )}
-      />
-
-      <Controller
         name={"weight" as Path<T>}
         control={control}
         render={({ field, fieldState: { error } }) => (
