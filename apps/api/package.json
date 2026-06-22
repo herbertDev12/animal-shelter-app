@@ -8,7 +8,9 @@
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
-    "start": "nest start"
+    "start": "nest start",
+    "test": "jest",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
   "nest": {
     "collection": "@nestjs/schematics"

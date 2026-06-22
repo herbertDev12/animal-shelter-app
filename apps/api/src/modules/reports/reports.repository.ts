@@ -371,8 +371,8 @@ export class ReportsRepository extends BaseRepository {
       LEFT JOIN "Supplier" vet_s ON v.id_supplier = vet_s.id_supplier
       WHERE a.id_animal = $1
       ORDER BY act.date, act.time
-      LIMIT $${paramCount - 2}
-      OFFSET $${paramCount - 1}
+      LIMIT $${paramCount - 1}
+      OFFSET $${paramCount}
     `;
 
     const rows = await this.query<
