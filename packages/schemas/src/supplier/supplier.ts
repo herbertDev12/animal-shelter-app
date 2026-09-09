@@ -31,6 +31,12 @@ export const searchSuppliersFiltersSchema = z.object({
 
 export const supplierSchema = createSupplierSchema.extend({
   id: z.number().int(),
+  // Nullable columns come back as null, not absent.
+  address: z.string().nullish(),
+  phone: z.string().nullish(),
+  contact_email: z.string().nullish(),
+  contact_name: z.string().nullish(),
+  province: z.string().nullish(),
 });
 
 export type CreateSupplier = z.infer<typeof createSupplierSchema>;

@@ -16,14 +16,14 @@ This document (`Readmev2.md`) is a **complete and detailed** explanation of the 
    - [Bootstrap and configuration](#31-bootstrap-and-configuration-maints)
    - [Architectural patterns](#32-architectural-patterns)
    - [Anatomy of a module](#33-anatomy-of-a-module)
-   - [Data access layer: the `BaseRepository`](#34-data-access-layer-the-baserepository)
+   - [Data access layer: Prisma ORM](#34-data-access-layer-prisma-orm)
    - [Validation with Zod](#35-validation-with-zod)
    - [Error handling](#36-error-handling)
    - [Module catalog](#37-module-catalog)
 4. [Database (PostgreSQL)](#4-database-postgresql)
    - [Provisioning with Docker](#41-provisioning-with-docker)
    - [Data model and relationships](#42-data-model-and-relationships)
-   - [Initialization scripts](#43-initialization-scripts)
+   - [Migrations and seed](#43-migrations-and-seed)
    - [Connection from the API](#44-connection-from-the-api)
 5. [The `@repo/schemas` package](#5-the-reposchemas-package)
 6. [The web frontend (React + Vite)](#6-the-web-frontend-react--vite)
@@ -94,10 +94,10 @@ src/
 ├── app.controller.ts
 ├── app.service.ts
 └── modules/
-    ├── database/        # DB connection + base repository (infrastructure core)
-    │   ├── database.module.ts
-    │   ├── base.repository.ts
-    │   └── config/database.config.ts
+    ├── prisma/          # Prisma client + connection (infrastructure core)
+    │   ├── prisma.module.ts
+    │   ├── prisma.service.ts
+    │   └── database-url.ts
     ├── animal/
     ├── adoption/
     ├── activity-schedule/
@@ -158,16 +158,15 @@ The API combines several classic NestJS patterns:
 
 1. **Modular feature-based architecture:** each domain entity is an independent, self-contained NestJS module.
 2. **Dependency injection (DI):** the NestJS DI container is used with constructor injection.
-3. **Layered pattern (Controller → Service → Repository):**
+3. **Layered pattern (Controller → Service):**
    - **Controller** — defines the REST HTTP routes and delegates to the service.
-   - **Service** — contains the business logic and throws domain exceptions (e.g. `NotFoundException`).
-   - **Repository** — encapsulates data access (SQL).
-4. **Repository Pattern with a base class:** all repositories extend an abstract `BaseRepository` that centralizes query execution, error handling and generic CRUD operations.
+   - **Service** — contains the business logic, performs its own data access through Prisma, and throws domain exceptions (e.g. `NotFoundException`).
+4. **ORM-backed persistence:** a generated, fully typed Prisma client replaces the former hand-written repository layer. `PrismaService` is the single injectable that owns the connection.
 
 The flow of a request is:
 
 ```
-HTTP → Controller → Service → Repository → (pg.Pool) → PostgreSQL
+HTTP → Controller → Service → (PrismaService) → PostgreSQL
                        ↑ ZodValidationPipe validates the body/query before the controller
 ```
 
@@ -175,7 +174,7 @@ HTTP → Controller → Service → Repository → (pg.Pool) → PostgreSQL
 
 Let's take the **`service-offered`** module as a representative example. It contains four files:
 
-**`service-offered.module.ts`** — declares the module, imports `DatabaseModule` (to access the pool), registers the service and the repository as *providers* and exports the service so other modules can reuse it.
+**`service-offered.module.ts`** — declares the module, registers the service as a *provider* and exports it so other modules can reuse it. It needs no imports: `PrismaModule` is `@Global()`.
 
 **`service-offered.controller.ts`** — defines the REST endpoints:
 
@@ -215,89 +214,86 @@ export class ServiceOfferedService {
 }
 ```
 
-**`service-offered.repository.ts`** — data access; extends `BaseRepository`, writes parameterized SQL and maps the DB rows to domain models.
+The service reaches the database directly through `PrismaService`; there is no separate data-access file.
 
-This **4-files-per-module** pattern (`*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.repository.ts`) repeats identically across all domain modules, which makes the code very predictable.
+This **3-files-per-module** pattern (`*.module.ts`, `*.controller.ts`, `*.service.ts`) repeats identically across all domain modules, which makes the code very predictable.
 
-### 3.4. Data access layer: the `BaseRepository`
+### 3.4. Data access layer: Prisma ORM
 
-The heart of data access is the abstract class **`BaseRepository`** (`modules/database/base.repository.ts`). It receives the `pg` `Pool` by injection and offers reusable helpers:
+Data access lives in **Prisma ORM**. The schema at `apps/api/prisma/schema.prisma` is the single source of truth: it describes every table, is versioned through migrations in `apps/api/prisma/migrations/`, and generates a fully typed client.
 
-```typescript
-export abstract class BaseRepository {
-  constructor(protected pool: Pool) {}
+The schema models the pre-existing PostgreSQL tables as they are, using `@@map` / `@map` to keep the PascalCase table names and snake_case columns:
 
-  // Runs a parameterized query with error handling
-  protected async execute<T>(query: string, values: unknown[] = []) {
-    try {
-      return await this.pool.query<T>(query, values);
-    } catch (error) {
-      console.error('Database query error:', error);
-      throw error;
-    }
-  }
+```prisma
+model Animal {
+  id_animal  Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  species    String    @db.VarChar(50)
+  breed      String?   @db.VarChar(50)
+  birth_date DateTime? @db.Date
+  weight     Decimal?  @db.Decimal(6, 2)
+  entry_date DateTime  @db.Date
+  status     String?   @default("available") @db.VarChar(20)
 
-  protected async query<T>(query, values)    // returns all rows
-  protected async queryOne<T>(query, values) // returns one row or null
-  protected async count(query, values)       // returns a COUNT(*) as a number
+  activities Activity[]
+  adoptions  Adoption[]
+  donations  Donation[]
 
-  // Generic CRUD built dynamically:
-  protected async create<T>(tableName, data)        // INSERT ... RETURNING *
-  protected async update<T>(tableName, id, data, options)  // dynamic UPDATE
-  protected async delete(tableName, id, idColumn)   // DELETE by id
+  @@index([species], map: "idx_animals_species")
+  @@map("Animal")
 }
 ```
 
-The generic `create()` builds the `INSERT` from an object, generating the numbered placeholders automatically:
-
-```typescript
-const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-const query = `
-  INSERT INTO "${tableName}" (${columns.map(c => `"${c}"`).join(', ')})
-  VALUES (${placeholders})
-  RETURNING *`;
-```
-
-A **concrete repository** looks like this (clinic module example):
+The client is exposed as a single injectable, **`PrismaService`** (`modules/prisma/prisma.service.ts`), which extends `PrismaClient` and implements the NestJS lifecycle hooks so the connection opens on boot and closes on shutdown:
 
 ```typescript
 @Injectable()
-export class ClinicRepository extends BaseRepository {
-  constructor(@Inject(DATABASE_CONNECTION) protected override pool: Pool) {
-    super(pool);
-  }
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  async onModuleInit()    { await this.$connect(); }
+  async onModuleDestroy() { await this.$disconnect(); }
+}
+```
+
+`PrismaModule` is `@Global()`, so any service can inject `PrismaService` without importing anything.
+
+A **service** now performs its own queries — there is no repository layer in between:
+
+```typescript
+@Injectable()
+export class ClinicService {
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<Clinic[]> {
-    const query = `
-      SELECT id_clinic AS id, name, province, address
-      FROM "Clinic"
-      ORDER BY name ASC`;
-    return this.query<Clinic>(query);
+    const rows = await this.prisma.clinic.findMany({ orderBy: { name: 'asc' } });
+    return rows.map(toClinic);
+  }
+
+  async findById(id: number): Promise<Clinic> {
+    const row = await this.prisma.clinic.findUnique({ where: { id_clinic: id } });
+    if (!row) throw new NotFoundException(`Clinic with ID ${id} not found`);
+    return toClinic(row);
   }
 
   async search(filters: SearchClinicsFilters): Promise<Clinic[]> {
-    const conditions: string[] = [];
-    const params: unknown[] = [];
-    let paramCount = 0;
-    if (filters.name) {
-      paramCount++;
-      conditions.push(`c.name ILIKE $${paramCount}`);
-      params.push(`%${filters.name}%`);
-    }
-    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-    // ... + LIMIT / OFFSET for pagination
+    const rows = await this.prisma.clinic.findMany({
+      where: { name: contains(filters.name), province: contains(filters.province) },
+      orderBy: { name: 'asc' },
+      take: filters.limit || 10,
+      skip: filters.offset || 0,
+    });
+    return rows.map(toClinic);
   }
 }
 ```
 
 **Characteristics of the data access style:**
 
-- **Parameterized plain SQL** with numbered placeholders (`$1`, `$2`, …). This prevents **SQL injection**.
-- **No ORM or query builder** (no TypeORM, Prisma or Knex); queries are written by hand, giving full control and optimized queries for the reports.
-- **Manual mapping** of DB column names (e.g. `id_clinic`) to domain model properties (`id`) via SQL aliases (`AS id`).
-- **Pagination** with `LIMIT`/`OFFSET` and **dynamic filters** built conditionally.
-- **Error handling** centralized in `execute()` (log + re-throw).
-- **No explicit transactions:** all queries run in autocommit mode. Access is via `pg.Pool`, which manages the connection pool.
+- **Type-safe queries.** The generated client types every model, filter and result, so a renamed column is a compile error rather than a runtime surprise.
+- **No hand-written SQL.** Filters, pagination and joins are expressed with the Prisma query API; parameterization (and therefore SQL-injection safety) is handled by the client.
+- **Versioned schema.** Changes go through `prisma migrate`, which produces reviewable migration files instead of an edit-and-recreate-the-volume workflow.
+- **Relation loading with `select` / `include`,** which replaces the hand-written `INNER JOIN`s and the manual row→model mapping.
+- **Explicit transactions** where several tables must move together: `prisma.$transaction()` for the `Supplier`/`Veterinarian` and `Contract`/`TransportService` subtype pairs, and nested writes (`supplier.create({ data: { veterinarian: { create: … } } })`), which are atomic by construction.
+- **Scalar conversions centralized** in `src/common/prisma-scalars.ts` — `Decimal` → `number`, `@db.Date`/`@db.Time` → the string or `Date` shape each Zod schema declares, and the age/day-count arithmetic that used to be `EXTRACT(YEAR FROM AGE(...))` in SQL.
 
 ### 3.5. Validation with Zod
 
@@ -317,14 +313,14 @@ In the controller, by typing `@Body() data: CreateServiceOfferedDto`, the global
 
 - The **native NestJS exception hierarchy** is used (`NotFoundException`, `BadRequestException`, etc.).
 - The **service** layer throws `NotFoundException` when an entity does not exist; NestJS turns it into a `404`.
-- **Database errors** are caught in `BaseRepository.execute()`, logged to the console and re-thrown.
-- **No custom exception filters or authentication/guards** are implemented: the API is open access and delegates the error response format to NestJS's default exception handler.
+- **Database errors** are translated by `PrismaExceptionFilter` (`src/common/prisma-exception.filter.ts`), which maps Prisma error codes to HTTP responses: `P2025` (record not found) → `404`, `P2002` (unique violation) → `409`, `P2003` (foreign key violation) and `CHECK` constraint failures → `400`; anything else is logged and returned as a `500`.
+- **No authentication/guards** are implemented: the API is open access.
 
 ### 3.7. Module catalog
 
 | Module | Base route | Description |
 |--------|-----------|-------------|
-| **database** | — | Infrastructure: connection pool + `BaseRepository`. Exposes no routes. |
+| **prisma** | — | Infrastructure: the Prisma client and its connection lifecycle. Exposes no routes. |
 | **animal** | `/animals` | Animal CRUD + search + statistics (`/stats`). Computes age with `EXTRACT(YEAR FROM AGE(birth_date))`. |
 | **adoption** | `/adoptions` | Adoption records. |
 | **activity-schedule** | `/activity-schedules` | Activity schedule (vaccination, feeding, transport…) for animals. |
@@ -368,8 +364,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - ./apps/api/db-init:/docker-entrypoint-initdb.d   # init scripts
-      - pgdata:/var/lib/postgresql/data                  # persistence
+      - pgdata:/var/lib/postgresql/data   # persistence
 ```
 
 Variables in the root `.env`:
@@ -384,12 +379,12 @@ DB_PORT=5434
 Important details:
 
 - The host port is **5434** (mapped to the container's internal `5432`).
-- The `apps/api/db-init` folder is mounted into `/docker-entrypoint-initdb.d`. PostgreSQL **automatically** runs all `.sql` files in that folder, in **alphabetical order**, the first time the container starts (empty volume).
+- The container starts **empty**. The schema is applied by Prisma migrations (`pnpm --filter api run prisma:deploy`) and the data by the seed (`pnpm --filter api run db:seed`) — see §4.3.
 - Data persists in the named volume `pgdata`.
 
 ### 4.2. Data model and relationships
 
-The schema (`apps/api/db-init/01-schema.sql`) defines **11 tables**. All primary keys are `SERIAL` except the extension tables that share the PK with their parent table. It uses `CHECK` constraints to emulate enums and indexes to speed up frequent queries.
+The schema (`apps/api/prisma/schema.prisma`, applied through the migrations in `apps/api/prisma/migrations/`) defines **10 tables**. All primary keys are `SERIAL` except the extension tables that share the PK with their parent table. It uses `CHECK` constraints to emulate enums and indexes to speed up frequent queries.
 
 **Main tables:**
 
@@ -429,40 +424,40 @@ ShelterConfiguration   (global configuration table)
 - `Veterinarian` and `TransportService` apply an **inheritance/extension by shared key** pattern: their PK *is* the FK to the parent table (`Supplier` and `Contract` respectively), modeling a 1:1 relationship.
 - Indexes on frequently filtered columns: `Supplier(province, type)`, `Contract(contract_category, start_date, end_date, status)`, `ServiceOffered(id_contract)`, `Animal(species, status, entry_date DESC)`, `ActivitySchedule(date)`.
 
-### 4.3. Initialization scripts
+### 4.3. Migrations and seed
 
-In `apps/api/db-init/`, run in alphabetical order when the container is created:
+The schema lives in `apps/api/prisma/schema.prisma` and is applied through **versioned migrations** in `apps/api/prisma/migrations/`. The initial migration also carries, appended by hand, the `CHECK` constraints that the Prisma schema language cannot express (the value sets for `type` / `contract_category` / `status`, `base_price >= 0`, `end_date >= start_date`, `birth_date <= entry_date`).
 
-1. **`01-schema.sql`** — creates the 11 tables, `CHECK` constraints, foreign keys and indexes.
-2. **`02-seed.sql`** — initial data: configuration, clinics, suppliers, veterinarians, contracts, transport services, services offered, animals (with various statuses), schedules, adoptions and donations. Synchronizes the `SERIAL` sequences with `setval()`.
-3. **`03-seed.sql`** — supplementary `ServiceOffered` data.
-4. **`04-sync_sequence_max_id.sql`** — re-synchronizes the `Donation` sequence with `MAX(id_donation)` so that auto-increment continues correctly.
+Everyday commands (all run from `apps/api`, reading the root `.env` through `dotenv-cli`):
 
-**There is no formal migration system** (Prisma, TypeORM, Flyway…): the schema is static and applied only once at container startup. Schema changes require editing the SQL and recreating the volume.
+| Command | What it does |
+|---------|--------------|
+| `pnpm --filter api run prisma:migrate` | Creates and applies a migration in development |
+| `pnpm --filter api run prisma:deploy` | Applies pending migrations (CI / production) |
+| `pnpm --filter api run prisma:generate` | Regenerates the typed client |
+| `pnpm --filter api run db:seed` | Loads the development data |
+| `pnpm --filter api run db:reset` | Drops, re-migrates and re-seeds the database |
+| `pnpm --filter api run prisma:studio` | Opens Prisma Studio to browse the data |
+
+The seed is `apps/api/prisma/seed.ts` — plain TypeScript against the typed client. It sets **no explicit primary keys**: every insert lets the `SERIAL` sequence allocate normally, which is why no sequence-resynchronization step is needed. It clears the tables in foreign-key order first, so it is safe to re-run.
 
 ### 4.4. Connection from the API
 
-The connection is configured in `apps/api/src/modules/database/config/database.config.ts`:
+The connection string is built in `apps/api/src/modules/prisma/database-url.ts`. `DATABASE_URL` wins when set — that is what the Prisma CLI reads, so the two cannot drift — and otherwise it is composed from the individual `DB_*` variables:
 
 ```typescript
-export function createDatabasePool(): Pool {
-  const config: PoolConfig = {
-    user:     process.env.DB_USER     || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    host:     process.env.DB_HOST     || 'localhost',
-    port:     parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME     || 'animal_shelter',
-  };
-  return new Pool(config);
+export function buildDatabaseUrl(): string {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  const user = encodeURIComponent(process.env.DB_USER ?? 'postgres');
+  // ... DB_PASSWORD / DB_HOST / DB_PORT / DB_NAME
+  return `postgresql://${user}:${password}@${host}:${port}/${database}?schema=public`;
 }
 ```
 
-The `DatabaseModule` is a global NestJS module that creates the pool with an async *factory*, tests the connection (`connectToDatabase()` logs ✓/✗ to the console) and exposes it through the `DATABASE_CONNECTION` token. Each concrete repository receives it by injection:
+`PrismaModule` is a global NestJS module providing `PrismaService`, which extends `PrismaClient` and opens/closes the connection in `onModuleInit` / `onModuleDestroy`. `main.ts` calls `app.enableShutdownHooks()` so a `SIGTERM` disconnects cleanly. Each service receives it by injection:
 
 ```typescript
-constructor(@Inject(DATABASE_CONNECTION) protected override pool: Pool) {
-  super(pool);
-}
+constructor(private readonly prisma: PrismaService) {}
 ```
 
 ---
@@ -627,9 +622,12 @@ pnpm install
 # 2. Bring up the PostgreSQL database (Docker)
 docker compose up -d
 #    → creates the 'animal-shelter-db' container, exposes port 5434
-#    → automatically runs the scripts in apps/api/db-init/
 
-# 3. Start API + Web in development mode (Turborepo)
+# 3. Apply the schema and load the development data
+pnpm --filter api run prisma:deploy
+pnpm --filter api run db:seed
+
+# 4. Start API + Web in development mode (Turborepo)
 pnpm dev
 #    → API:  http://localhost:3002
 #    → Web:  http://localhost:5173
@@ -677,14 +675,14 @@ Este documento (`Readmev2.md`) es una explicación **completa y detallada** del 
    - [Arranque y configuración](#31-arranque-y-configuración-maints)
    - [Patrones de arquitectura](#32-patrones-de-arquitectura)
    - [Anatomía de un módulo](#33-anatomía-de-un-módulo)
-   - [Capa de acceso a datos: el `BaseRepository`](#34-capa-de-acceso-a-datos-el-baserepository)
+   - [Capa de acceso a datos: Prisma ORM](#34-capa-de-acceso-a-datos-prisma-orm)
    - [Validación con Zod](#35-validación-con-zod)
    - [Manejo de errores](#36-manejo-de-errores)
    - [Catálogo de módulos](#37-catálogo-de-módulos)
 4. [Base de datos (PostgreSQL)](#4-base-de-datos-postgresql)
    - [Provisión con Docker](#41-provisión-con-docker)
    - [Modelo de datos y relaciones](#42-modelo-de-datos-y-relaciones)
-   - [Scripts de inicialización](#43-scripts-de-inicialización)
+   - [Migraciones y seed](#43-migraciones-y-seed)
    - [Conexión desde la API](#44-conexión-desde-la-api)
 5. [El paquete `@repo/schemas`](#5-el-paquete-reposchemas)
 6. [El frontend web (React + Vite)](#6-el-frontend-web-react--vite)
@@ -755,10 +753,10 @@ src/
 ├── app.controller.ts
 ├── app.service.ts
 └── modules/
-    ├── database/        # Conexión a BD + repositorio base (núcleo de infraestructura)
-    │   ├── database.module.ts
-    │   ├── base.repository.ts
-    │   └── config/database.config.ts
+    ├── prisma/          # Cliente Prisma + conexión (núcleo de infraestructura)
+    │   ├── prisma.module.ts
+    │   ├── prisma.service.ts
+    │   └── database-url.ts
     ├── animal/
     ├── adoption/
     ├── activity-schedule/
@@ -819,16 +817,15 @@ La API combina varios patrones clásicos de NestJS:
 
 1. **Arquitectura modular por feature:** cada entidad del dominio es un módulo NestJS independiente y autocontenido.
 2. **Inyección de dependencias (DI):** se usa el contenedor de DI de NestJS con inyección por constructor.
-3. **Patrón en capas (Controller → Service → Repository):**
+3. **Patrón en capas (Controller → Service):**
    - **Controller** — define las rutas HTTP REST y delega en el servicio.
-   - **Service** — contiene la lógica de negocio y lanza excepciones de dominio (p. ej. `NotFoundException`).
-   - **Repository** — encapsula el acceso a datos (SQL).
-4. **Repository Pattern con clase base:** todos los repositorios extienden un `BaseRepository` abstracto que centraliza la ejecución de consultas, el manejo de errores y operaciones CRUD genéricas.
+   - **Service** — contiene la lógica de negocio, ejecuta su propio acceso a datos mediante Prisma y lanza excepciones de dominio (p. ej. `NotFoundException`).
+4. **Persistencia con ORM:** un cliente Prisma generado y completamente tipado sustituye la antigua capa de repositorios escrita a mano. `PrismaService` es el único inyectable que posee la conexión.
 
 El flujo de una petición es:
 
 ```
-HTTP → Controller → Service → Repository → (pg.Pool) → PostgreSQL
+HTTP → Controller → Service → (PrismaService) → PostgreSQL
                        ↑ ZodValidationPipe valida el body/query antes del controlador
 ```
 
@@ -836,7 +833,7 @@ HTTP → Controller → Service → Repository → (pg.Pool) → PostgreSQL
 
 Tomemos el módulo **`service-offered`** como ejemplo representativo. Contiene cuatro archivos:
 
-**`service-offered.module.ts`** — declara el módulo, importa `DatabaseModule` (para acceder al pool), registra el servicio y el repositorio como *providers* y exporta el servicio para que otros módulos puedan reutilizarlo.
+**`service-offered.module.ts`** — declara el módulo, registra el servicio como *provider* y lo exporta para que otros módulos puedan reutilizarlo. No necesita imports: `PrismaModule` es `@Global()`.
 
 **`service-offered.controller.ts`** — define los endpoints REST:
 
@@ -876,89 +873,76 @@ export class ServiceOfferedService {
 }
 ```
 
-**`service-offered.repository.ts`** — acceso a datos; extiende `BaseRepository`, escribe SQL parametrizado y mapea las filas de la BD a modelos de dominio.
+El servicio accede a la base de datos directamente a través de `PrismaService`; no hay un archivo de acceso a datos aparte.
 
-Este patrón de **4 archivos por módulo** (`*.module.ts`, `*.controller.ts`, `*.service.ts`, `*.repository.ts`) se repite de forma idéntica en todos los módulos de dominio, lo que hace el código muy predecible.
+Este patrón de **3 archivos por módulo** (`*.module.ts`, `*.controller.ts`, `*.service.ts`) se repite de forma idéntica en todos los módulos de dominio, lo que hace el código muy predecible.
 
-### 3.4. Capa de acceso a datos: el `BaseRepository`
+### 3.4. Capa de acceso a datos: Prisma ORM
 
-El corazón del acceso a datos es la clase abstracta **`BaseRepository`** (`modules/database/base.repository.ts`). Recibe el `Pool` de `pg` por inyección y ofrece helpers reutilizables:
+El acceso a datos vive en **Prisma ORM**. El esquema en `apps/api/prisma/schema.prisma` es la única fuente de verdad: describe todas las tablas, se versiona mediante migraciones en `apps/api/prisma/migrations/` y genera un cliente completamente tipado.
 
-```typescript
-export abstract class BaseRepository {
-  constructor(protected pool: Pool) {}
+El esquema modela las tablas PostgreSQL ya existentes tal cual, usando `@@map` / `@map` para conservar los nombres de tabla en PascalCase y las columnas en snake_case:
 
-  // Ejecuta una consulta parametrizada con manejo de errores
-  protected async execute<T>(query: string, values: unknown[] = []) {
-    try {
-      return await this.pool.query<T>(query, values);
-    } catch (error) {
-      console.error('Database query error:', error);
-      throw error;
-    }
-  }
+```prisma
+model Animal {
+  id_animal  Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  species    String    @db.VarChar(50)
+  breed      String?   @db.VarChar(50)
+  birth_date DateTime? @db.Date
+  weight     Decimal?  @db.Decimal(6, 2)
+  entry_date DateTime  @db.Date
+  status     String?   @default("available") @db.VarChar(20)
 
-  protected async query<T>(query, values)    // devuelve todas las filas
-  protected async queryOne<T>(query, values) // devuelve una fila o null
-  protected async count(query, values)       // devuelve un COUNT(*) como número
+  activities Activity[]
+  adoptions  Adoption[]
+  donations  Donation[]
 
-  // CRUD genérico construido dinámicamente:
-  protected async create<T>(tableName, data)        // INSERT ... RETURNING *
-  protected async update<T>(tableName, id, data, options)  // UPDATE dinámico
-  protected async delete(tableName, id, idColumn)   // DELETE por id
+  @@index([species], map: "idx_animals_species")
+  @@map("Animal")
 }
 ```
 
-El `create()` genérico construye el `INSERT` a partir de un objeto, generando los placeholders numerados automáticamente:
-
-```typescript
-const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-const query = `
-  INSERT INTO "${tableName}" (${columns.map(c => `"${c}"`).join(', ')})
-  VALUES (${placeholders})
-  RETURNING *`;
-```
-
-Un **repositorio concreto** se ve así (ejemplo del módulo clinic):
+El cliente se expone como un único inyectable, **`PrismaService`** (`modules/prisma/prisma.service.ts`), que extiende `PrismaClient` e implementa los hooks de ciclo de vida de NestJS, de modo que la conexión se abre al arrancar y se cierra al apagar:
 
 ```typescript
 @Injectable()
-export class ClinicRepository extends BaseRepository {
-  constructor(@Inject(DATABASE_CONNECTION) protected override pool: Pool) {
-    super(pool);
-  }
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  async onModuleInit()    { await this.$connect(); }
+  async onModuleDestroy() { await this.$disconnect(); }
+}
+```
+
+`PrismaModule` es `@Global()`, así que cualquier servicio puede inyectar `PrismaService` sin importar nada.
+
+Un **servicio** ahora ejecuta sus propias consultas — ya no hay una capa de repositorio intermedia:
+
+```typescript
+@Injectable()
+export class ClinicService {
+  constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<Clinic[]> {
-    const query = `
-      SELECT id_clinic AS id, name, province, address
-      FROM "Clinic"
-      ORDER BY name ASC`;
-    return this.query<Clinic>(query);
+    const rows = await this.prisma.clinic.findMany({ orderBy: { name: 'asc' } });
+    return rows.map(toClinic);
   }
 
-  async search(filters: SearchClinicsFilters): Promise<Clinic[]> {
-    const conditions: string[] = [];
-    const params: unknown[] = [];
-    let paramCount = 0;
-    if (filters.name) {
-      paramCount++;
-      conditions.push(`c.name ILIKE $${paramCount}`);
-      params.push(`%${filters.name}%`);
-    }
-    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-    // ... + LIMIT / OFFSET para paginación
+  async findById(id: number): Promise<Clinic> {
+    const row = await this.prisma.clinic.findUnique({ where: { id_clinic: id } });
+    if (!row) throw new NotFoundException(`Clinic with ID ${id} not found`);
+    return toClinic(row);
   }
 }
 ```
 
 **Características del estilo de acceso a datos:**
 
-- **SQL plano parametrizado** con placeholders numerados (`$1`, `$2`, …). Esto previene **inyección SQL**.
-- **Sin ORM ni query builder** (no hay TypeORM, Prisma ni Knex); las consultas se escriben a mano, lo que da control total y consultas optimizadas para los reportes.
-- **Mapeo manual** de nombres de columna de la BD (p. ej. `id_clinic`) a propiedades del modelo de dominio (`id`) mediante alias SQL (`AS id`).
-- **Paginación** con `LIMIT`/`OFFSET` y **filtros dinámicos** construidos condicionalmente.
-- **Manejo de errores** centralizado en `execute()` (log + re‑lanzamiento).
-- **Sin transacciones explícitas:** todas las consultas se ejecutan en modo autocommit. El acceso es vía `pg.Pool`, que gestiona el pool de conexiones.
+- **Consultas con tipos seguros.** El cliente generado tipa cada modelo, filtro y resultado, de modo que renombrar una columna es un error de compilación y no una sorpresa en tiempo de ejecución.
+- **Sin SQL escrito a mano.** Filtros, paginación y joins se expresan con la API de consultas de Prisma; la parametrización (y por tanto la protección frente a inyección SQL) la gestiona el cliente.
+- **Esquema versionado.** Los cambios pasan por `prisma migrate`, que produce archivos de migración revisables en lugar del flujo de editar-y-recrear-el-volumen.
+- **Carga de relaciones con `select` / `include`,** que sustituye los `INNER JOIN` escritos a mano y el mapeo manual de fila→modelo.
+- **Transacciones explícitas** donde varias tablas deben moverse juntas: `prisma.$transaction()` para los pares de subtipo `Supplier`/`Veterinarian` y `Contract`/`TransportService`, y escrituras anidadas (`supplier.create({ data: { veterinarian: { create: … } } })`), atómicas por construcción.
+- **Conversiones de escalares centralizadas** en `src/common/prisma-scalars.ts` — `Decimal` → `number`, `@db.Date`/`@db.Time` → la forma (string o `Date`) que declara cada esquema Zod, y la aritmética de edad/días que antes era `EXTRACT(YEAR FROM AGE(...))` en SQL.
 
 ### 3.5. Validación con Zod
 
@@ -978,14 +962,14 @@ En el controlador, al tipar `@Body() data: CreateServiceOfferedDto`, el `ZodVali
 
 - Se usa la **jerarquía de excepciones nativa de NestJS** (`NotFoundException`, `BadRequestException`, etc.).
 - La capa **service** lanza `NotFoundException` cuando una entidad no existe; NestJS lo convierte en `404`.
-- Los **errores de base de datos** se capturan en `BaseRepository.execute()`, se registran en consola y se re‑lanzan.
+- Los **errores de base de datos** los traduce `PrismaExceptionFilter` (`src/common/prisma-exception.filter.ts`), que mapea los códigos de error de Prisma a respuestas HTTP: `P2025` (registro no encontrado) → `404`, `P2002` (violación de unicidad) → `409`, `P2003` (violación de clave foránea) y fallos de `CHECK` → `400`; cualquier otro se registra y se devuelve como `500`.
 - **No hay filtros de excepción personalizados ni autenticación/guards** implementados: la API es de acceso abierto y delega el formato de respuesta de error al manejador de excepciones por defecto de NestJS.
 
 ### 3.7. Catálogo de módulos
 
 | Módulo | Ruta base | Descripción |
 |--------|-----------|-------------|
-| **database** | — | Infraestructura: pool de conexión + `BaseRepository`. No expone rutas. |
+| **prisma** | — | Infraestructura: el cliente Prisma y el ciclo de vida de su conexión. No expone rutas. |
 | **animal** | `/animals` | CRUD de animales + búsqueda + estadísticas (`/stats`). Calcula la edad con `EXTRACT(YEAR FROM AGE(birth_date))`. |
 | **adoption** | `/adoptions` | Registros de adopciones. |
 | **activity-schedule** | `/activity-schedules` | Agenda de actividades (vacunación, alimentación, transporte…) para animales. |
@@ -1029,8 +1013,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - ./apps/api/db-init:/docker-entrypoint-initdb.d   # scripts de init
-      - pgdata:/var/lib/postgresql/data                  # persistencia
+      - pgdata:/var/lib/postgresql/data   # persistencia
 ```
 
 Variables en el `.env` raíz:
@@ -1045,12 +1028,12 @@ DB_PORT=5434
 Detalles importantes:
 
 - El puerto del host es **5434** (mapeado al `5432` interno del contenedor).
-- La carpeta `apps/api/db-init` se monta en `/docker-entrypoint-initdb.d`. PostgreSQL ejecuta **automáticamente** todos los `.sql` de esa carpeta, en **orden alfabético**, la primera vez que arranca el contenedor (volumen vacío).
+- El contenedor arranca **vacío**. El esquema lo aplican las migraciones de Prisma (`pnpm --filter api run prisma:deploy`) y los datos el seed (`pnpm --filter api run db:seed`) — ver §4.3.
 - Los datos persisten en el volumen nombrado `pgdata`.
 
 ### 4.2. Modelo de datos y relaciones
 
-El esquema (`apps/api/db-init/01-schema.sql`) define **11 tablas**. Todas las claves primarias son `SERIAL` excepto las tablas de extensión que comparten la PK con su tabla padre. Usa `CHECK` constraints para emular enums e índices para acelerar las consultas frecuentes.
+El esquema (`apps/api/prisma/schema.prisma`, aplicado mediante las migraciones de `apps/api/prisma/migrations/`) define **10 tablas**. Todas las claves primarias son `SERIAL` excepto las tablas de extensión que comparten la PK con su tabla padre. Usa `CHECK` constraints para emular enums e índices para acelerar las consultas frecuentes.
 
 **Tablas principales:**
 
@@ -1090,40 +1073,40 @@ ShelterConfiguration   (tabla de configuración global)
 - `Veterinarian` y `TransportService` aplican un patrón de **herencia/extensión por clave compartida**: su PK *es* la FK a la tabla padre (`Supplier` y `Contract` respectivamente), modelando una relación 1:1.
 - Índices sobre columnas de filtrado frecuente: `Supplier(province, type)`, `Contract(contract_category, start_date, end_date, status)`, `ServiceOffered(id_contract)`, `Animal(species, status, entry_date DESC)`, `ActivitySchedule(date)`.
 
-### 4.3. Scripts de inicialización
+### 4.3. Migraciones y seed
 
-En `apps/api/db-init/`, ejecutados en orden alfabético al crear el contenedor:
+El esquema vive en `apps/api/prisma/schema.prisma` y se aplica mediante **migraciones versionadas** en `apps/api/prisma/migrations/`. La migración inicial incluye además, añadidos a mano, los constraints `CHECK` que el lenguaje de esquemas de Prisma no puede expresar (los conjuntos de valores de `type` / `contract_category` / `status`, `base_price >= 0`, `end_date >= start_date`, `birth_date <= entry_date`).
 
-1. **`01-schema.sql`** — crea las 11 tablas, constraints `CHECK`, claves foráneas e índices.
-2. **`02-seed.sql`** — datos iniciales: configuración, clínicas, proveedores, veterinarios, contratos, servicios de transporte, servicios ofrecidos, animales (con distintos estados), agendas, adopciones y donaciones. Sincroniza las secuencias `SERIAL` con `setval()`.
-3. **`03-seed.sql`** — datos complementarios de `ServiceOffered`.
-4. **`04-sync_sequence_max_id.sql`** — re‑sincroniza la secuencia de `Donation` con el `MAX(id_donation)` para que el auto‑incremento continúe correctamente.
+Comandos de uso diario (todos se ejecutan desde `apps/api` y leen el `.env` de la raíz mediante `dotenv-cli`):
 
-**No existe un sistema de migraciones formal** (Prisma, TypeORM, Flyway…): el esquema es estático y se aplica una sola vez en el arranque del contenedor. Cambios de esquema requieren editar los SQL y recrear el volumen.
+| Comando | Qué hace |
+|---------|----------|
+| `pnpm --filter api run prisma:migrate` | Crea y aplica una migración en desarrollo |
+| `pnpm --filter api run prisma:deploy` | Aplica las migraciones pendientes (CI / producción) |
+| `pnpm --filter api run prisma:generate` | Regenera el cliente tipado |
+| `pnpm --filter api run db:seed` | Carga los datos de desarrollo |
+| `pnpm --filter api run db:reset` | Borra, vuelve a migrar y vuelve a sembrar la base de datos |
+| `pnpm --filter api run prisma:studio` | Abre Prisma Studio para explorar los datos |
+
+El seed es `apps/api/prisma/seed.ts` — TypeScript plano contra el cliente tipado. **No fija claves primarias explícitas**: cada inserción deja que la secuencia `SERIAL` asigne el valor con normalidad, razón por la cual ya no hace falta ningún paso de re‑sincronización de secuencias. Antes de insertar limpia las tablas en orden de claves foráneas, así que se puede volver a ejecutar sin problemas.
 
 ### 4.4. Conexión desde la API
 
-La conexión se configura en `apps/api/src/modules/database/config/database.config.ts`:
+La cadena de conexión se construye en `apps/api/src/modules/prisma/database-url.ts`. `DATABASE_URL` tiene prioridad cuando está definida — es lo que lee la CLI de Prisma, de modo que ambas no pueden divergir — y en su defecto se compone a partir de las variables `DB_*` individuales:
 
 ```typescript
-export function createDatabasePool(): Pool {
-  const config: PoolConfig = {
-    user:     process.env.DB_USER     || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    host:     process.env.DB_HOST     || 'localhost',
-    port:     parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME     || 'animal_shelter',
-  };
-  return new Pool(config);
+export function buildDatabaseUrl(): string {
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  const user = encodeURIComponent(process.env.DB_USER ?? 'postgres');
+  // ... DB_PASSWORD / DB_HOST / DB_PORT / DB_NAME
+  return `postgresql://${user}:${password}@${host}:${port}/${database}?schema=public`;
 }
 ```
 
-El `DatabaseModule` es un módulo global de NestJS que crea el pool con una *factory* asíncrona, prueba la conexión (`connectToDatabase()` registra ✓/✗ en consola) y lo expone a través del token `DATABASE_CONNECTION`. Cada repositorio concreto lo recibe por inyección:
+El `PrismaModule` es un módulo global de NestJS que provee `PrismaService`, el cual extiende `PrismaClient` y abre/cierra la conexión en los hooks `onModuleInit` / `onModuleDestroy`. `main.ts` llama a `app.enableShutdownHooks()` para que un `SIGTERM` desconecte limpiamente. Cada servicio lo recibe por inyección:
 
 ```typescript
-constructor(@Inject(DATABASE_CONNECTION) protected override pool: Pool) {
-  super(pool);
-}
+constructor(private readonly prisma: PrismaService) {}
 ```
 
 ---

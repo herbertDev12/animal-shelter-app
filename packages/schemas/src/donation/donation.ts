@@ -22,6 +22,7 @@ export const searchDonationsFiltersSchema = z.object({
 
 export const donationSchema = createDonationSchema.extend({
   id: z.number().int(),
+  donor: z.string().max(100).nullish(),
 });
 
 export type CreateDonation = z.infer<typeof createDonationSchema>;

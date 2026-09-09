@@ -1,0 +1,11 @@
+- [ ] Add jwt auth
+- [ ] Create permissions for each endpoint and assign them to two roles, admin and worker
+- [ ] In some entities the enums at being manipulated as strings, they must be integers values
+- [ ] Use GUIDs instead of integer values for ids
+- [ ] Add Redis caching
+- [ ] Add pagination in the get all endpoints and the filters must be happening in there and delete the search endpoint
+- [ ] The getById must return more information about an entity that the getAll
+- [ ] Add versions to the endpoints
+- [ ] Improve error handling manipulation
+- [ ] Install Grafana in this project
+- [ ] Deploy the api in Azure

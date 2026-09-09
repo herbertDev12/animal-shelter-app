@@ -5,7 +5,11 @@
     "rootDir": "./",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    // The shared base config sets no target, which defaults to ES5 and puts
+    // Object.values (ES2017) out of reach.
+    "target": "ES2022",
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts", "index.ts"]
 }

@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ContractService } from './contract.service';
 import { ContractController } from './contract.controller';
-import { ContractRepository } from './contract.repository';
-import { DatabaseModule } from '../database/database.module';
+import { ContractService } from './contract.service';
 
 @Module({
-  imports: [DatabaseModule],
   controllers: [ContractController],
-  providers: [ContractService, ContractRepository],
+  providers: [ContractService],
   exports: [ContractService],
 })
 export class ContractModule {}
