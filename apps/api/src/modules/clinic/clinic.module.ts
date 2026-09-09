@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { ClinicService } from './clinic.service';
 import { ClinicController } from './clinic.controller';
-import { ClinicRepository } from './clinic.repository';
+import { ClinicService } from './clinic.service';
 
 @Module({
   controllers: [ClinicController],
-  providers: [ClinicService, ClinicRepository],
+  providers: [ClinicService],
   exports: [ClinicService],
 })
 export class ClinicsModule {}

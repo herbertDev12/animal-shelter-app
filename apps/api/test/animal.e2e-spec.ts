@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { closeTestApp, createTestApp, expectNoEntity } from './utils/test-app';
+import { closeTestApp, createTestApp } from './utils/test-app';
 
 describe('Animals (e2e)', () => {
   let app: INestApplication<App>;
@@ -73,9 +73,8 @@ describe('Animals (e2e)', () => {
       await request(server).get('/animals/abc').expect(400);
     });
 
-    it('returns null for a missing id (no NotFoundException in this module)', async () => {
-      const res = await request(server).get('/animals/999999999').expect(200);
-      expectNoEntity(res.body);
+    it('returns 404 for a missing id', async () => {
+      await request(server).get('/animals/999999999').expect(404);
     });
   });
 
@@ -176,10 +175,7 @@ describe('Animals (e2e)', () => {
 
     it('deletes the animal', async () => {
       await request(server).delete(`/animals/${createdId}`).expect(200);
-      const res = await request(server)
-        .get(`/animals/${createdId}`)
-        .expect(200);
-      expectNoEntity(res.body);
+      await request(server).get(`/animals/${createdId}`).expect(404);
     });
   });
 });

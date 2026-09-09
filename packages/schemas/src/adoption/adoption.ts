@@ -20,6 +20,7 @@ export const searchAdoptionsFiltersSchema = z.object({
 
 export const adoptionSchema = createAdoptionSchema.extend({
   id: z.number().int(),
+  adoption_price: z.number().min(0).nullish(),
 });
 
 export type CreateAdoption = z.infer<typeof createAdoptionSchema>;

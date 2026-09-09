@@ -1,6 +1,12 @@
 import { z } from "zod";
 
-const animalStatusEnum = z.enum(["available", "adopted", "reserved"]);
+// Mirrors the Animal.status CHECK constraint in the database.
+const animalStatusEnum = z.enum([
+  "available",
+  "adopted",
+  "reserved",
+  "deceased",
+]);
 
 const animalBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -42,14 +48,16 @@ export const searchAnimalsFiltersSchema = z.object({
   offset: z.coerce.number().int().min(0).default(0),
 });
 
+// Nullable in the database, so the response schema accepts null as well as
+// absent; the create/update schemas above stay strict about what may be sent.
 export const animalSchema = z.object({
   id: z.number().int(),
   name: z.string(),
   species: z.string(),
-  breed: z.string().optional(),
-  age: z.number().int().min(0).optional(),
-  birth_date: z.coerce.date().optional(),
-  weight: z.number().min(0).optional(),
+  breed: z.string().nullish(),
+  age: z.number().int().min(0).nullish(),
+  birth_date: z.coerce.date().nullish(),
+  weight: z.number().min(0).nullish(),
   status: animalStatusEnum,
   entry_date: z.date(),
 });

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DatabaseModule } from './modules/database/database.module';
+import { PrismaModule } from './modules/prisma/prisma.module';
 import { AnimalsModule } from './modules/animal/animal.module';
 import { ClinicsModule } from './modules/clinic/clinic.module';
 import { SupplierModule } from './modules/supplier/supplier.module';
@@ -16,7 +16,7 @@ import { AdoptionModule } from './modules/adoption/adoption.module';
 
 @Module({
   imports: [
-    DatabaseModule,
+    PrismaModule,
     AnimalsModule,
     ClinicsModule,
     SupplierModule,

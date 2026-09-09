@@ -1,0 +1,173 @@
+// Prisma schema for the animal shelter API.
+//
+// The models below mirror the pre-existing Postgres schema exactly: PascalCase
+// table names and snake_case columns are preserved via @@map / @map, so this
+// schema describes the database that already exists rather than renaming it.
+//
+// CHECK constraints (contract_category / status / type value sets, price >= 0,
+// end_date >= start_date, birth_date <= entry_date) cannot be expressed in the
+// Prisma schema language. They are appended by hand to the initial migration SQL
+// and are additionally enforced by the Zod schemas in @repo/schemas and by the
+// service layer. Because Prisma cannot see them, `migrate dev` will never try to
+// drop them.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Since Prisma 7 the connection URL lives in `prisma.config.ts` (for the CLI)
+// and is passed to the client through a driver adapter (for the application),
+// not here.
+datasource db {
+  provider = "postgresql"
+}
+
+model Clinic {
+  id_clinic Int     @id @default(autoincrement())
+  name      String  @db.VarChar(100)
+  province  String? @db.VarChar(100)
+  address   String? @db.VarChar(200)
+
+  veterinarians Veterinarian[]
+
+  @@map("Clinic")
+}
+
+model Supplier {
+  id_supplier   Int     @id @default(autoincrement())
+  name          String  @db.VarChar(100)
+  address       String? @db.VarChar(200)
+  type          String? @db.VarChar(50)
+  phone         String? @db.VarChar(20)
+  contact_email String? @db.VarChar(100)
+  contact_name  String? @db.VarChar(100)
+  province      String? @db.VarChar(100)
+
+  veterinarian Veterinarian?
+  contracts    Contract[]
+
+  @@index([province], map: "idx_supplier_province")
+  @@index([type], map: "idx_supplier_type")
+  @@map("Supplier")
+}
+
+/// 1:1 subtype of Supplier — the primary key is also the foreign key.
+model Veterinarian {
+  id_supplier        Int      @id
+  id_clinic          Int
+  modality           String?  @db.VarChar(50)
+  specialty          String?  @db.VarChar(100)
+  fax                String?  @db.VarChar(20)
+  veterinarian_email String?  @db.VarChar(100)
+  city_distance      Decimal? @db.Decimal(10, 2)
+
+  supplier Supplier @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
+  clinic   Clinic   @relation(fields: [id_clinic], references: [id_clinic], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Veterinarian")
+}
+
+model Contract {
+  id_contract         Int       @id @default(autoincrement())
+  id_supplier         Int
+  contract_category   String?   @db.VarChar(50)
+  start_date          DateTime  @db.Date
+  end_date            DateTime  @db.Date
+  reconciliation_date DateTime? @db.Date
+  description         String?   @db.VarChar(300)
+  status              String?   @default("Active") @db.VarChar(20)
+
+  supplier          Supplier          @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
+  transport_service TransportService?
+  services          ServiceOffered[]
+
+  @@index([contract_category], map: "idx_contract_category")
+  @@index([start_date, end_date], map: "idx_contract_dates")
+  @@index([status], map: "idx_contract_status")
+  @@map("Contract")
+}
+
+/// 1:1 subtype of Contract — the primary key is also the foreign key.
+model TransportService {
+  id_contract        Int     @id
+  vehicle            String? @db.VarChar(100)
+  transport_modality String? @db.VarChar(100)
+
+  contract Contract @relation(fields: [id_contract], references: [id_contract], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("TransportService")
+}
+
+model ServiceOffered {
+  id_service  Int      @id @default(autoincrement())
+  id_contract Int
+  name        String   @db.VarChar(100)
+  food_type   String?  @db.VarChar(100)
+  base_price  Decimal  @db.Decimal(10, 2)
+  surcharge   Decimal? @default(0) @db.Decimal(10, 2)
+
+  contract   Contract   @relation(fields: [id_contract], references: [id_contract], onDelete: NoAction, onUpdate: NoAction)
+  activities Activity[]
+
+  @@index([id_contract], map: "idx_service_contract")
+  @@map("ServiceOffered")
+}
+
+model Animal {
+  id_animal  Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  species    String    @db.VarChar(50)
+  breed      String?   @db.VarChar(50)
+  birth_date DateTime? @db.Date
+  weight     Decimal?  @db.Decimal(6, 2)
+  entry_date DateTime  @db.Date
+  status     String?   @default("available") @db.VarChar(20)
+
+  activities Activity[]
+  adoptions  Adoption[]
+  donations  Donation[]
+
+  @@index([species], map: "idx_animals_species")
+  @@index([status], map: "idx_animals_status")
+  @@index([entry_date(sort: Desc)], map: "idx_animals_created_at")
+  @@map("Animal")
+}
+
+model Activity {
+  id_activity Int       @id @default(autoincrement())
+  id_animal   Int
+  id_service  Int
+  description String?   @db.VarChar(300)
+  date        DateTime  @db.Date
+  time        DateTime? @db.Time(6)
+
+  animal  Animal         @relation(fields: [id_animal], references: [id_animal], onDelete: NoAction, onUpdate: NoAction)
+  service ServiceOffered @relation(fields: [id_service], references: [id_service], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([date], map: "idx_activity_date")
+  @@index([id_service], map: "idx_activity_service")
+  @@map("Activity")
+}
+
+model Adoption {
+  id_adoption    Int      @id @default(autoincrement())
+  id_animal      Int
+  adoption_date  DateTime @db.Date
+  adoption_price Decimal? @db.Decimal(10, 2)
+
+  animal Animal @relation(fields: [id_animal], references: [id_animal], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Adoption")
+}
+
+model Donation {
+  id_donation Int      @id @default(autoincrement())
+  id_animal   Int
+  amount      Decimal  @db.Decimal(10, 2)
+  date        DateTime @db.Date
+  donor       String?  @db.VarChar(100)
+
+  animal Animal @relation(fields: [id_animal], references: [id_animal], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Donation")
+}

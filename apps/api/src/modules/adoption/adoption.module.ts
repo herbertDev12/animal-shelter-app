@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AdoptionService } from './adoption.service';
 import { AdoptionController } from './adoption.controller';
-import { AdoptionRepository } from './adoption.repository';
+import { AdoptionService } from './adoption.service';
 
 @Module({
   controllers: [AdoptionController],
-  providers: [AdoptionService, AdoptionRepository],
+  providers: [AdoptionService],
   exports: [AdoptionService],
 })
 export class AdoptionModule {}

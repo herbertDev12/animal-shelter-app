@@ -1,12 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import {
-  closeTestApp,
-  createTestApp,
-  expectNoEntity,
-  getExistingId,
-} from './utils/test-app';
+import { closeTestApp, createTestApp, getExistingId } from './utils/test-app';
 
 describe('Transport Services (e2e)', () => {
   let app: INestApplication<App>;
@@ -59,11 +54,8 @@ describe('Transport Services (e2e)', () => {
       await request(server).get('/transport-services/abc').expect(400);
     });
 
-    it('returns no entity for a missing id', async () => {
-      const res = await request(server)
-        .get('/transport-services/999999999')
-        .expect(200);
-      expectNoEntity(res.body);
+    it('returns 404 for a missing id', async () => {
+      await request(server).get('/transport-services/999999999').expect(404);
     });
   });
 
@@ -140,10 +132,7 @@ describe('Transport Services (e2e)', () => {
       await request(server)
         .delete(`/transport-services/${createdId}`)
         .expect(200);
-      const res = await request(server)
-        .get(`/transport-services/${createdId}`)
-        .expect(200);
-      expectNoEntity(res.body);
+      await request(server).get(`/transport-services/${createdId}`).expect(404);
     });
   });
 });

@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { DonationService } from './donation.service';
 import { DonationController } from './donation.controller';
-import { DonationRepository } from './donation.repository';
+import { DonationService } from './donation.service';
 
 @Module({
   controllers: [DonationController],
-  providers: [DonationService, DonationRepository],
+  providers: [DonationService],
   exports: [DonationService],
 })
 export class DonationModule {}

@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../database/database.module';
-import { ReportsService } from './reports.service';
+import { ContractModule } from '../contract/contract.module';
 import { ReportsController } from './reports.controller';
-import { ReportsRepository } from './reports.repository';
+import { ReportsService } from './reports.service';
 
 @Module({
-  imports: [DatabaseModule],
+  // The active-veterinarians report filters on the stored contract status, so
+  // it needs ContractService to settle overdue contracts first.
+  imports: [ContractModule],
   controllers: [ReportsController],
-  providers: [ReportsService, ReportsRepository],
+  providers: [ReportsService],
   exports: [ReportsService],
 })
 export class ReportsModule {}

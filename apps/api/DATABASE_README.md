@@ -1,402 +1,192 @@
-# Database Repository Pattern Guide
+# Database Guide (Prisma ORM)
 
-This project uses a **Repository Pattern** for database operations, following clean architecture principles with raw SQL queries and NestJS dependency injection.
+Database access in this API is handled by **Prisma ORM**. `prisma/schema.prisma` is the single source of truth for the schema, changes ship as versioned migrations, and the services query the database directly through a generated, fully typed client — there is no repository layer.
 
 ## 📁 Structure
 
 ```
 apps/api/
-├── src/
-│   ├── config/
-│   │   └── database.config.ts      # Database connection configuration
-│   ├── database/
-│   │   ├── database.module.ts      # Database module (DI setup)
-│   │   ├── base.repository.ts      # Base class for all repositories
-│   │   └── repositories/
-│   │       └── animals.repository.ts   # Example repository
-│   └── animals/
-│       ├── animals.module.ts
-│       ├── animals.service.ts
-│       └── animals.controller.ts
-└── db-init/
-    └── 01-schema.sql               # Database schema & migrations
+├── prisma/
+│   ├── schema.prisma        # The schema: models, relations, indexes
+│   ├── migrations/          # Versioned, reviewable SQL migrations
+│   └── seed.ts              # Typed development seed data
+└── src/
+    ├── common/
+    │   ├── prisma-scalars.ts          # Decimal / Date / Time conversions
+    │   └── prisma-exception.filter.ts # Prisma error codes → HTTP responses
+    └── modules/
+        ├── prisma/
+        │   ├── prisma.module.ts   # @Global() module
+        │   ├── prisma.service.ts  # PrismaClient + lifecycle hooks
+        │   └── database-url.ts    # Connection string construction
+        └── <domain>/
+            ├── <domain>.module.ts
+            ├── <domain>.controller.ts
+            └── <domain>.service.ts    # Queries live here
 ```
 
 ## 🔧 Setup
 
-### 1. Install Dependencies
+### 1. Start PostgreSQL
+
+From the repository root:
 
 ```bash
-cd apps/api
-pnpm add pg  # PostgreSQL client
+docker compose up -d db
 ```
 
-### 2. Environment Variables
+### 2. Environment variables
 
-Create `.env` file in the root directory:
+The root `.env` holds:
 
 ```env
 DB_USER=postgres
 DB_PASSWORD=postgres
-DB_NAME=animal_shelter
-DB_HOST=localhost
-DB_PORT=5432
+DB_NAME=animal_shelter_db
+DB_PORT=5434
+
+# Read by the Prisma CLI. The running app can also derive this from the DB_* vars.
+DATABASE_URL=postgresql://postgres:postgres@localhost:5434/animal_shelter_db?schema=public
 ```
 
-### 3. Database Connection
+`DATABASE_URL` is required by the Prisma CLI, which does not boot the Nest application and therefore cannot compose the URL itself. At runtime `buildDatabaseUrl()` prefers `DATABASE_URL` and otherwise falls back to the individual `DB_*` variables, so the two can never disagree.
 
-The database connection is automatically initialized via `DatabaseModule` which:
-- Creates a connection pool on app startup
-- Makes it available via dependency injection using `@Inject(DATABASE_CONNECTION)`
-- Validates connection on startup
+### 3. Apply the schema and seed
 
-## 📝 Creating a New Repository
-
-### 1. Define Interfaces
-
-```typescript
-// src/database/repositories/users.repository.ts
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface CreateUserDto {
-  name: string;
-  email: string;
-}
-
-export interface SearchUserFilters {
-  name?: string;
-  email?: string;
-  limit?: number;
-  offset?: number;
-}
+```bash
+pnpm --filter api run prisma:deploy   # apply migrations
+pnpm --filter api run db:seed         # load development data
 ```
 
-### 2. Create Repository Class
+## 📜 Commands
 
-```typescript
-import { Injectable, Inject } from '@nestjs/common';
-import { Pool } from 'pg';
-import { BaseRepository } from './base.repository';
-import { DATABASE_CONNECTION } from '../config/database.config';
+All commands run from `apps/api` and read the root `.env` through `dotenv-cli`.
 
-@Injectable()
-export class UsersRepository extends BaseRepository {
-  constructor(@Inject(DATABASE_CONNECTION) private pool: Pool) {
-    super(pool);
-  }
+| Command | What it does |
+|---------|--------------|
+| `pnpm --filter api run prisma:migrate` | Create and apply a migration (development) |
+| `pnpm --filter api run prisma:deploy` | Apply pending migrations (CI / production) |
+| `pnpm --filter api run prisma:generate` | Regenerate the typed client |
+| `pnpm --filter api run db:seed` | Load the development seed data |
+| `pnpm --filter api run db:reset` | Drop, re-migrate and re-seed |
+| `pnpm --filter api run prisma:studio` | Browse the data in Prisma Studio |
 
-  // Your methods here...
+`prisma generate` also runs automatically on `postinstall`, so a fresh `pnpm install` always produces a client.
+
+## 🗄️ The schema
+
+`prisma/schema.prisma` models the existing PostgreSQL tables exactly as they are. `@@map` / `@map` preserve the PascalCase table names and snake_case columns, so the database is never renamed:
+
+```prisma
+model Animal {
+  id_animal  Int       @id @default(autoincrement())
+  name       String    @db.VarChar(100)
+  birth_date DateTime? @db.Date
+  weight     Decimal?  @db.Decimal(6, 2)
+  entry_date DateTime  @db.Date
+  status     String?   @default("available") @db.VarChar(20)
+
+  activities Activity[]
+  adoptions  Adoption[]
+  donations  Donation[]
+
+  @@index([species], map: "idx_animals_species")
+  @@map("Animal")
 }
 ```
 
-### 3. Implement Methods
+Two models are **1:1 subtypes** whose primary key is also their foreign key: `Veterinarian` extends `Supplier`, and `TransportService` extends `Contract`.
 
-#### Simple Query (Get All)
+### Constraints Prisma cannot express
 
-```typescript
-async findAll(): Promise<User[]> {
-  const query = `
-    SELECT 
-      id,
-      name,
-      email,
-      created_at,
-      updated_at
-    FROM users
-    ORDER BY created_at DESC
-  `;
-  return this.query<User>(query);
-}
-```
+`CHECK` constraints have no representation in the Prisma schema language, so they are appended by hand to the initial migration's `migration.sql`:
 
-#### Query with Parameters (Prevent SQL Injection)
+- the allowed value sets for `Supplier.type`, `Contract.contract_category`, `Contract.status` and `Animal.status`
+- `ServiceOffered.base_price >= 0` and `surcharge >= 0`
+- `Contract.end_date >= start_date`
+- `Animal.birth_date <= entry_date`
 
-```typescript
-async findById(id: string): Promise<User | null> {
-  const query = `
-    SELECT *
-    FROM users
-    WHERE id = $1
-  `;
-  return this.queryOne<User>(query, [id]);
-}
-```
+Because Prisma cannot see them, `migrate dev` will never try to drop them. They are also enforced by the Zod schemas in `@repo/schemas`, and — where a `PATCH` can bypass Zod by sending only one side of a comparison — re-checked in the service against the merged row.
 
-#### Dynamic Search with Filters
+## 🧑‍💻 Writing a query
 
-```typescript
-async search(filters: SearchUserFilters): Promise<User[]> {
-  const conditions: string[] = [];
-  const params: any[] = [];
-  let paramCount = 0;
-
-  if (filters.name) {
-    paramCount++;
-    conditions.push(`u.name ILIKE $${paramCount}`);
-    params.push(`%${filters.name}%`);
-  }
-
-  if (filters.email) {
-    paramCount++;
-    conditions.push(`u.email = $${paramCount}`);
-    params.push(filters.email);
-  }
-
-  const whereClause = conditions.length > 0 
-    ? `WHERE ${conditions.join(' AND ')}` 
-    : '';
-
-  const limit = filters.limit || 10;
-  const offset = filters.offset || 0;
-
-  paramCount++;
-  params.push(limit);
-
-  paramCount++;
-  params.push(offset);
-
-  const query = `
-    SELECT *
-    FROM users u
-    ${whereClause}
-    ORDER BY u.created_at DESC
-    LIMIT $${paramCount - 1}
-    OFFSET $${paramCount}
-  `;
-
-  return this.query<User>(query, params);
-}
-```
-
-#### Create (INSERT)
-
-```typescript
-async create(data: CreateUserDto): Promise<User> {
-  const query = `
-    INSERT INTO users (name, email, created_at, updated_at)
-    VALUES ($1, $2, NOW(), NOW())
-    RETURNING id, name, email, created_at, updated_at
-  `;
-
-  const result = await this.queryOne<User>(query, [
-    data.name,
-    data.email,
-  ]);
-
-  if (!result) {
-    throw new Error('Failed to create user');
-  }
-
-  return result;
-}
-```
-
-#### Update
-
-```typescript
-async update(id: string, data: Partial<CreateUserDto>): Promise<User> {
-  const updates: string[] = [];
-  const params: any[] = [];
-  let paramCount = 1;
-
-  if (data.name !== undefined) {
-    paramCount++;
-    updates.push(`name = $${paramCount}`);
-    params.push(data.name);
-  }
-
-  if (data.email !== undefined) {
-    paramCount++;
-    updates.push(`email = $${paramCount}`);
-    params.push(data.email);
-  }
-
-  if (updates.length === 0) {
-    const user = await this.findById(id);
-    if (!user) throw new Error('User not found');
-    return user;
-  }
-
-  updates.push(`updated_at = NOW()`);
-  params.unshift(id);
-
-  const query = `
-    UPDATE users
-    SET ${updates.join(', ')}
-    WHERE id = $1
-    RETURNING id, name, email, created_at, updated_at
-  `;
-
-  const result = await this.queryOne<User>(query, params);
-
-  if (!result) {
-    throw new Error('User not found');
-  }
-
-  return result;
-}
-```
-
-#### Delete
-
-```typescript
-async delete(id: string): Promise<boolean> {
-  const query = `
-    DELETE FROM users
-    WHERE id = $1
-  `;
-
-  const result = await this.execute(query, [id]);
-  return result.rowCount ? result.rowCount > 0 : false;
-}
-```
-
-## 🛠 Base Repository Methods
-
-The `BaseRepository` class provides helper methods:
-
-```typescript
-// Execute query with params (returns QueryResult)
-execute<T>(query: string, values?: any[]): Promise<QueryResult<T>>
-
-// Execute query and return rows
-query<T>(query: string, values?: any[]): Promise<T[]>
-
-// Execute query and return single row (or null)
-queryOne<T>(query: string, values?: any[]): Promise<T | null>
-
-// Execute query and return count
-count(query: string, values?: any[]): Promise<number>
-```
-
-## 📌 Best Practices
-
-### ✅ Do's
-
-1. **Always use parameterized queries** - Use `$1, $2, ...` placeholders instead of string concatenation
-   ```typescript
-   // ✅ GOOD
-   this.pool.query('SELECT * FROM users WHERE id = $1', [userId])
-   
-   // ❌ BAD
-   this.pool.query(`SELECT * FROM users WHERE id = ${userId}`)
-   ```
-
-2. **Use meaningful parameter counting** - Keep track of `paramCount` in dynamic queries
-3. **Include timestamps** - Always track `created_at` and `updated_at`
-4. **Use UUIDs for IDs** - UUID v4 is better than sequential IDs for distributed systems
-5. **Add proper error handling** - Catch and log database errors
-6. **Create indexes** - Add indexes for frequently queried columns
-
-### ❌ Don'ts
-
-1. Don't use string concatenation for query building
-2. Don't expose database errors directly to clients
-3. Don't fetch all data without pagination/limits
-4. Don't forget to update `updated_at` on modifications
-
-## 🔗 Service Layer Integration
-
-Services delegate to repositories:
+Inject `PrismaService` and query directly. `PrismaModule` is `@Global()`, so nothing needs importing:
 
 ```typescript
 @Injectable()
-export class UsersService {
-  constructor(private usersRepository: UsersRepository) {}
+export class AnimalService {
+  constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
-    return this.usersRepository.findAll();
+  async findById(id: number): Promise<Animal> {
+    const row = await this.prisma.animal.findUnique({ where: { id_animal: id } });
+    if (!row) throw new NotFoundException(`Animal with ID ${id} not found`);
+    return toAnimal(row);
   }
 
-  async findById(id: string) {
-    return this.usersRepository.findById(id);
+  async search(filters: SearchAnimalsFilters): Promise<Animal[]> {
+    const rows = await this.prisma.animal.findMany({
+      where: {
+        species: filters.species,
+        breed: filters.breed ? { contains: filters.breed, mode: 'insensitive' } : undefined,
+        status: filters.status?.length ? { in: filters.status } : undefined,
+      },
+      orderBy: [{ entry_date: 'desc' }, { id_animal: 'asc' }],
+      take: filters.limit || 10,
+      skip: filters.offset || 0,
+    });
+    return rows.map(toAnimal);
   }
-
-  async create(data: CreateUserDto) {
-    // Can add business logic here (validation, etc.)
-    return this.usersRepository.create(data);
-  }
-}
-```
-
-## 🚀 Advanced Queries
-
-### Aggregations
-
-```typescript
-async getStats(): Promise<Array<{ species: string; count: number }>> {
-  const query = `
-    SELECT 
-      species,
-      COUNT(*) as count
-    FROM animals
-    GROUP BY species
-    ORDER BY count DESC
-  `;
-  
-  return this.query(query);
-}
-```
-
-### Joins
-
-```typescript
-async findAnimalsWithAdoptions() {
-  const query = `
-    SELECT 
-      a.id,
-      a.name,
-      a.species,
-      COUNT(ad.id) as total_adoptions,
-      ad.last_adoption_date
-    FROM animals a
-    LEFT JOIN adoptions ad ON a.id = ad.animal_id
-    GROUP BY a.id, a.name, a.species
-    ORDER BY total_adoptions DESC
-  `;
-  
-  return this.query(query);
 }
 ```
 
 ### Transactions
 
+Use `prisma.$transaction()` when several tables must move together, or a nested write when the rows are related — a nested write is atomic by construction:
+
 ```typescript
-async transferAnimal(fromShelter: string, toShelter: string, animalId: string) {
-  const client = await this.pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-    
-    // Update animal location
-    await client.query(
-      'UPDATE animals SET shelter_id = $1 WHERE id = $2',
-      [toShelter, animalId]
-    );
-    
-    // Log the transfer
-    await client.query(
-      'INSERT INTO animal_transfers (animal_id, from_shelter, to_shelter) VALUES ($1, $2, $3)',
-      [animalId, fromShelter, toShelter]
-    );
-    
-    await client.query('COMMIT');
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-}
+// Supplier + its Veterinarian subtype row, in one statement
+await this.prisma.supplier.create({
+  data: { name, type: 'Veterinarian', veterinarian: { create: { id_clinic, specialty } } },
+});
+
+// Two independent updates that must both land
+await this.prisma.$transaction(async (tx) => {
+  await tx.supplier.update({ where: { id_supplier: id }, data: { name } });
+  await tx.veterinarian.update({ where: { id_supplier: id }, data: { specialty } });
+});
 ```
 
-## 📚 Example: Complete Users Repository
+### Scalar conversions
 
-See [animals.repository.ts](./repositories/animals.repository.ts) for a complete example implementation.
+Prisma's runtime types do not match what the API returns on the wire, so every conversion lives in one place, `src/common/prisma-scalars.ts`:
+
+| Helper | Purpose |
+|--------|---------|
+| `num` / `numOr0` | `Decimal` → `number` |
+| `sumPrice` | `base_price + surcharge`, summed as `Decimal` so money does not drift |
+| `toDateOnly` | Normalize an inbound date to UTC midnight before writing a `@db.Date` |
+| `dateToString` / `timeToString` | `Date` → `"YYYY-MM-DD"` / `"HH:MM:SS"` for the schemas that declare strings |
+| `completedYears` / `subYears` | The `EXTRACT(YEAR FROM AGE(...))` age arithmetic, and its inverse for age filters |
+| `daysBetween` | Postgres' `(date - date)::int` day count |
+
+## ⚠️ Errors
+
+`PrismaExceptionFilter` maps Prisma error codes to HTTP responses:
+
+| Code | Response |
+|------|----------|
+| `P2025` — record not found | `404 Not Found` |
+| `P2002` — unique constraint | `409 Conflict` |
+| `P2003` — foreign key constraint | `400 Bad Request` |
+| `P2010` / `P2011` — raw DB error, incl. `CHECK` violations | `400 Bad Request` |
+| anything else | logged, `500 Internal Server Error` |
+
+Because `update` and `delete` raise `P2025` when the row is gone, "missing record" is a `404` without a separate existence check.
+
+## 🧪 Tests
+
+The e2e suite runs against the **live development database** and mutates real rows. Restore known data afterwards with:
+
+```bash
+pnpm --filter api run db:reset && pnpm --filter api run db:seed
+```

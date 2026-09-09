@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { closeTestApp, createTestApp, expectNoEntity } from './utils/test-app';
+import { closeTestApp, createTestApp } from './utils/test-app';
 
 describe('Clinics (e2e)', () => {
   let app: INestApplication<App>;
@@ -44,9 +44,8 @@ describe('Clinics (e2e)', () => {
       await request(server).get('/clinics/abc').expect(400);
     });
 
-    it('returns no entity for a missing id', async () => {
-      const res = await request(server).get('/clinics/999999999').expect(200);
-      expectNoEntity(res.body);
+    it('returns 404 for a missing id', async () => {
+      await request(server).get('/clinics/999999999').expect(404);
     });
   });
 
@@ -88,10 +87,7 @@ describe('Clinics (e2e)', () => {
 
     it('deletes the clinic', async () => {
       await request(server).delete(`/clinics/${createdId}`).expect(200);
-      const res = await request(server)
-        .get(`/clinics/${createdId}`)
-        .expect(200);
-      expectNoEntity(res.body);
+      await request(server).get(`/clinics/${createdId}`).expect(404);
     });
   });
 });
