@@ -1,4 +1,5 @@
 export * from "./src/animal";
+export * from "./src/auth";
 export * from "./src/adoption";
 export * from "./src/clinic";
 export * from "./src/supplier";

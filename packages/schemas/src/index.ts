@@ -1,4 +1,5 @@
 export * from "./animal";
+export * from "./auth";
 export * from "./clinic";
 export * from "./supplier";
 export * from "./veterinarian-contracts";

@@ -3,6 +3,7 @@
 // package that crashes in the browser). Resolved via the `browser` export
 // condition in package.json — see also the full barrel in ./index.ts.
 export * from "./animal/animal";
+export * from "./auth/auth";
 export * from "./clinic/clinic";
 export * from "./supplier/supplier";
 export * from "./veterinarian-contracts/veterinarian-contracts";
