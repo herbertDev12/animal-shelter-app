@@ -1,5 +1,6 @@
 - [ ] Add jwt auth
 - [ ] Create permissions for each endpoint and assign them to two roles, admin and worker
+- [ ] Install some frontend library to tranlate from spanish to english and viseversa
 - [ ] In some entities the enums at being manipulated as strings, they must be integers values
 - [ ] Use GUIDs instead of integer values for ids
 - [ ] Add Redis caching
