@@ -3,6 +3,9 @@ packages:
   - "packages/*"
 allowBuilds:
   "@nestjs/core": true
+  # bcrypt ships a native addon; its build script must run or `require('bcrypt')`
+  # fails at runtime with "Could not locate the bindings file".
+  bcrypt: true
   esbuild: true
   unrs-resolver: true
 overrides:
