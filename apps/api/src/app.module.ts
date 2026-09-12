@@ -13,6 +13,7 @@ import { ServiceOfferedModule } from './modules/service-offered/service-offered.
 import { ActivityModule } from './modules/activity/activity.module';
 import { DonationModule } from './modules/donation/donation.module';
 import { AdoptionModule } from './modules/adoption/adoption.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AdoptionModule } from './modules/adoption/adoption.module';
     ActivityModule,
     DonationModule,
     AdoptionModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
