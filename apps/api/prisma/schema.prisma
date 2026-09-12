@@ -171,3 +171,19 @@ model Donation {
 
   @@map("Donation")
 }
+
+/// Application accounts for the auth endpoints. Unlike the models above — which
+/// mirror the pre-existing shelter schema — this table is new, so it uses a UUID
+/// primary key (ids never leak a user count and are safe to hand to a client in
+/// a JWT) and carries a created_at column. The database columns stay snake_case
+/// via @map to match the rest of the schema.
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique @db.VarChar(100)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  name         String   @db.VarChar(100)
+  lastName     String?  @map("last_name") @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("User")
+}
