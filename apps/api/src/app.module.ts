@@ -14,6 +14,7 @@ import { ActivityModule } from './modules/activity/activity.module';
 import { DonationModule } from './modules/donation/donation.module';
 import { AdoptionModule } from './modules/adoption/adoption.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AuthModule } from './modules/auth/auth.module';
     DonationModule,
     AdoptionModule,
     AuthModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
