@@ -19,3 +19,4 @@ export * from "./veterinarian/veterinarian";
 export * from "./activity/activity";
 export * from "./donation/donation";
 export * from "./adoption/adoption";
+export * from "./role/role";
