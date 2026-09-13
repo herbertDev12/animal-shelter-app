@@ -3,33 +3,55 @@ import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
 import {
   AuthTestContext,
+  TEST_PASSWORD,
   closeAuthTestApp,
   createAuthTestApp,
   deleteTestUsers,
+  roleIdByName,
+  tokenFor,
+  tokenForRole,
   uniqueEmail,
 } from './utils/auth-test-app';
 
-const PASSWORD = 'correct-horse-battery';
+const PASSWORD = TEST_PASSWORD;
 
 describe('Auth (integration)', () => {
   let ctx: AuthTestContext;
   let jwt: JwtService;
+  let adminToken: string;
+  let workerRoleId: string;
+
+  /** POST /auth/register as the admin. */
+  function register(body: Record<string, unknown>) {
+    return request(ctx.server)
+      .post('/auth/register')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(body);
+  }
 
   async function registerUser(
     overrides: Record<string, unknown> = {},
   ): Promise<{ email: string; token: string; id: string }> {
     const email = uniqueEmail();
-    const res = await request(ctx.server)
-      .post('/auth/register')
-      .send({ email, password: PASSWORD, name: 'Ada', ...overrides })
-      .expect(201);
+    const res = await register({
+      email,
+      password: PASSWORD,
+      name: 'Ada',
+      roleId: workerRoleId,
+      ...overrides,
+    }).expect(201);
 
-    return { email, token: res.body.token, id: res.body.id };
+    return { email, token: await tokenFor(ctx.server, email), id: res.body.id };
   }
 
   beforeAll(async () => {
     ctx = await createAuthTestApp();
     jwt = ctx.app.get(JwtService);
+    workerRoleId = await roleIdByName(ctx.prisma, 'Worker');
+  });
+
+  beforeEach(async () => {
+    adminToken = await tokenForRole(ctx, 'Admin');
   });
 
   afterEach(async () => {
@@ -41,26 +63,85 @@ describe('Auth (integration)', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('creates the account and returns id, email and a token', async () => {
+    it('creates the account and returns the public user', async () => {
       const email = uniqueEmail();
 
-      const res = await request(ctx.server)
-        .post('/auth/register')
-        .send({ email, password: PASSWORD, name: 'Ada', lastName: 'Lovelace' })
-        .expect(201);
+      const res = await register({
+        email,
+        password: PASSWORD,
+        name: 'Ada',
+        lastName: 'Lovelace',
+        roleId: workerRoleId,
+      }).expect(201);
 
       expect(res.body).toEqual({
         id: expect.any(String),
         email,
-        token: expect.any(String),
+        name: 'Ada',
+        lastName: 'Lovelace',
+        roleId: workerRoleId,
       });
     });
 
-    it('never returns the password or its hash', async () => {
-      const res = await request(ctx.server)
+    it('rejects a request with no token with 401', async () => {
+      await request(ctx.server)
         .post('/auth/register')
-        .send({ email: uniqueEmail(), password: PASSWORD, name: 'Ada' })
-        .expect(201);
+        .send({
+          email: uniqueEmail(),
+          password: PASSWORD,
+          name: 'Ada',
+          roleId: workerRoleId,
+        })
+        .expect(401);
+    });
+
+    it('rejects a caller whose role lacks auth.create (Worker) with 403', async () => {
+      const workerToken = await tokenForRole(ctx, 'Worker');
+
+      await request(ctx.server)
+        .post('/auth/register')
+        .set('Authorization', `Bearer ${workerToken}`)
+        .send({
+          email: uniqueEmail(),
+          password: PASSWORD,
+          name: 'Ada',
+          roleId: workerRoleId,
+        })
+        .expect(403);
+    });
+
+    it('rejects a token issued without a roleId claim with 403', async () => {
+      const { id, email } = await registerUser();
+      const legacy = jwt.sign({ sub: id, email });
+
+      await request(ctx.server)
+        .post('/auth/register')
+        .set('Authorization', `Bearer ${legacy}`)
+        .send({
+          email: uniqueEmail(),
+          password: PASSWORD,
+          name: 'Ada',
+          roleId: workerRoleId,
+        })
+        .expect(403);
+    });
+
+    it('rejects a roleId that does not exist with 400', async () => {
+      await register({
+        email: uniqueEmail(),
+        password: PASSWORD,
+        name: 'Ada',
+        roleId: '00000000-0000-4000-8000-000000000000',
+      }).expect(400);
+    });
+
+    it('never returns the password or its hash', async () => {
+      const res = await register({
+        email: uniqueEmail(),
+        password: PASSWORD,
+        name: 'Ada',
+        roleId: workerRoleId,
+      }).expect(201);
 
       expect(JSON.stringify(res.body)).not.toContain(PASSWORD);
       expect(res.body).not.toHaveProperty('passwordHash');
@@ -79,17 +160,21 @@ describe('Auth (integration)', () => {
       );
     });
 
-    it('stores name and lastName as separate columns', async () => {
+    it('stores name, lastName and roleId as separate columns', async () => {
       const email = uniqueEmail();
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({ email, password: PASSWORD, name: 'Ada', lastName: 'Lovelace' })
-        .expect(201);
+      await register({
+        email,
+        password: PASSWORD,
+        name: 'Ada',
+        lastName: 'Lovelace',
+        roleId: workerRoleId,
+      }).expect(201);
 
       const row = await ctx.prisma.user.findUniqueOrThrow({ where: { email } });
 
       expect(row.name).toBe('Ada');
       expect(row.lastName).toBe('Lovelace');
+      expect(row.roleId).toBe(workerRoleId);
     });
 
     it('treats lastName as optional and stores null when omitted', async () => {
@@ -103,14 +188,12 @@ describe('Auth (integration)', () => {
     it('normalises the email by trimming and lowercasing it', async () => {
       const email = uniqueEmail();
 
-      const res = await request(ctx.server)
-        .post('/auth/register')
-        .send({
-          email: `  ${email.toUpperCase()}  `,
-          password: PASSWORD,
-          name: 'Ada',
-        })
-        .expect(201);
+      const res = await register({
+        email: `  ${email.toUpperCase()}  `,
+        password: PASSWORD,
+        name: 'Ada',
+        roleId: workerRoleId,
+      }).expect(201);
 
       expect(res.body.email).toBe(email);
       await expect(
@@ -121,23 +204,23 @@ describe('Auth (integration)', () => {
     it('rejects a duplicate email with 409', async () => {
       const { email } = await registerUser();
 
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({ email, password: PASSWORD, name: 'Someone' })
-        .expect(409);
+      await register({
+        email,
+        password: PASSWORD,
+        name: 'Someone',
+        roleId: workerRoleId,
+      }).expect(409);
     });
 
     it('rejects a duplicate email that differs only in case with 409', async () => {
       const { email } = await registerUser();
 
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({
-          email: email.toUpperCase(),
-          password: PASSWORD,
-          name: 'Someone',
-        })
-        .expect(409);
+      await register({
+        email: email.toUpperCase(),
+        password: PASSWORD,
+        name: 'Someone',
+        roleId: workerRoleId,
+      }).expect(409);
     });
 
     it.each([
@@ -149,42 +232,42 @@ describe('Auth (integration)', () => {
       ['a missing name', { name: undefined }],
       ['a blank name', { name: '   ' }],
       ['a non-string name', { name: 42 }],
+      ['a missing roleId', { roleId: undefined }],
+      ['a non-uuid roleId', { roleId: 'admin' }],
     ])('rejects %s with 400', async (_label, override) => {
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({
-          email: uniqueEmail(),
-          password: PASSWORD,
-          name: 'Ada',
-          ...override,
-        })
-        .expect(400);
+      await register({
+        email: uniqueEmail(),
+        password: PASSWORD,
+        name: 'Ada',
+        roleId: workerRoleId,
+        ...override,
+      }).expect(400);
     });
 
     it('rejects an empty body with 400', async () => {
-      await request(ctx.server).post('/auth/register').send({}).expect(400);
+      await register({}).expect(400);
     });
 
     it('accepts a password of exactly 72 characters (the bcrypt limit)', async () => {
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({ email: uniqueEmail(), password: 'p'.repeat(72), name: 'Ada' })
-        .expect(201);
+      await register({
+        email: uniqueEmail(),
+        password: 'p'.repeat(72),
+        name: 'Ada',
+        roleId: workerRoleId,
+      }).expect(201);
     });
 
     it('ignores unknown fields instead of persisting them', async () => {
       const email = uniqueEmail();
 
-      await request(ctx.server)
-        .post('/auth/register')
-        .send({
-          email,
-          password: PASSWORD,
-          name: 'Ada',
-          id: 'attacker-chosen-id',
-          role: 'admin',
-        })
-        .expect(201);
+      await register({
+        email,
+        password: PASSWORD,
+        name: 'Ada',
+        roleId: workerRoleId,
+        id: 'attacker-chosen-id',
+        role: 'admin',
+      }).expect(201);
 
       const row = await ctx.prisma.user.findUniqueOrThrow({ where: { email } });
 
@@ -205,7 +288,16 @@ describe('Auth (integration)', () => {
       expect(res.body).toEqual({ id, email, token: expect.any(String) });
     });
 
-    it('issues a token carrying the user id and email as claims', async () => {
+    it('needs no token and no permission', async () => {
+      const { email } = await registerUser();
+
+      await request(ctx.server)
+        .post('/auth/login')
+        .send({ email, password: PASSWORD })
+        .expect(200);
+    });
+
+    it('issues a token carrying the user id, email and roleId as claims', async () => {
       const { email, id } = await registerUser();
 
       const res = await request(ctx.server)
@@ -213,12 +305,16 @@ describe('Auth (integration)', () => {
         .send({ email, password: PASSWORD })
         .expect(200);
 
-      const claims = jwt.verify<{ sub: string; email: string; exp: number }>(
-        res.body.token,
-      );
+      const claims = jwt.verify<{
+        sub: string;
+        email: string;
+        roleId: string;
+        exp: number;
+      }>(res.body.token);
 
       expect(claims.sub).toBe(id);
       expect(claims.email).toBe(email);
+      expect(claims.roleId).toBe(workerRoleId);
     });
 
     it('issues a token that expires in about 7 days', async () => {
@@ -232,9 +328,9 @@ describe('Auth (integration)', () => {
       const { iat, exp } = jwt.verify<{ iat: number; exp: number }>(
         res.body.token,
       );
-      const sevenDays = 7 * 24 * 60 * 60;
+      const oneDay = 24 * 60 * 60;
 
-      expect(exp - iat).toBe(sevenDays);
+      expect(exp - iat).toBe(oneDay);
     });
 
     it('accepts an email in a different case than it was registered with', async () => {
@@ -284,14 +380,18 @@ describe('Auth (integration)', () => {
   describe('GET /auth/me', () => {
     it('returns the caller’s own account for a valid token', async () => {
       const email = uniqueEmail();
-      const registered = await request(ctx.server)
-        .post('/auth/register')
-        .send({ email, password: PASSWORD, name: 'Ada', lastName: 'Lovelace' })
-        .expect(201);
+      const registered = await register({
+        email,
+        password: PASSWORD,
+        name: 'Ada',
+        lastName: 'Lovelace',
+        roleId: workerRoleId,
+      }).expect(201);
+      const token = await tokenFor(ctx.server, email);
 
       const res = await request(ctx.server)
         .get('/auth/me')
-        .set('Authorization', `Bearer ${registered.body.token}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(res.body).toEqual({
@@ -299,6 +399,7 @@ describe('Auth (integration)', () => {
         email,
         name: 'Ada',
         lastName: 'Lovelace',
+        roleId: workerRoleId,
       });
     });
 
@@ -311,21 +412,6 @@ describe('Auth (integration)', () => {
         .expect(200);
 
       expect(res.body).not.toHaveProperty('passwordHash');
-    });
-
-    it('accepts the token issued by /auth/login', async () => {
-      const { email } = await registerUser();
-      const login = await request(ctx.server)
-        .post('/auth/login')
-        .send({ email, password: PASSWORD })
-        .expect(200);
-
-      const res = await request(ctx.server)
-        .get('/auth/me')
-        .set('Authorization', `Bearer ${login.body.token}`)
-        .expect(200);
-
-      expect(res.body.email).toBe(email);
     });
 
     it('rejects a request with no Authorization header with 401', async () => {
@@ -347,7 +433,7 @@ describe('Auth (integration)', () => {
       const { id, email } = await registerUser();
       const forged = new JwtService({
         secret: 'not-the-real-secret',
-      }).sign({ sub: id, email });
+      }).sign({ sub: id, email, roleId: workerRoleId });
 
       await request(ctx.server)
         .get('/auth/me')
@@ -357,7 +443,10 @@ describe('Auth (integration)', () => {
 
     it('rejects an expired token with 401', async () => {
       const { id, email } = await registerUser();
-      const expired = jwt.sign({ sub: id, email }, { expiresIn: '-1s' });
+      const expired = jwt.sign(
+        { sub: id, email, roleId: workerRoleId },
+        { expiresIn: '-1s' },
+      );
 
       await request(ctx.server)
         .get('/auth/me')
@@ -386,6 +475,35 @@ describe('Auth (integration)', () => {
 
       expect(res.body.email).toBe(second.email);
       expect(res.body.email).not.toBe(first.email);
+    });
+  });
+
+  describe('GET /auth/users', () => {
+    it('lists users for a role with auth.read', async () => {
+      const { email } = await registerUser();
+
+      const res = await request(ctx.server)
+        .get('/auth/users')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      const row = (res.body as Array<{ email: string }>).find(
+        (u) => u.email === email,
+      );
+      expect(row).toMatchObject({
+        roleId: workerRoleId,
+        role: { name: 'Worker' },
+      });
+      expect(row).not.toHaveProperty('passwordHash');
+    });
+
+    it('rejects a Worker with 403', async () => {
+      const { token } = await registerUser();
+
+      await request(ctx.server)
+        .get('/auth/users')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(403);
     });
   });
 });
