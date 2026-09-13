@@ -1,11 +1,17 @@
 import { INestApplication } from '@nestjs/common';
-import request from 'supertest';
 import { App } from 'supertest/types';
-import { closeTestApp, createTestApp, getExistingId } from './utils/test-app';
+import {
+  closeTestApp,
+  createTestApp,
+  getExistingId,
+  createAdminAgent,
+  ApiAgent,
+} from './utils/test-app';
 
 describe('Activities (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
+  let api: ApiAgent;
   let animalId: number;
   let supplierId: number;
   let activeContractId: number;
@@ -15,11 +21,12 @@ describe('Activities (e2e)', () => {
   beforeAll(async () => {
     app = await createTestApp();
     server = app.getHttpServer();
+    api = await createAdminAgent(server);
     animalId = await getExistingId(app, '/animals');
     supplierId = await getExistingId(app, '/suppliers');
 
     // Activities require a ServiceOffered whose Contract is Active, so build one.
-    const contract = await request(server)
+    const contract = await api
       .post('/contracts')
       .send({
         id_supplier: supplierId,
@@ -29,11 +36,9 @@ describe('Activities (e2e)', () => {
       })
       .expect(201);
     activeContractId = contract.body.id;
-    cleanup.push(() =>
-      request(server).delete(`/contracts/${activeContractId}`),
-    );
+    cleanup.push(() => api.delete(`/contracts/${activeContractId}`));
 
-    const service = await request(server)
+    const service = await api
       .post('/services-offered')
       .send({
         id_contract: activeContractId,
@@ -42,9 +47,7 @@ describe('Activities (e2e)', () => {
       })
       .expect(201);
     activeServiceId = service.body.id;
-    cleanup.push(() =>
-      request(server).delete(`/services-offered/${activeServiceId}`),
-    );
+    cleanup.push(() => api.delete(`/services-offered/${activeServiceId}`));
   });
 
   afterAll(async () => {
@@ -57,64 +60,64 @@ describe('Activities (e2e)', () => {
 
   describe('GET /activities', () => {
     it('returns an array', async () => {
-      const res = await request(server).get('/activities').expect(200);
+      const res = await api.get('/activities').expect(200);
       expect(Array.isArray(res.body)).toBe(true);
     });
   });
 
   describe('GET /activities/search', () => {
     it('applies default pagination', async () => {
-      const res = await request(server).get('/activities/search').expect(200);
+      const res = await api.get('/activities/search').expect(200);
       expect(Array.isArray(res.body)).toBe(true);
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
     it('rejects limit=0', async () => {
-      await request(server).get('/activities/search?limit=0').expect(400);
+      await api.get('/activities/search?limit=0').expect(400);
     });
   });
 
   describe('GET /activities/:id', () => {
     it('rejects a non-numeric id', async () => {
-      await request(server).get('/activities/abc').expect(400);
+      await api.get('/activities/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await request(server).get('/activities/999999999').expect(404);
+      await api.get('/activities/999999999').expect(404);
     });
   });
 
   describe('POST /activities validation', () => {
     it('rejects a missing id_animal', async () => {
-      await request(server)
+      await api
         .post('/activities')
         .send({ id_service: activeServiceId, date: '2024-01-01' })
         .expect(400);
     });
 
     it('rejects a non-positive id_service', async () => {
-      await request(server)
+      await api
         .post('/activities')
         .send({ id_animal: animalId, id_service: 0, date: '2024-01-01' })
         .expect(400);
     });
 
     it('rejects a missing date', async () => {
-      await request(server)
+      await api
         .post('/activities')
         .send({ id_animal: animalId, id_service: activeServiceId })
         .expect(400);
     });
 
     it('rejects an empty date (min 1)', async () => {
-      await request(server)
+      await api
         .post('/activities')
         .send({ id_animal: animalId, id_service: activeServiceId, date: '' })
         .expect(400);
     });
 
     it('rejects a description longer than 300 chars', async () => {
-      await request(server)
+      await api
         .post('/activities')
         .send({
           id_animal: animalId,
@@ -128,7 +131,7 @@ describe('Activities (e2e)', () => {
 
   describe('Business rule: contract must be Active', () => {
     it('returns 400 when the service contract is not Active', async () => {
-      const contract = await request(server)
+      const contract = await api
         .post('/contracts')
         .send({
           id_supplier: supplierId,
@@ -140,7 +143,7 @@ describe('Activities (e2e)', () => {
         .expect(201);
       const inactiveContractId = contract.body.id;
 
-      const service = await request(server)
+      const service = await api
         .post('/services-offered')
         .send({
           id_contract: inactiveContractId,
@@ -150,7 +153,7 @@ describe('Activities (e2e)', () => {
         .expect(201);
       const inactiveServiceId = service.body.id;
 
-      await request(server)
+      await api
         .post('/activities')
         .send({
           id_animal: animalId,
@@ -159,8 +162,8 @@ describe('Activities (e2e)', () => {
         })
         .expect(400);
 
-      await request(server).delete(`/services-offered/${inactiveServiceId}`);
-      await request(server).delete(`/contracts/${inactiveContractId}`);
+      await api.delete(`/services-offered/${inactiveServiceId}`);
+      await api.delete(`/contracts/${inactiveContractId}`);
     });
   });
 
@@ -168,7 +171,7 @@ describe('Activities (e2e)', () => {
     let createdId: number;
 
     it('creates an activity', async () => {
-      const res = await request(server)
+      const res = await api
         .post('/activities')
         .send({
           id_animal: animalId,
@@ -182,26 +185,22 @@ describe('Activities (e2e)', () => {
     });
 
     it('reads the created activity by id', async () => {
-      const res = await request(server)
-        .get(`/activities/${createdId}`)
-        .expect(200);
+      const res = await api.get(`/activities/${createdId}`).expect(200);
       expect(res.body.id_activity).toBe(createdId);
     });
 
     it('updates the activity', async () => {
-      await request(server)
+      await api
         .put(`/activities/${createdId}`)
         .send({ description: 'E2E activity updated' })
         .expect(200);
-      const res = await request(server)
-        .get(`/activities/${createdId}`)
-        .expect(200);
+      const res = await api.get(`/activities/${createdId}`).expect(200);
       expect(res.body.description).toBe('E2E activity updated');
     });
 
     it('deletes the activity', async () => {
-      await request(server).delete(`/activities/${createdId}`).expect(200);
-      await request(server).get(`/activities/${createdId}`).expect(404);
+      await api.delete(`/activities/${createdId}`).expect(200);
+      await api.get(`/activities/${createdId}`).expect(404);
     });
   });
 });

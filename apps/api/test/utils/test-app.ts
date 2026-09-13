@@ -30,6 +30,25 @@ export async function createTestApp(): Promise<INestApplication<App>> {
   return app;
 }
 
+export type ApiAgent = ReturnType<typeof request.agent>;
+
+/**
+ * Every endpoint now requires a JWT and a permission, so e2e tests act as the
+ * seeded admin (see prisma/seed.ts), which holds every permission. The returned
+ * agent sends the bearer token on each request.
+ */
+export async function createAdminAgent(server: App): Promise<ApiAgent> {
+  const res = await request(server)
+    .post('/auth/login')
+    .send({
+      email: process.env.SEED_ADMIN_EMAIL ?? 'admin@shelter.local',
+      password: process.env.SEED_ADMIN_PASSWORD ?? 'Admin12345!',
+    })
+    .expect(200);
+
+  return request.agent(server).set('Authorization', `Bearer ${res.body.token}`);
+}
+
 /**
  * Closes the Nest app. `PrismaService` implements `OnModuleDestroy`, so
  * `app.close()` disconnects on its own — no manual connection teardown needed.
@@ -51,7 +70,8 @@ export async function getExistingId(
   listPath: string,
   idField = 'id',
 ): Promise<number> {
-  const res = await request(app.getHttpServer()).get(listPath).expect(200);
+  const api = await createAdminAgent(app.getHttpServer());
+  const res = await api.get(listPath).expect(200);
   const rows = res.body as Array<Record<string, number>>;
   if (!Array.isArray(rows) || rows.length === 0) {
     throw new Error(
