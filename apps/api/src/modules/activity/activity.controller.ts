@@ -9,6 +9,7 @@ import {
   Query,
   ParseIntPipe,
 } from '@nestjs/common';
+import { RequirePermission } from '../auth/permissions.decorator';
 import { ActivityService } from './activity.service';
 import {
   CreateActivityDto,
@@ -20,26 +21,31 @@ import {
 export class ActivityController {
   constructor(private activityService: ActivityService) {}
 
+  @RequirePermission('activity.read')
   @Get()
   async findAll() {
     return this.activityService.findAll();
   }
 
+  @RequirePermission('activity.read')
   @Get('search')
   async search(@Query() filters: SearchActivityFiltersDto) {
     return this.activityService.search(filters);
   }
 
+  @RequirePermission('activity.read')
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.activityService.findById(id);
   }
 
+  @RequirePermission('activity.create')
   @Post()
   async create(@Body() data: CreateActivityDto) {
     return this.activityService.create(data);
   }
 
+  @RequirePermission('activity.edit')
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -48,6 +54,7 @@ export class ActivityController {
     return this.activityService.update(id, data);
   }
 
+  @RequirePermission('activity.edit')
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.activityService.delete(id);
