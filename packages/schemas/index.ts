@@ -15,3 +15,4 @@ export * from "./src/transport-service";
 export * from "./src/veterinarian";
 export * from "./src/donation";
 export * from "./src/activity";
+export * from "./src/role";

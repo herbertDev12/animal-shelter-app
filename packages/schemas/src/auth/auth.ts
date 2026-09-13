@@ -28,6 +28,7 @@ export const registerInputSchema = z.object({
     .trim()
     .max(100, "Last name must be at most 100 characters")
     .optional(),
+  roleId: z.uuid("A valid role id is required"),
 });
 
 export const loginInputSchema = z.object({
@@ -40,6 +41,7 @@ export const userSchema = z.object({
   email: z.string(),
   name: z.string(),
   lastName: z.string().nullish(),
+  roleId: z.uuid(),
 });
 
 export const loginOutputSchema = z.object({

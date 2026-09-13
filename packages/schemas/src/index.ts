@@ -15,3 +15,4 @@ export * from "./veterinarian";
 export * from "./activity";
 export * from "./donation";
 export * from "./adoption";
+export * from "./role";
