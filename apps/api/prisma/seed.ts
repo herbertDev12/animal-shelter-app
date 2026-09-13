@@ -1,5 +1,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient, Prisma } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import {
+  ADMIN_ROLE,
+  PERMISSION_CATALOG,
+  WORKER_EXCLUDED_MODULES,
+  WORKER_ROLE,
+} from '../src/modules/auth/permissions';
 
 /**
  * Development seed data.
@@ -9,7 +16,9 @@ import { PrismaClient, Prisma } from '@prisma/client';
  * separate `setval` script to stop the next INSERT colliding; letting the
  * sequences allocate normally removes that whole class of problem.
  *
- * Re-runnable: it clears the tables in foreign-key order first.
+ * Re-runnable: it clears the shelter tables in foreign-key order first. Access
+ * control (permissions, roles, the admin account) is upserted instead, so
+ * re-seeding never wipes user accounts.
  */
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -35,7 +44,68 @@ async function clear(): Promise<void> {
   await prisma.clinic.deleteMany();
 }
 
+async function seedAccessControl(): Promise<void> {
+  const permissions = await Promise.all(
+    PERMISSION_CATALOG.map(({ code, name }) =>
+      prisma.permission.upsert({
+        where: { code },
+        update: { name },
+        create: { code, name },
+      }),
+    ),
+  );
+
+  const workerPermissions = permissions.filter(
+    ({ code }) =>
+      !WORKER_EXCLUDED_MODULES.some((module) => code.startsWith(`${module}.`)),
+  );
+  const grants = [
+    { name: ADMIN_ROLE, permissions },
+    { name: WORKER_ROLE, permissions: workerPermissions },
+  ];
+
+  const roles: Record<string, string> = {};
+  for (const grant of grants) {
+    const role = await prisma.role.upsert({
+      where: { name: grant.name },
+      update: { isActive: true, isDeleted: false },
+      create: { name: grant.name },
+    });
+    roles[grant.name] = role.id;
+
+    await prisma.$transaction([
+      prisma.rolePermission.deleteMany({ where: { roleId: role.id } }),
+      prisma.rolePermission.createMany({
+        data: grant.permissions.map((p) => ({
+          roleId: role.id,
+          permissionId: p.id,
+        })),
+      }),
+    ]);
+  }
+
+  const email = (process.env.SEED_ADMIN_EMAIL ?? 'admin@shelter.local')
+    .trim()
+    .toLowerCase();
+  const passwordHash = await bcrypt.hash(
+    process.env.SEED_ADMIN_PASSWORD ?? 'Admin12345!',
+    10,
+  );
+
+  await prisma.user.upsert({
+    where: { email },
+    update: { passwordHash, roleId: roles[ADMIN_ROLE] },
+    create: {
+      email,
+      passwordHash,
+      name: 'Admin',
+      roleId: roles[ADMIN_ROLE],
+    },
+  });
+}
+
 async function main(): Promise<void> {
+  await seedAccessControl();
   await clear();
 
   // ---------------------------------------------------------------- clinics
