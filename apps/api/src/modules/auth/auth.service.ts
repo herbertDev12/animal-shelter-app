@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { loginInputSchema } from '@repo/schemas';
@@ -12,13 +12,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserAlreadyExistsException } from './auth.exceptions';
 import type { AuthUser, JwtPayload } from './auth.types';
 
-const SALT_ROUNDS = 10;
+export const SALT_ROUNDS = 10;
 
-const publicUserSelect = {
+export const publicUserSelect = {
   id: true,
   email: true,
   name: true,
   lastName: true,
+  roleId: true,
 } as const;
 
 @Injectable()
@@ -28,7 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterInput): Promise<LoginOutput> {
+  async register(dto: RegisterInput): Promise<User> {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
       select: { id: true },
@@ -38,19 +39,27 @@ export class AuthService {
       throw new UserAlreadyExistsException();
     }
 
+    const role = await this.prisma.role.findFirst({
+      where: { id: dto.roleId, isActive: true, isDeleted: false },
+      select: { id: true },
+    });
+
+    if (!role) {
+      throw new BadRequestException('Invalid role');
+    }
+
     const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
-    const user = await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         email: dto.email,
         passwordHash,
         name: dto.name,
         lastName: dto.lastName ?? null,
+        roleId: role.id,
       },
       select: publicUserSelect,
     });
-
-    return this.login(user);
   }
 
   async validateUser(credentials: unknown): Promise<AuthUser | null> {
@@ -88,7 +97,11 @@ export class AuthService {
   }
 
   login(user: AuthUser): LoginOutput {
-    const payload: JwtPayload = { sub: user.id, email: user.email };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      roleId: user.roleId,
+    };
 
     return {
       id: user.id,
@@ -101,6 +114,13 @@ export class AuthService {
     return this.prisma.user.findUnique({
       where: { id },
       select: publicUserSelect,
+    });
+  }
+
+  async findAll() {
+    return this.prisma.user.findMany({
+      select: { ...publicUserSelect, role: { select: { name: true } } },
+      orderBy: { email: 'asc' },
     });
   }
 }

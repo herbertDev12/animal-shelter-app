@@ -12,18 +12,21 @@ import {
 import { RegisterInputDto } from '@repo/schemas';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { Public } from './public.decorator';
+import { RequirePermission } from './permissions.decorator';
 import type { AuthenticatedRequest } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @RequirePermission('auth.create')
   @Post('register')
   register(@Body() registerInputDto: RegisterInputDto) {
     return this.authService.register(registerInputDto);
   }
 
+  @Public()
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -31,7 +34,7 @@ export class AuthController {
     return this.authService.login(req.user);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // Any authenticated user may read their own account.
   @Get('me')
   async me(@Request() req: AuthenticatedRequest) {
     const user = await this.authService.findById(req.user.id);
@@ -41,5 +44,11 @@ export class AuthController {
     }
 
     return user;
+  }
+
+  @RequirePermission('auth.read')
+  @Get('users')
+  findAll() {
+    return this.authService.findAll();
   }
 }
