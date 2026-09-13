@@ -183,7 +183,50 @@ model User {
   passwordHash String   @map("password_hash") @db.VarChar(255)
   name         String   @db.VarChar(100)
   lastName     String?  @map("last_name") @db.VarChar(100)
+  roleId       String   @map("role_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  role Role @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([roleId], map: "idx_user_role")
   @@map("User")
+}
+
+/// A named set of permissions. Every user belongs to exactly one role. Deleting
+/// a role is soft (is_deleted), so users and audit history never dangle.
+model Role {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @unique @db.VarChar(100)
+  isActive  Boolean @default(true) @map("is_active")
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+/// A single grant, identified by a `<module>.<action>` code (e.g. supplier.edit).
+/// The catalog lives in src/modules/auth/permissions.ts and is written by the seed.
+model Permission {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(150)
+  code String @unique @db.VarChar(100)
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+/// Many-to-many join between roles and permissions.
+model RolePermission {
+  roleId       String @map("role_id") @db.Uuid
+  permissionId String @map("permission_id") @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId], map: "idx_role_permissions_permission")
+  @@map("role_permissions")
 }
