@@ -9,6 +9,7 @@ import {
   Query,
   ParseIntPipe,
 } from '@nestjs/common';
+import { RequirePermission } from '../auth/permissions.decorator';
 import { TransportServiceService } from './transport-service.service';
 import {
   CreateTransportServiceDto,
@@ -20,26 +21,31 @@ import {
 export class TransportServiceController {
   constructor(private transportServiceService: TransportServiceService) {}
 
+  @RequirePermission('transport-service.read')
   @Get()
   async findAll() {
     return this.transportServiceService.findAll();
   }
 
+  @RequirePermission('transport-service.read')
   @Get('search')
   async search(@Query() filters: SearchTransportServicesFiltersDto) {
     return this.transportServiceService.search(filters);
   }
 
+  @RequirePermission('transport-service.read')
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.transportServiceService.findById(id);
   }
 
+  @RequirePermission('transport-service.create')
   @Post()
   async create(@Body() data: CreateTransportServiceDto) {
     return this.transportServiceService.create(data);
   }
 
+  @RequirePermission('transport-service.edit')
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -48,6 +54,7 @@ export class TransportServiceController {
     return this.transportServiceService.update(id, data);
   }
 
+  @RequirePermission('transport-service.edit')
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.transportServiceService.delete(id);

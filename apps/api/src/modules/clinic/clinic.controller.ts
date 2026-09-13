@@ -9,6 +9,7 @@ import {
   Query,
   ParseIntPipe,
 } from '@nestjs/common';
+import { RequirePermission } from '../auth/permissions.decorator';
 import { ClinicService } from './clinic.service';
 import { CreateClinicDto, SearchClinicsFiltersDto } from '@repo/schemas';
 
@@ -16,26 +17,31 @@ import { CreateClinicDto, SearchClinicsFiltersDto } from '@repo/schemas';
 export class ClinicController {
   constructor(private clinicsService: ClinicService) {}
 
+  @RequirePermission('clinic.read')
   @Get()
   async findAll() {
     return this.clinicsService.findAll();
   }
 
+  @RequirePermission('clinic.read')
   @Get('search')
   async search(@Query() filters: SearchClinicsFiltersDto) {
     return this.clinicsService.search(filters);
   }
 
+  @RequirePermission('clinic.read')
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
     return this.clinicsService.findById(id);
   }
 
+  @RequirePermission('clinic.create')
   @Post()
   async create(@Body() data: CreateClinicDto) {
     return this.clinicsService.create(data);
   }
 
+  @RequirePermission('clinic.edit')
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -44,6 +50,7 @@ export class ClinicController {
     return this.clinicsService.update(id, data);
   }
 
+  @RequirePermission('clinic.edit')
   @Delete(':id')
   async delete(@Param('id', ParseIntPipe) id: number) {
     return this.clinicsService.delete(id);
