@@ -4,7 +4,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
-import { createAnimalSchema, type CreateAnimal } from "@repo/schemas";
+import {
+  AnimalStatus,
+  createAnimalSchema,
+  type CreateAnimal,
+} from "@repo/schemas";
 import { createAnimal } from "../services";
 import { AnimalFormFields } from "./animal-form-fields";
 
@@ -25,7 +29,7 @@ export function CreateAnimalForm({
       name: "",
       species: "",
       breed: "",
-      status: "available",
+      status: AnimalStatus.Available,
     },
   });
 

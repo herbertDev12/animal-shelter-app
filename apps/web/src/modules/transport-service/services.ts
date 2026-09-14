@@ -12,7 +12,7 @@ export const fetchTransportServices = (
 
   if (filters.id_supplier != null)
     params.append("id_supplier", String(filters.id_supplier));
-  if (filters.status) params.append("status", filters.status);
+  if (filters.status) params.append("status", String(filters.status));
   if (filters.vehicle) params.append("vehicle", filters.vehicle);
   if (filters.transport_modality)
     params.append("transport_modality", filters.transport_modality);
@@ -25,7 +25,7 @@ export const fetchTransportServices = (
 };
 
 export const fetchTransportService = (
-  id: number,
+  id: string,
 ): Promise<TransportService> => {
   return fetchWithAuth<TransportService>(`/transport-services/${id}`);
 };
@@ -40,7 +40,7 @@ export const createTransportService = (
 };
 
 export const updateTransportService = (
-  id: number,
+  id: string,
   data: Partial<CreateTransportService>,
 ): Promise<TransportService> => {
   return fetchWithAuth<TransportService>(`/transport-services/${id}`, {
@@ -49,7 +49,7 @@ export const updateTransportService = (
   });
 };
 
-export const deleteTransportService = (id: number): Promise<void> => {
+export const deleteTransportService = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/transport-services/${id}`, {
     method: "DELETE",
   });

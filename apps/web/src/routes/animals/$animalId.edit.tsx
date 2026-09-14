@@ -10,7 +10,7 @@ export const Route = createFileRoute("/animals/$animalId/edit")({
 
 function EditAnimalPage() {
   const { animalId } = Route.useParams();
-  const id = Number(animalId);
+  const id = animalId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/animals" });
 

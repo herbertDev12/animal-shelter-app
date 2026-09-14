@@ -22,7 +22,7 @@ export function VeterinariansList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      id_clinic: parseAsInteger,
+      id_clinic: parseAsString,
       specialty: parseAsString,
       modality: parseAsString,
       province: parseAsString,
@@ -167,12 +167,11 @@ export function VeterinariansList() {
             Clinic ID
           </label>
           <Input
-            type="number"
+            type="text"
             value={filters.id_clinic ?? ""}
             onChange={(e) =>
               setFilters({
-                id_clinic:
-                  e.target.value === "" ? null : Number(e.target.value),
+                id_clinic: e.target.value || null,
                 offset: 0,
               })
             }

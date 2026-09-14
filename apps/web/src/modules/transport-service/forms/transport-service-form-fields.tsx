@@ -1,3 +1,8 @@
+import {
+  ContractStatus,
+  ContractStatusLabel,
+  enumOptions,
+} from "@repo/schemas";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
@@ -8,11 +13,7 @@ import { fetchSuppliers } from "@/modules/supplier/services";
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
 
-const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-  { value: "Expired", label: "Expired" },
-] as const;
+const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
 
 export function TransportServiceFormFields<T extends FieldValues>({
   control,

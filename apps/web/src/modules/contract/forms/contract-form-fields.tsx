@@ -1,3 +1,10 @@
+import {
+  ContractCategory,
+  ContractCategoryLabel,
+  ContractStatus,
+  ContractStatusLabel,
+  enumOptions,
+} from "@repo/schemas";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
@@ -8,17 +15,8 @@ import { fetchSuppliers } from "@/modules/contract/services";
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
 
-const CATEGORY_OPTIONS = [
-  { value: "Veterinarian", label: "Veterinarian" },
-  { value: "Food", label: "Food" },
-  { value: "Service", label: "Service" },
-] as const;
-
-const STATUS_OPTIONS = [
-  { value: "Active", label: "Active" },
-  { value: "Inactive", label: "Inactive" },
-  { value: "Expired", label: "Expired" },
-] as const;
+const CATEGORY_OPTIONS = enumOptions(ContractCategoryLabel, ContractCategory);
+const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
 
 export function ContractFormFields<T extends FieldValues>({
   control,

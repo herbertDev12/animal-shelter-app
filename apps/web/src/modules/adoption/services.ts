@@ -26,7 +26,7 @@ export const fetchAdoptions = (
   return fetchWithAuth<Adoption[]>(`/adoptions/search?${params.toString()}`);
 };
 
-export const fetchAdoption = (id: number): Promise<Adoption> => {
+export const fetchAdoption = (id: string): Promise<Adoption> => {
   return fetchWithAuth<Adoption>(`/adoptions/${id}`);
 };
 
@@ -38,7 +38,7 @@ export const createAdoption = (data: CreateAdoption): Promise<Adoption> => {
 };
 
 export const updateAdoption = (
-  id: number,
+  id: string,
   data: Partial<CreateAdoption>,
 ): Promise<Adoption> => {
   return fetchWithAuth<Adoption>(`/adoptions/${id}`, {
@@ -47,7 +47,7 @@ export const updateAdoption = (
   });
 };
 
-export const deleteAdoption = (id: number): Promise<void> => {
+export const deleteAdoption = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/adoptions/${id}`, {
     method: "DELETE",
   });

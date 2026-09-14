@@ -9,7 +9,8 @@ export const fetchAnimals = (
   if (filters.species) params.append("species", filters.species);
   if (filters.breed) params.append("breed", filters.breed);
   if (filters.status?.length) {
-    for (const status of filters.status) params.append("status", status);
+    for (const status of filters.status)
+      params.append("status", String(status));
   }
   if (filters.minAge != null) params.append("minAge", String(filters.minAge));
   if (filters.maxAge != null) params.append("maxAge", String(filters.maxAge));
@@ -19,7 +20,7 @@ export const fetchAnimals = (
   return fetchWithAuth<Animal[]>(`/animals/search?${params.toString()}`);
 };
 
-export const fetchAnimal = (id: number): Promise<Animal> => {
+export const fetchAnimal = (id: string): Promise<Animal> => {
   return fetchWithAuth<Animal>(`/animals/${id}`);
 };
 
@@ -31,7 +32,7 @@ export const createAnimal = (data: CreateAnimal): Promise<Animal> => {
 };
 
 export const updateAnimal = (
-  id: number,
+  id: string,
   data: Partial<CreateAnimal>,
 ): Promise<Animal> => {
   return fetchWithAuth<Animal>(`/animals/${id}`, {
@@ -40,7 +41,7 @@ export const updateAnimal = (
   });
 };
 
-export const deleteAnimal = (id: number): Promise<void> => {
+export const deleteAnimal = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/animals/${id}`, {
     method: "DELETE",
   });

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/donations/$donationId/edit")({
 
 function EditDonationPage() {
   const { donationId } = Route.useParams();
-  const id = Number(donationId);
+  const id = donationId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/donations" });
 

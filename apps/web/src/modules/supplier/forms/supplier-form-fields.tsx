@@ -1,3 +1,4 @@
+import { SupplierType, SupplierTypeLabel, enumOptions } from "@repo/schemas";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
@@ -5,11 +6,7 @@ import { RHFSelect } from "@/components/fields/rhf-select";
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
 
-const TYPE_OPTIONS = [
-  { value: "Veterinarian", label: "Veterinarian" },
-  { value: "Food Company", label: "Food Company" },
-  { value: "Service Company", label: "Service Company" },
-] as const;
+const TYPE_OPTIONS = enumOptions(SupplierTypeLabel, SupplierType);
 
 export function SupplierFormFields<T extends FieldValues>({
   control,

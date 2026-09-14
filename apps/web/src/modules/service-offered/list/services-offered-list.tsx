@@ -22,7 +22,7 @@ export function ServicesOfferedList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      id_contract: parseAsInteger,
+      id_contract: parseAsString,
       food_type: parseAsString,
       limit: parseAsInteger.withDefault(10),
       offset: parseAsInteger.withDefault(0),
@@ -155,11 +155,11 @@ export function ServicesOfferedList() {
             Contract ID
           </label>
           <Input
-            type="number"
+            type="text"
             value={filters.id_contract ?? ""}
             onChange={(e) =>
               setFilters({
-                id_contract: e.target.value ? Number(e.target.value) : null,
+                id_contract: e.target.value || null,
                 offset: 0,
               })
             }

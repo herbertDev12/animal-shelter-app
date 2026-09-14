@@ -10,7 +10,7 @@ import {
 } from "@repo/ui";
 
 export interface FkOption {
-  id: number;
+  id: string;
   label: string;
 }
 
@@ -42,7 +42,7 @@ export function RHFFkSelect<T extends FieldValues>({
           {label && <Label htmlFor={name}>{label}</Label>}
           <Select
             value={field.value != null ? String(field.value) : undefined}
-            onValueChange={(value) => field.onChange(Number(value))}
+            onValueChange={(value) => field.onChange(value)}
           >
             <SelectTrigger
               id={name}

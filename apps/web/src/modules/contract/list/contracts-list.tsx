@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryStates, parseAsString, parseAsInteger } from "nuqs";
+import { useQueryStates, parseAsInteger } from "nuqs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,15 +16,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui";
-import type { Contract } from "@repo/schemas";
+import {
+  ContractCategory,
+  ContractCategoryLabel,
+  ContractStatus,
+  ContractStatusLabel,
+  enumOptions,
+  type Contract,
+} from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchContracts, deleteContract } from "../services";
 
-const statusBadgeClass: Record<string, string> = {
-  Active: "bg-green-500/15 text-green-400",
-  Inactive: "bg-gray-500/15 text-gray-400",
-  Expired: "bg-red-500/15 text-red-400",
+const statusBadgeClass: Record<ContractStatus, string> = {
+  [ContractStatus.Active]: "bg-green-500/15 text-green-400",
+  [ContractStatus.Inactive]: "bg-gray-500/15 text-gray-400",
+  [ContractStatus.Expired]: "bg-red-500/15 text-red-400",
 };
+
+const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
+const CATEGORY_OPTIONS = enumOptions(ContractCategoryLabel, ContractCategory);
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -43,8 +53,8 @@ export function ContractsList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      contract_category: parseAsString,
-      status: parseAsString,
+      contract_category: parseAsInteger,
+      status: parseAsInteger,
       limit: parseAsInteger.withDefault(10),
       offset: parseAsInteger.withDefault(0),
     },
@@ -92,7 +102,12 @@ export function ContractsList() {
   const columns = useMemo<ColumnDef<Contract>[]>(
     () => [
       { header: "Supplier", accessorKey: "id_supplier" },
-      { header: "Category", accessorKey: "contract_category" },
+      {
+        header: "Category",
+        accessorKey: "contract_category",
+        cell: ({ getValue }) =>
+          ContractCategoryLabel[getValue() as ContractCategory] ?? "—",
+      },
       {
         header: "Start",
         accessorKey: "start_date",
@@ -107,14 +122,14 @@ export function ContractsList() {
         header: "Status",
         accessorKey: "status",
         cell: ({ getValue }) => {
-          const status = getValue() as string;
+          const status = getValue() as ContractStatus;
           return (
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                 statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
               }`}
             >
-              {status}
+              {ContractStatusLabel[status]}
             </span>
           );
         },
@@ -187,10 +202,14 @@ export function ContractsList() {
             Category
           </label>
           <Select
-            value={filters.contract_category ?? "all"}
+            value={
+              filters.contract_category != null
+                ? String(filters.contract_category)
+                : "all"
+            }
             onValueChange={(v) =>
               setFilters({
-                contract_category: v === "all" ? null : v,
+                contract_category: v === "all" ? null : Number(v),
                 offset: 0,
               })
             }
@@ -200,9 +219,11 @@ export function ContractsList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any category</SelectItem>
-              <SelectItem value="Veterinarian">Veterinarian</SelectItem>
-              <SelectItem value="Food">Food</SelectItem>
-              <SelectItem value="Service">Service</SelectItem>
+              {CATEGORY_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -212,9 +233,9 @@ export function ContractsList() {
             Status
           </label>
           <Select
-            value={filters.status ?? "all"}
+            value={filters.status != null ? String(filters.status) : "all"}
             onValueChange={(v) =>
-              setFilters({ status: v === "all" ? null : v, offset: 0 })
+              setFilters({ status: v === "all" ? null : Number(v), offset: 0 })
             }
           >
             <SelectTrigger className="w-40 bg-[#10131a] border-gray-800 text-white">
@@ -222,9 +243,11 @@ export function ContractsList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any status</SelectItem>
-              <SelectItem value="Active">Active</SelectItem>
-              <SelectItem value="Inactive">Inactive</SelectItem>
-              <SelectItem value="Expired">Expired</SelectItem>
+              {STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

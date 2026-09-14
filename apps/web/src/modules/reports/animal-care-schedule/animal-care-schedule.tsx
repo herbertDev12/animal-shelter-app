@@ -6,7 +6,7 @@ import { useAnimalCareSchedule } from "./useAnimalCareSchedule";
 import { Input } from "@repo/ui";
 
 export function AnimalCareScheduleComponent() {
-  const [animalId, setAnimalId] = useState<number>(1);
+  const [animalId, setAnimalId] = useState("");
   const { data: schedule, isLoading } = useAnimalCareSchedule(animalId);
 
   const columns = useMemo<ColumnDef<AnimalCareScheduleDto>[]>(
@@ -104,10 +104,11 @@ export function AnimalCareScheduleComponent() {
             Animal ID:
           </label>
           <Input
-            type="number"
+            type="text"
             value={animalId}
-            onChange={(e) => setAnimalId(Number(e.target.value))}
-            className="w-24 h-9 bg-[#161a21] border-[#1a1f2e]"
+            onChange={(e) => setAnimalId(e.target.value.trim())}
+            placeholder="Animal UUID"
+            className="w-80 h-9 bg-[#161a21] border-[#1a1f2e]"
           />
         </div>
       </div>

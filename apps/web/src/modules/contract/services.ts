@@ -14,15 +14,15 @@ export const fetchContracts = (
   if (filters.id_supplier != null)
     params.append("id_supplier", String(filters.id_supplier));
   if (filters.contract_category)
-    params.append("contract_category", filters.contract_category);
-  if (filters.status) params.append("status", filters.status);
+    params.append("contract_category", String(filters.contract_category));
+  if (filters.status) params.append("status", String(filters.status));
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
   return fetchWithAuth<Contract[]>(`/contracts/search?${params.toString()}`);
 };
 
-export const fetchContract = (id: number): Promise<Contract> => {
+export const fetchContract = (id: string): Promise<Contract> => {
   return fetchWithAuth<Contract>(`/contracts/${id}`);
 };
 
@@ -34,7 +34,7 @@ export const createContract = (data: CreateContract): Promise<Contract> => {
 };
 
 export const updateContract = (
-  id: number,
+  id: string,
   data: Partial<CreateContract>,
 ): Promise<Contract> => {
   return fetchWithAuth<Contract>(`/contracts/${id}`, {
@@ -43,7 +43,7 @@ export const updateContract = (
   });
 };
 
-export const deleteContract = (id: number): Promise<void> => {
+export const deleteContract = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/contracts/${id}`, {
     method: "DELETE",
   });

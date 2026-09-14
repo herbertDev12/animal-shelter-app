@@ -4,7 +4,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
-import { createSupplierSchema, type CreateSupplier } from "@repo/schemas";
+import {
+  SupplierType,
+  createSupplierSchema,
+  type CreateSupplier,
+} from "@repo/schemas";
 import { createSupplier } from "../services";
 import { SupplierFormFields } from "./supplier-form-fields";
 
@@ -23,7 +27,7 @@ export function CreateSupplierForm({
     resolver: zodResolver(createSupplierSchema) as Resolver<CreateSupplier>,
     defaultValues: {
       name: "",
-      type: "Veterinarian",
+      type: SupplierType.Veterinarian,
     },
   });
 

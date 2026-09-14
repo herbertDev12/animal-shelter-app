@@ -10,7 +10,7 @@ export const Route = createFileRoute("/activities/$activityId/edit")({
 
 function EditActivityPage() {
   const { activityId } = Route.useParams();
-  const id = Number(activityId);
+  const id = activityId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/activities" });
 

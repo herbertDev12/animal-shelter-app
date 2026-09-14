@@ -77,7 +77,9 @@ export function EditActivityForm({
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
         Edit Activity{" "}
-        <span className="text-[#cc97ff]">#{activity.id_activity}</span>
+        <span className="text-[#cc97ff]">
+          #{activity.id_activity.slice(0, 8)}
+        </span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <ActivityFormFields control={control} />

@@ -75,7 +75,8 @@ export function EditClinicForm({
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
-        Edit Clinic <span className="text-[#cc97ff]">#{clinic.id}</span>
+        Edit Clinic{" "}
+        <span className="text-[#cc97ff]">#{clinic.id.slice(0, 8)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <ClinicFormFields control={control} />
