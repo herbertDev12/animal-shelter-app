@@ -4,6 +4,10 @@
 // table names and snake_case columns are preserved via @@map / @map, so this
 // schema describes the database that already exists rather than renaming it.
 //
+// Every primary key is a UUID. Enumerations (Supplier.type,
+// Contract.contract_category, Contract.status, Animal.status) are stored as
+// SMALLINT; their values are defined in @repo/schemas (src/enums.ts).
+//
 // CHECK constraints (contract_category / status / type value sets, price >= 0,
 // end_date >= start_date, birth_date <= entry_date) cannot be expressed in the
 // Prisma schema language. They are appended by hand to the initial migration SQL
@@ -23,7 +27,7 @@ datasource db {
 }
 
 model Clinic {
-  id_clinic Int     @id @default(autoincrement())
+  id_clinic String  @id @default(uuid()) @db.Uuid
   name      String  @db.VarChar(100)
   province  String? @db.VarChar(100)
   address   String? @db.VarChar(200)
@@ -34,10 +38,10 @@ model Clinic {
 }
 
 model Supplier {
-  id_supplier   Int     @id @default(autoincrement())
+  id_supplier   String  @id @default(uuid()) @db.Uuid
   name          String  @db.VarChar(100)
   address       String? @db.VarChar(200)
-  type          String? @db.VarChar(50)
+  type          Int?    @db.SmallInt
   phone         String? @db.VarChar(20)
   contact_email String? @db.VarChar(100)
   contact_name  String? @db.VarChar(100)
@@ -53,8 +57,8 @@ model Supplier {
 
 /// 1:1 subtype of Supplier — the primary key is also the foreign key.
 model Veterinarian {
-  id_supplier        Int      @id
-  id_clinic          Int
+  id_supplier        String   @id @db.Uuid
+  id_clinic          String   @db.Uuid
   modality           String?  @db.VarChar(50)
   specialty          String?  @db.VarChar(100)
   fax                String?  @db.VarChar(20)
@@ -68,14 +72,14 @@ model Veterinarian {
 }
 
 model Contract {
-  id_contract         Int       @id @default(autoincrement())
-  id_supplier         Int
-  contract_category   String?   @db.VarChar(50)
+  id_contract         String    @id @default(uuid()) @db.Uuid
+  id_supplier         String    @db.Uuid
+  contract_category   Int?      @db.SmallInt
   start_date          DateTime  @db.Date
   end_date            DateTime  @db.Date
   reconciliation_date DateTime? @db.Date
   description         String?   @db.VarChar(300)
-  status              String?   @default("Active") @db.VarChar(20)
+  status              Int?      @default(1) @db.SmallInt
 
   supplier          Supplier          @relation(fields: [id_supplier], references: [id_supplier], onDelete: NoAction, onUpdate: NoAction)
   transport_service TransportService?
@@ -89,7 +93,7 @@ model Contract {
 
 /// 1:1 subtype of Contract — the primary key is also the foreign key.
 model TransportService {
-  id_contract        Int     @id
+  id_contract        String  @id @db.Uuid
   vehicle            String? @db.VarChar(100)
   transport_modality String? @db.VarChar(100)
 
@@ -99,8 +103,8 @@ model TransportService {
 }
 
 model ServiceOffered {
-  id_service  Int      @id @default(autoincrement())
-  id_contract Int
+  id_service  String   @id @default(uuid()) @db.Uuid
+  id_contract String   @db.Uuid
   name        String   @db.VarChar(100)
   food_type   String?  @db.VarChar(100)
   base_price  Decimal  @db.Decimal(10, 2)
@@ -114,14 +118,14 @@ model ServiceOffered {
 }
 
 model Animal {
-  id_animal  Int       @id @default(autoincrement())
+  id_animal  String    @id @default(uuid()) @db.Uuid
   name       String    @db.VarChar(100)
   species    String    @db.VarChar(50)
   breed      String?   @db.VarChar(50)
   birth_date DateTime? @db.Date
   weight     Decimal?  @db.Decimal(6, 2)
   entry_date DateTime  @db.Date
-  status     String?   @default("available") @db.VarChar(20)
+  status     Int?      @default(1) @db.SmallInt
 
   activities Activity[]
   adoptions  Adoption[]
@@ -134,9 +138,9 @@ model Animal {
 }
 
 model Activity {
-  id_activity Int       @id @default(autoincrement())
-  id_animal   Int
-  id_service  Int
+  id_activity String    @id @default(uuid()) @db.Uuid
+  id_animal   String    @db.Uuid
+  id_service  String    @db.Uuid
   description String?   @db.VarChar(300)
   date        DateTime  @db.Date
   time        DateTime? @db.Time(6)
@@ -150,8 +154,8 @@ model Activity {
 }
 
 model Adoption {
-  id_adoption    Int      @id @default(autoincrement())
-  id_animal      Int
+  id_adoption    String   @id @default(uuid()) @db.Uuid
+  id_animal      String   @db.Uuid
   adoption_date  DateTime @db.Date
   adoption_price Decimal? @db.Decimal(10, 2)
 
@@ -161,8 +165,8 @@ model Adoption {
 }
 
 model Donation {
-  id_donation Int      @id @default(autoincrement())
-  id_animal   Int
+  id_donation String   @id @default(uuid()) @db.Uuid
+  id_animal   String   @db.Uuid
   amount      Decimal  @db.Decimal(10, 2)
   date        DateTime @db.Date
   donor       String?  @db.VarChar(100)
@@ -172,10 +176,9 @@ model Donation {
   @@map("Donation")
 }
 
-/// Application accounts for the auth endpoints. Unlike the models above — which
-/// mirror the pre-existing shelter schema — this table is new, so it uses a UUID
+/// Application accounts for the auth endpoints. Like every model, it uses a UUID
 /// primary key (ids never leak a user count and are safe to hand to a client in
-/// a JWT) and carries a created_at column. The database columns stay snake_case
+/// a JWT) and it carries a created_at column. The database columns stay snake_case
 /// via @map to match the rest of the schema.
 model User {
   id           String   @id @default(uuid()) @db.Uuid
