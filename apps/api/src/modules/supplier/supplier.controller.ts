@@ -6,7 +6,7 @@ import {
   Delete,
   Param,
   Body,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Query,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
@@ -32,7 +32,7 @@ export class SupplierController {
 
   @RequirePermission('supplier.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.supplierService.findById(id);
   }
 
@@ -45,7 +45,7 @@ export class SupplierController {
   @RequirePermission('supplier.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Partial<CreateSupplierDto>,
   ) {
     return this.supplierService.update(id, data);
@@ -53,7 +53,7 @@ export class SupplierController {
 
   @RequirePermission('supplier.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.supplierService.delete(id);
   }
 }

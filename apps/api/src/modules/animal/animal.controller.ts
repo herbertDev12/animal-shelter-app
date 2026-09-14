@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { AnimalService } from './animal.service';
@@ -37,7 +37,7 @@ export class AnimalController {
 
   @RequirePermission('animal.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.animalsService.findById(id);
   }
 
@@ -50,7 +50,7 @@ export class AnimalController {
   @RequirePermission('animal.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Partial<CreateAnimalDto>,
   ) {
     return this.animalsService.update(id, data);
@@ -58,7 +58,7 @@ export class AnimalController {
 
   @RequirePermission('animal.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.animalsService.delete(id);
   }
 }

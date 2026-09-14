@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { TransportServiceService } from './transport-service.service';
@@ -35,7 +35,7 @@ export class TransportServiceController {
 
   @RequirePermission('transport-service.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.transportServiceService.findById(id);
   }
 
@@ -48,7 +48,7 @@ export class TransportServiceController {
   @RequirePermission('transport-service.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateTransportServiceDto,
   ) {
     return this.transportServiceService.update(id, data);
@@ -56,7 +56,7 @@ export class TransportServiceController {
 
   @RequirePermission('transport-service.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.transportServiceService.delete(id);
   }
 }

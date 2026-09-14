@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { AdoptionService } from './adoption.service';
@@ -31,7 +31,7 @@ export class AdoptionController {
 
   @RequirePermission('adoption.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.adoptionService.findById(id);
   }
 
@@ -44,7 +44,7 @@ export class AdoptionController {
   @RequirePermission('adoption.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Partial<CreateAdoptionDto>,
   ) {
     return this.adoptionService.update(id, data);
@@ -52,7 +52,7 @@ export class AdoptionController {
 
   @RequirePermission('adoption.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.adoptionService.delete(id);
   }
 }

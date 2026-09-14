@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import {
+  ContractCategory,
   ContractStatus,
   CreateTransportService,
   SearchTransportServicesFilters,
@@ -39,7 +40,7 @@ export class TransportServiceService {
     return rows.map(toTransportService);
   }
 
-  async findById(id: number): Promise<TransportService> {
+  async findById(id: string): Promise<TransportService> {
     const row = await this.prisma.transportService.findUnique({
       where: { id_contract: id },
       include: withContract,
@@ -84,14 +85,17 @@ export class TransportServiceService {
     const contract = await this.prisma.contract.create({
       data: {
         id_supplier: data.id_supplier,
-        contract_category: 'Service',
+        contract_category: ContractCategory.Service,
         start_date,
         end_date,
         reconciliation_date: data.reconciliation_date
           ? toDateOnly(data.reconciliation_date)
           : null,
         description: data.description ?? null,
-        status: autoExpire({ end_date, status: data.status || 'Active' }),
+        status: autoExpire({
+          end_date,
+          status: data.status ?? ContractStatus.Active,
+        }),
         transport_service: {
           create: {
             vehicle: data.vehicle,
@@ -105,7 +109,7 @@ export class TransportServiceService {
   }
 
   async update(
-    id: number,
+    id: string,
     data: UpdateTransportService,
   ): Promise<TransportService> {
     await this.prisma.$transaction(async (tx) => {
@@ -161,7 +165,7 @@ export class TransportServiceService {
     return this.findById(id);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.transportService.findUnique({
         where: { id_contract: id },
@@ -191,7 +195,7 @@ function toTransportService(row: TransportServiceRow): TransportService {
   return {
     id: row.id_contract,
     id_supplier: row.contract.id_supplier,
-    contract_category: 'Service',
+    contract_category: ContractCategory.Service,
     start_date: row.contract.start_date,
     end_date: row.contract.end_date,
     reconciliation_date: row.contract.reconciliation_date,

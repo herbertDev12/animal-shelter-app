@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import {
   CreateVeterinarian,
+  SupplierType,
   SearchVeterinariansFilters,
   UpdateVeterinarian,
   Veterinarian,
@@ -35,7 +36,7 @@ export class VeterinarianService {
     return rows.map(toVeterinarian);
   }
 
-  async findById(id: number): Promise<Veterinarian> {
+  async findById(id: string): Promise<Veterinarian> {
     const row = await this.prisma.veterinarian.findUnique({
       where: { id_supplier: id },
       include: withSupplierAndClinic,
@@ -72,7 +73,7 @@ export class VeterinarianService {
       data: {
         name: data.name,
         address: data.address ?? null,
-        type: 'Veterinarian',
+        type: SupplierType.Veterinarian,
         phone: data.phone ?? null,
         contact_email: data.contact_email ?? null,
         contact_name: data.contact_name ?? null,
@@ -93,7 +94,7 @@ export class VeterinarianService {
     return this.findById(supplier.id_supplier);
   }
 
-  async update(id: number, data: UpdateVeterinarian): Promise<Veterinarian> {
+  async update(id: string, data: UpdateVeterinarian): Promise<Veterinarian> {
     await this.prisma.$transaction(async (tx) => {
       const existing = await tx.veterinarian.findUnique({
         where: { id_supplier: id },
@@ -130,7 +131,7 @@ export class VeterinarianService {
     return this.findById(id);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.veterinarian.findUnique({
         where: { id_supplier: id },
@@ -151,7 +152,7 @@ function toVeterinarian(row: VeterinarianRow): Veterinarian {
     id: row.id_supplier,
     name: row.supplier.name,
     address: row.supplier.address,
-    type: 'Veterinarian',
+    type: SupplierType.Veterinarian,
     phone: row.supplier.phone,
     contact_email: row.supplier.contact_email,
     contact_name: row.supplier.contact_name,

@@ -30,7 +30,7 @@ export class AnimalService {
     return rows.map(toAnimal);
   }
 
-  async findById(id: number): Promise<Animal> {
+  async findById(id: string): Promise<Animal> {
     const row = await this.prisma.animal.findUnique({
       where: { id_animal: id },
     });
@@ -67,7 +67,7 @@ export class AnimalService {
         name: data.name,
         species: data.species,
         breed: data.breed ?? null,
-        status: data.status || 'available',
+        status: data.status ?? AnimalStatus.Available,
         entry_date,
         weight: data.weight ?? null,
         birth_date,
@@ -76,7 +76,7 @@ export class AnimalService {
     return toAnimal(row);
   }
 
-  async update(id: number, data: Partial<CreateAnimal>): Promise<Animal> {
+  async update(id: string, data: Partial<CreateAnimal>): Promise<Animal> {
     const existing = await this.prisma.animal.findUnique({
       where: { id_animal: id },
     });
@@ -105,13 +105,13 @@ export class AnimalService {
     return toAnimal(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.animal.delete({ where: { id_animal: id } });
     return true;
   }
 
-  async countByStatus(status: string): Promise<number> {
+  async countByStatus(status: AnimalStatus): Promise<number> {
     return this.prisma.animal.count({ where: { status } });
   }
 
@@ -134,8 +134,9 @@ export class AnimalService {
         available: 0,
         adopted: 0,
       };
-      if (row.status === 'available') entry.available += row._count._all;
-      if (row.status === 'adopted') entry.adopted += row._count._all;
+      if (row.status === AnimalStatus.Available)
+        entry.available += row._count._all;
+      if (row.status === AnimalStatus.Adopted) entry.adopted += row._count._all;
       bySpecies.set(row.species, entry);
     }
 

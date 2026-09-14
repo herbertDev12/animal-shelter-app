@@ -19,7 +19,7 @@ export class DonationService {
     return rows.map(toDonation);
   }
 
-  async findById(id: number): Promise<Donation> {
+  async findById(id: string): Promise<Donation> {
     const row = await this.prisma.donation.findUnique({
       where: { id_donation: id },
     });
@@ -56,7 +56,7 @@ export class DonationService {
     return toDonation(row);
   }
 
-  async update(id: number, data: Partial<CreateDonation>): Promise<Donation> {
+  async update(id: string, data: Partial<CreateDonation>): Promise<Donation> {
     await this.findById(id);
     const row = await this.prisma.donation.update({
       where: { id_donation: id },
@@ -70,7 +70,7 @@ export class DonationService {
     return toDonation(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.donation.delete({ where: { id_donation: id } });
     return true;

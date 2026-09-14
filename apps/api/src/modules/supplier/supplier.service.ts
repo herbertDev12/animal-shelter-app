@@ -19,7 +19,7 @@ export class SupplierService {
     return rows.map(toSupplier);
   }
 
-  async findById(id: number): Promise<Supplier> {
+  async findById(id: string): Promise<Supplier> {
     const row = await this.prisma.supplier.findUnique({
       where: { id_supplier: id },
     });
@@ -60,7 +60,7 @@ export class SupplierService {
     return toSupplier(row);
   }
 
-  async update(id: number, data: Partial<CreateSupplier>): Promise<Supplier> {
+  async update(id: string, data: Partial<CreateSupplier>): Promise<Supplier> {
     await this.findById(id);
     const row = await this.prisma.supplier.update({
       where: { id_supplier: id },
@@ -77,7 +77,7 @@ export class SupplierService {
     return toSupplier(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.supplier.delete({ where: { id_supplier: id } });
     return true;

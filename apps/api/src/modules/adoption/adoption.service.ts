@@ -19,7 +19,7 @@ export class AdoptionService {
     return rows.map(toAdoption);
   }
 
-  async findById(id: number): Promise<Adoption> {
+  async findById(id: string): Promise<Adoption> {
     const row = await this.prisma.adoption.findUnique({
       where: { id_adoption: id },
     });
@@ -52,7 +52,7 @@ export class AdoptionService {
     return toAdoption(row);
   }
 
-  async update(id: number, data: Partial<CreateAdoption>): Promise<Adoption> {
+  async update(id: string, data: Partial<CreateAdoption>): Promise<Adoption> {
     await this.findById(id);
     const row = await this.prisma.adoption.update({
       where: { id_adoption: id },
@@ -67,7 +67,7 @@ export class AdoptionService {
     return toAdoption(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.adoption.delete({ where: { id_adoption: id } });
     return true;

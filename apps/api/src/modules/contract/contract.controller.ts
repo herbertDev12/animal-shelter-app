@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { ContractService } from './contract.service';
@@ -35,7 +35,7 @@ export class ContractController {
 
   @RequirePermission('contract.read')
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.contractService.findById(id);
   }
 
@@ -48,7 +48,7 @@ export class ContractController {
   @RequirePermission('contract.edit')
   @Patch(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateContractDto: UpdateContractDto,
   ) {
     return this.contractService.update(id, updateContractDto);
@@ -56,7 +56,7 @@ export class ContractController {
 
   @RequirePermission('contract.edit')
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.contractService.remove(id);
   }
 }
