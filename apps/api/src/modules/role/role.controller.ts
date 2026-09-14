@@ -23,6 +23,12 @@ export class RoleController {
   }
 
   @RequirePermission('role.read')
+  @Get('select')
+  async findForSelect() {
+    return this.roleService.findForSelect();
+  }
+
+  @RequirePermission('role.read')
   @Get(':id')
   async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.roleService.findById(id);

@@ -42,6 +42,15 @@ export class RoleService {
     return roles.map(toRole);
   }
 
+  async findForSelect() {
+    const roles = await this.prisma.role.findMany({
+      where: { isActive: true, isDeleted: false },
+      select: { id: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+    return roles.map(({ id, name }) => ({ value: id, label: name }));
+  }
+
   async findById(id: string) {
     return toRole(await this.findRowOrThrow(id));
   }
