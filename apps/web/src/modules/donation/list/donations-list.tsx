@@ -33,7 +33,7 @@ export function DonationsList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      id_animal: parseAsInteger,
+      id_animal: parseAsString,
       minAmount: parseAsInteger,
       maxAmount: parseAsInteger,
       donor: parseAsString,
@@ -175,8 +175,7 @@ export function DonationsList() {
             value={filters.id_animal ?? ""}
             onChange={(e) =>
               setFilters({
-                id_animal:
-                  e.target.value === "" ? null : Number(e.target.value),
+                id_animal: e.target.value || null,
                 offset: 0,
               })
             }

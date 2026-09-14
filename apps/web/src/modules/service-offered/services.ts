@@ -21,7 +21,7 @@ export const fetchServicesOffered = (
   );
 };
 
-export const fetchServiceOffered = (id: number): Promise<ServiceOffered> => {
+export const fetchServiceOffered = (id: string): Promise<ServiceOffered> => {
   return fetchWithAuth<ServiceOffered>(`/services-offered/${id}`);
 };
 
@@ -35,7 +35,7 @@ export const createServiceOffered = (
 };
 
 export const updateServiceOffered = (
-  id: number,
+  id: string,
   data: Partial<CreateServiceOffered>,
 ): Promise<ServiceOffered> => {
   return fetchWithAuth<ServiceOffered>(`/services-offered/${id}`, {
@@ -44,7 +44,7 @@ export const updateServiceOffered = (
   });
 };
 
-export const deleteServiceOffered = (id: number): Promise<void> => {
+export const deleteServiceOffered = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/services-offered/${id}`, {
     method: "DELETE",
   });

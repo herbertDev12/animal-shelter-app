@@ -23,7 +23,7 @@ export const fetchVeterinarians = (
   );
 };
 
-export const fetchVeterinarian = (id: number): Promise<Veterinarian> => {
+export const fetchVeterinarian = (id: string): Promise<Veterinarian> => {
   return fetchWithAuth<Veterinarian>(`/veterinarians/${id}`);
 };
 
@@ -37,7 +37,7 @@ export const createVeterinarian = (
 };
 
 export const updateVeterinarian = (
-  id: number,
+  id: string,
   data: Partial<CreateVeterinarian>,
 ): Promise<Veterinarian> => {
   return fetchWithAuth<Veterinarian>(`/veterinarians/${id}`, {
@@ -46,7 +46,7 @@ export const updateVeterinarian = (
   });
 };
 
-export const deleteVeterinarian = (id: number): Promise<void> => {
+export const deleteVeterinarian = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/veterinarians/${id}`, {
     method: "DELETE",
   });

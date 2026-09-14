@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
+  AnimalStatus,
   updateAnimalSchema,
   type Animal,
   type UpdateAnimal,
@@ -32,7 +33,7 @@ export function EditAnimalForm({
       name: "",
       species: "",
       breed: "",
-      status: "available",
+      status: AnimalStatus.Available,
     },
   });
 
@@ -79,7 +80,8 @@ export function EditAnimalForm({
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
-        Edit Animal <span className="text-[#cc97ff]">#{animal.id}</span>
+        Edit Animal{" "}
+        <span className="text-[#cc97ff]">#{animal.id.slice(0, 8)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <AnimalFormFields control={control} />

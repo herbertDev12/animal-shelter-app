@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQueryStates, parseAsInteger } from "nuqs";
+import { useQueryStates, parseAsInteger, parseAsString } from "nuqs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ export function AdoptionsList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      id_animal: parseAsInteger,
+      id_animal: parseAsString,
       minPrice: parseAsInteger,
       maxPrice: parseAsInteger,
       limit: parseAsInteger.withDefault(10),
@@ -168,8 +168,7 @@ export function AdoptionsList() {
             value={filters.id_animal ?? ""}
             onChange={(e) =>
               setFilters({
-                id_animal:
-                  e.target.value === "" ? null : Number(e.target.value),
+                id_animal: e.target.value || null,
                 offset: 0,
               })
             }

@@ -12,14 +12,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import type { Animal } from "@repo/schemas";
+import { AnimalStatus, AnimalStatusLabel, type Animal } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchAnimals, deleteAnimal } from "../services";
 
-const statusBadgeClass: Record<string, string> = {
-  available: "bg-green-500/15 text-green-400",
-  adopted: "bg-purple-500/15 text-purple-400",
-  reserved: "bg-yellow-500/15 text-yellow-400",
+const statusBadgeClass: Partial<Record<AnimalStatus, string>> = {
+  [AnimalStatus.Available]: "bg-green-500/15 text-green-400",
+  [AnimalStatus.Adopted]: "bg-purple-500/15 text-purple-400",
+  [AnimalStatus.Reserved]: "bg-yellow-500/15 text-yellow-400",
 };
 
 function formatDate(value: Date | string | null | undefined) {
@@ -125,14 +125,14 @@ export function AnimalsList() {
         header: "Status",
         accessorKey: "status",
         cell: ({ getValue }) => {
-          const status = getValue() as string;
+          const status = getValue() as AnimalStatus;
           return (
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                 statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
               }`}
             >
-              {status}
+              {AnimalStatusLabel[status]}
             </span>
           );
         },

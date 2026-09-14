@@ -10,7 +10,7 @@ export const Route = createFileRoute("/services-offered/$serviceId/edit")({
 
 function EditServiceOfferedPage() {
   const { serviceId } = Route.useParams();
-  const id = Number(serviceId);
+  const id = serviceId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/services-offered" });
 

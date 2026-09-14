@@ -10,7 +10,7 @@ export const Route = createFileRoute("/suppliers/$supplierId/edit")({
 
 function EditSupplierPage() {
   const { supplierId } = Route.useParams();
-  const id = Number(supplierId);
+  const id = supplierId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/suppliers" });
 

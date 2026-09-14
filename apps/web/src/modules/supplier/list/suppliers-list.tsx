@@ -17,9 +17,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui";
-import type { Supplier } from "@repo/schemas";
+import {
+  SupplierType,
+  SupplierTypeLabel,
+  enumOptions,
+  type Supplier,
+} from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchSuppliers, deleteSupplier } from "../services";
+
+const TYPE_OPTIONS = enumOptions(SupplierTypeLabel, SupplierType);
 
 export function SuppliersList() {
   const queryClient = useQueryClient();
@@ -28,7 +35,7 @@ export function SuppliersList() {
   const [filters, setFilters] = useQueryStates(
     {
       name: parseAsString,
-      type: parseAsString,
+      type: parseAsInteger,
       province: parseAsString,
       limit: parseAsInteger.withDefault(10),
       offset: parseAsInteger.withDefault(0),
@@ -76,7 +83,12 @@ export function SuppliersList() {
   const columns = useMemo<ColumnDef<Supplier>[]>(
     () => [
       { header: "Name", accessorKey: "name" },
-      { header: "Type", accessorKey: "type" },
+      {
+        header: "Type",
+        accessorKey: "type",
+        cell: ({ getValue }) =>
+          SupplierTypeLabel[getValue() as SupplierType] ?? "—",
+      },
       { header: "Contact", accessorKey: "contact_name" },
       { header: "Phone", accessorKey: "phone" },
       { header: "Province", accessorKey: "province" },
@@ -162,9 +174,9 @@ export function SuppliersList() {
             Type
           </label>
           <Select
-            value={filters.type ?? "all"}
+            value={filters.type != null ? String(filters.type) : "all"}
             onValueChange={(v) =>
-              setFilters({ type: v === "all" ? null : v, offset: 0 })
+              setFilters({ type: v === "all" ? null : Number(v), offset: 0 })
             }
           >
             <SelectTrigger className="w-40 bg-[#10131a] border-gray-800 text-white">
@@ -172,9 +184,11 @@ export function SuppliersList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any type</SelectItem>
-              <SelectItem value="Veterinarian">Veterinarian</SelectItem>
-              <SelectItem value="Food Company">Food Company</SelectItem>
-              <SelectItem value="Service Company">Service Company</SelectItem>
+              {TYPE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

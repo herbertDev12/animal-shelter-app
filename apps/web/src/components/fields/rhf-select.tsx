@@ -13,7 +13,7 @@ interface RHFSelectProps<T extends FieldValues> {
   control: Control<T>;
   label?: string;
   placeholder?: string;
-  options: readonly { value: string; label: string }[];
+  options: readonly { value: string | number; label: string }[];
 }
 
 export function RHFSelect<T extends FieldValues>({
@@ -31,8 +31,14 @@ export function RHFSelect<T extends FieldValues>({
         <div className="flex flex-col gap-2">
           {label && <Label htmlFor={name}>{label}</Label>}
           <Select
-            value={field.value ?? undefined}
-            onValueChange={field.onChange}
+            value={field.value != null ? String(field.value) : undefined}
+            // The Select speaks strings; hand the form the option's own value
+            // so numeric enums stay numbers.
+            onValueChange={(value) =>
+              field.onChange(
+                options.find((option) => String(option.value) === value)?.value,
+              )
+            }
           >
             <SelectTrigger
               id={name}
@@ -44,7 +50,7 @@ export function RHFSelect<T extends FieldValues>({
               {options.map((option) => (
                 <SelectItem
                   key={option.value}
-                  value={option.value}
+                  value={String(option.value)}
                   className="capitalize focus:bg-[#1f2937] focus:text-white"
                 >
                   {option.label}

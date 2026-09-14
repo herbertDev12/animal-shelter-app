@@ -7,9 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui";
+import { AnimalStatus, AnimalStatusLabel, enumOptions } from "@repo/schemas";
 import { RHFInput } from "@/components/fields/rhf-input";
 
-const STATUS_OPTIONS = ["available", "adopted", "reserved"] as const;
+const STATUS_OPTIONS = enumOptions(AnimalStatusLabel, AnimalStatus);
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -106,7 +107,10 @@ export function AnimalFormFields<T extends FieldValues>({
         render={({ field, fieldState: { error } }) => (
           <div className="flex flex-col gap-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={field.value} onValueChange={field.onChange}>
+            <Select
+              value={field.value != null ? String(field.value) : undefined}
+              onValueChange={(value) => field.onChange(Number(value))}
+            >
               <SelectTrigger
                 id="status"
                 className="bg-[#0b0e14] border-gray-800 text-white"
@@ -116,11 +120,11 @@ export function AnimalFormFields<T extends FieldValues>({
               <SelectContent className="bg-[#10131a] border-gray-800 text-white">
                 {STATUS_OPTIONS.map((option) => (
                   <SelectItem
-                    key={option}
-                    value={option}
+                    key={option.value}
+                    value={String(option.value)}
                     className="capitalize focus:bg-[#1f2937] focus:text-white"
                   >
-                    {option}
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

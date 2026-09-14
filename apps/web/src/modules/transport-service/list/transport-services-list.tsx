@@ -17,15 +17,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui";
-import type { TransportService } from "@repo/schemas";
+import {
+  ContractStatus,
+  ContractStatusLabel,
+  enumOptions,
+  type TransportService,
+} from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchTransportServices, deleteTransportService } from "../services";
 
-const statusBadgeClass: Record<string, string> = {
-  Active: "bg-green-500/15 text-green-400",
-  Inactive: "bg-gray-500/15 text-gray-400",
-  Expired: "bg-red-500/15 text-red-400",
+const statusBadgeClass: Record<ContractStatus, string> = {
+  [ContractStatus.Active]: "bg-green-500/15 text-green-400",
+  [ContractStatus.Inactive]: "bg-gray-500/15 text-gray-400",
+  [ContractStatus.Expired]: "bg-red-500/15 text-red-400",
 };
+
+const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -44,8 +51,8 @@ export function TransportServicesList() {
 
   const [filters, setFilters] = useQueryStates(
     {
-      id_supplier: parseAsInteger,
-      status: parseAsString,
+      id_supplier: parseAsString,
+      status: parseAsInteger,
       vehicle: parseAsString,
       transport_modality: parseAsString,
       limit: parseAsInteger.withDefault(10),
@@ -101,14 +108,14 @@ export function TransportServicesList() {
         header: "Status",
         accessorKey: "status",
         cell: ({ getValue }) => {
-          const status = getValue() as string;
+          const status = getValue() as ContractStatus;
           return (
             <span
               className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                 statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
               }`}
             >
-              {status}
+              {ContractStatusLabel[status]}
             </span>
           );
         },
@@ -193,11 +200,11 @@ export function TransportServicesList() {
             Supplier ID
           </label>
           <Input
-            type="number"
+            type="text"
             value={filters.id_supplier ?? ""}
             onChange={(e) =>
               setFilters({
-                id_supplier: e.target.value ? Number(e.target.value) : null,
+                id_supplier: e.target.value || null,
                 offset: 0,
               })
             }
@@ -211,9 +218,9 @@ export function TransportServicesList() {
             Status
           </label>
           <Select
-            value={filters.status ?? "all"}
+            value={filters.status != null ? String(filters.status) : "all"}
             onValueChange={(v) =>
-              setFilters({ status: v === "all" ? null : v, offset: 0 })
+              setFilters({ status: v === "all" ? null : Number(v), offset: 0 })
             }
           >
             <SelectTrigger className="w-40 bg-[#10131a] border-gray-800 text-white">
@@ -221,9 +228,11 @@ export function TransportServicesList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any status</SelectItem>
-              <SelectItem value="Active">Active</SelectItem>
-              <SelectItem value="Inactive">Inactive</SelectItem>
-              <SelectItem value="Expired">Expired</SelectItem>
+              {STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={String(option.value)}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

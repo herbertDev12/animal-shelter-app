@@ -12,7 +12,7 @@ export const Route = createFileRoute(
 
 function EditTransportServicePage() {
   const { transportServiceId } = Route.useParams();
-  const id = Number(transportServiceId);
+  const id = transportServiceId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/transport-services" });
 

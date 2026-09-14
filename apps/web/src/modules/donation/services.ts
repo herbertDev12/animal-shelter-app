@@ -27,7 +27,7 @@ export const fetchDonations = (
   return fetchWithAuth<Donation[]>(`/donations/search?${params.toString()}`);
 };
 
-export const fetchDonation = (id: number): Promise<Donation> => {
+export const fetchDonation = (id: string): Promise<Donation> => {
   return fetchWithAuth<Donation>(`/donations/${id}`);
 };
 
@@ -39,7 +39,7 @@ export const createDonation = (data: CreateDonation): Promise<Donation> => {
 };
 
 export const updateDonation = (
-  id: number,
+  id: string,
   data: Partial<CreateDonation>,
 ): Promise<Donation> => {
   return fetchWithAuth<Donation>(`/donations/${id}`, {
@@ -48,7 +48,7 @@ export const updateDonation = (
   });
 };
 
-export const deleteDonation = (id: number): Promise<void> => {
+export const deleteDonation = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/donations/${id}`, {
     method: "DELETE",
   });

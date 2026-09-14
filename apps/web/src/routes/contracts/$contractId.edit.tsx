@@ -10,7 +10,7 @@ export const Route = createFileRoute("/contracts/$contractId/edit")({
 
 function EditContractPage() {
   const { contractId } = Route.useParams();
-  const id = Number(contractId);
+  const id = contractId;
   const navigate = useNavigate();
   const goToList = () => navigate({ to: "/contracts" });
 

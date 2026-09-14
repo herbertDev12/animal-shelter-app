@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
+  SupplierType,
   createSupplierSchema,
   type Supplier,
   type CreateSupplier,
@@ -30,7 +31,7 @@ export function EditSupplierForm({
     resolver: zodResolver(createSupplierSchema) as Resolver<CreateSupplier>,
     defaultValues: {
       name: "",
-      type: "Veterinarian",
+      type: SupplierType.Veterinarian,
     },
   });
 
@@ -78,7 +79,8 @@ export function EditSupplierForm({
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
-        Edit Supplier <span className="text-[#cc97ff]">#{supplier.id}</span>
+        Edit Supplier{" "}
+        <span className="text-[#cc97ff]">#{supplier.id.slice(0, 8)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <SupplierFormFields control={control} />

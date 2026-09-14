@@ -15,7 +15,7 @@ export const fetchClinics = (
   return fetchWithAuth<Clinic[]>(`/clinics/search?${params.toString()}`);
 };
 
-export const fetchClinic = (id: number): Promise<Clinic> => {
+export const fetchClinic = (id: string): Promise<Clinic> => {
   return fetchWithAuth<Clinic>(`/clinics/${id}`);
 };
 
@@ -27,7 +27,7 @@ export const createClinic = (data: CreateClinic): Promise<Clinic> => {
 };
 
 export const updateClinic = (
-  id: number,
+  id: string,
   data: Partial<CreateClinic>,
 ): Promise<Clinic> => {
   return fetchWithAuth<Clinic>(`/clinics/${id}`, {
@@ -36,7 +36,7 @@ export const updateClinic = (
   });
 };
 
-export const deleteClinic = (id: number): Promise<void> => {
+export const deleteClinic = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/clinics/${id}`, {
     method: "DELETE",
   });

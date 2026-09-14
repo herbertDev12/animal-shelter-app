@@ -22,7 +22,7 @@ export const fetchActivities = (
   return fetchWithAuth<Activity[]>(`/activities/search?${params.toString()}`);
 };
 
-export const fetchActivity = (id: number): Promise<Activity> => {
+export const fetchActivity = (id: string): Promise<Activity> => {
   return fetchWithAuth<Activity>(`/activities/${id}`);
 };
 
@@ -34,7 +34,7 @@ export const createActivity = (data: CreateActivity): Promise<Activity> => {
 };
 
 export const updateActivity = (
-  id: number,
+  id: string,
   data: Partial<CreateActivity>,
 ): Promise<Activity> => {
   return fetchWithAuth<Activity>(`/activities/${id}`, {
@@ -43,7 +43,7 @@ export const updateActivity = (
   });
 };
 
-export const deleteActivity = (id: number): Promise<void> => {
+export const deleteActivity = (id: string): Promise<void> => {
   return fetchWithAuth<void>(`/activities/${id}`, {
     method: "DELETE",
   });

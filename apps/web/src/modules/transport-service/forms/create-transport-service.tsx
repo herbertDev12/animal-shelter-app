@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
+  ContractStatus,
   createTransportServiceSchema,
   type CreateTransportService,
 } from "@repo/schemas";
@@ -27,7 +28,7 @@ export function CreateTransportServiceForm({
       createTransportServiceSchema,
     ) as Resolver<CreateTransportService>,
     defaultValues: {
-      status: "Active",
+      status: ContractStatus.Active,
       vehicle: "",
       transport_modality: "",
       description: "",

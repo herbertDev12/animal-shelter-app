@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
 import {
+  ContractCategory,
+  ContractStatus,
   createContractSchema,
   type Contract,
   type CreateContract,
@@ -29,8 +31,8 @@ export function EditContractForm({
   const { control, handleSubmit, reset } = useForm<CreateContract>({
     resolver: zodResolver(createContractSchema) as Resolver<CreateContract>,
     defaultValues: {
-      contract_category: "Service",
-      status: "Active",
+      contract_category: ContractCategory.Service,
+      status: ContractStatus.Active,
       description: "",
     },
   });
@@ -83,7 +85,8 @@ export function EditContractForm({
   return (
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
-        Edit Contract <span className="text-[#cc97ff]">#{contract.id}</span>
+        Edit Contract{" "}
+        <span className="text-[#cc97ff]">#{contract.id.slice(0, 8)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <ContractFormFields control={control} />

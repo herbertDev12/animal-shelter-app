@@ -4,7 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui";
-import { createContractSchema, type CreateContract } from "@repo/schemas";
+import {
+  ContractCategory,
+  ContractStatus,
+  createContractSchema,
+  type CreateContract,
+} from "@repo/schemas";
 import { createContract } from "../services";
 import { ContractFormFields } from "./contract-form-fields";
 
@@ -22,8 +27,8 @@ export function CreateContractForm({
   const { control, handleSubmit, reset } = useForm<CreateContract>({
     resolver: zodResolver(createContractSchema) as Resolver<CreateContract>,
     defaultValues: {
-      contract_category: "Service",
-      status: "Active",
+      contract_category: ContractCategory.Service,
+      status: ContractStatus.Active,
       description: "",
     },
   });
