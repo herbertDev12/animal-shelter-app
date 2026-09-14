@@ -12,6 +12,7 @@ import {
 } from "@repo/schemas";
 import { updateDonation } from "../services";
 import { DonationFormFields } from "./donation-form-fields";
+import { shortId } from "@/lib/utils/short-id";
 
 interface EditDonationFormProps {
   donation: Donation;
@@ -72,7 +73,7 @@ export function EditDonationForm({
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
         Edit Donation{" "}
-        <span className="text-[#cc97ff]">#{donation.id.slice(0, 8)}</span>
+        <span className="text-[#cc97ff]">#{shortId(donation.id)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <DonationFormFields control={control} />

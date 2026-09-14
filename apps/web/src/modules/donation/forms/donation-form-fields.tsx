@@ -3,7 +3,7 @@ import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFDateInput } from "@/components/fields/rhf-date-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchAnimals } from "@/modules/animal/services";
+import { fetchAnimalOptions } from "@/modules/animal/services";
 
 export function DonationFormFields<T extends FieldValues>({
   control,
@@ -18,11 +18,7 @@ export function DonationFormFields<T extends FieldValues>({
         label="Animal"
         placeholder="Select an animal"
         queryKey={["animals", "options"]}
-        queryFn={() =>
-          fetchAnimals({ limit: 100 }).then((rows) =>
-            rows.map((a) => ({ id: a.id, label: a.name })),
-          )
-        }
+        queryFn={fetchAnimalOptions}
       />
       <RHFNumberInput
         name={"amount" as Path<T>}

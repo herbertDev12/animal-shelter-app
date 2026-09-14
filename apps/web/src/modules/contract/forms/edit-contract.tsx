@@ -14,6 +14,7 @@ import {
 } from "@repo/schemas";
 import { updateContract } from "../services";
 import { ContractFormFields } from "./contract-form-fields";
+import { shortId } from "@/lib/utils/short-id";
 
 interface EditContractFormProps {
   contract: Contract;
@@ -86,7 +87,7 @@ export function EditContractForm({
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
         Edit Contract{" "}
-        <span className="text-[#cc97ff]">#{contract.id.slice(0, 8)}</span>
+        <span className="text-[#cc97ff]">#{shortId(contract.id)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <ContractFormFields control={control} />

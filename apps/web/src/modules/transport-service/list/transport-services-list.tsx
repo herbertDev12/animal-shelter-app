@@ -20,19 +20,18 @@ import {
 import {
   ContractStatus,
   ContractStatusLabel,
-  enumOptions,
   type TransportService,
 } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchTransportServices, deleteTransportService } from "../services";
-
-const statusBadgeClass: Record<ContractStatus, string> = {
-  [ContractStatus.Active]: "bg-green-500/15 text-green-400",
-  [ContractStatus.Inactive]: "bg-gray-500/15 text-gray-400",
-  [ContractStatus.Expired]: "bg-red-500/15 text-red-400",
-};
-
-const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
+import { shortId } from "@/lib/utils/short-id";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchSupplierOptions } from "@/modules/supplier/services";
+import { StatusBadge } from "@/components/status-badge";
+import {
+  CONTRACT_STATUS_BADGE_CLASS,
+  CONTRACT_STATUS_OPTIONS,
+} from "@/lib/enum-ui";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -92,7 +91,7 @@ export function TransportServicesList() {
   const handleDelete = (transportService: TransportService) => {
     if (
       window.confirm(
-        `Are you sure you want to delete transport service #${transportService.id}?`,
+        `Are you sure you want to delete transport service #${shortId(transportService.id)}?`,
       )
     ) {
       deleteMutation.mutate(transportService.id);
@@ -110,13 +109,10 @@ export function TransportServicesList() {
         cell: ({ getValue }) => {
           const status = getValue() as ContractStatus;
           return (
-            <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
-              }`}
-            >
-              {ContractStatusLabel[status]}
-            </span>
+            <StatusBadge
+              label={ContractStatusLabel[status]}
+              className={CONTRACT_STATUS_BADGE_CLASS[status]}
+            />
           );
         },
       },
@@ -150,7 +146,7 @@ export function TransportServicesList() {
                 onClick={() =>
                   navigate({
                     to: "/transport-services/$transportServiceId/edit",
-                    params: { transportServiceId: String(row.original.id) },
+                    params: { transportServiceId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -197,19 +193,14 @@ export function TransportServicesList() {
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Supplier ID
+            Supplier
           </label>
-          <Input
-            type="text"
-            value={filters.id_supplier ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_supplier: e.target.value || null,
-                offset: 0,
-              })
-            }
-            placeholder="Supplier ID"
-            className="w-40 bg-[#10131a] border-gray-800 text-white"
+          <FkFilterSelect
+            value={filters.id_supplier}
+            onChange={(value) => setFilters({ id_supplier: value, offset: 0 })}
+            queryKey={["suppliers", "options"]}
+            queryFn={fetchSupplierOptions}
+            placeholder="Any supplier"
           />
         </div>
 
@@ -228,7 +219,7 @@ export function TransportServicesList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any status</SelectItem>
-              {STATUS_OPTIONS.map((option) => (
+              {CONTRACT_STATUS_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

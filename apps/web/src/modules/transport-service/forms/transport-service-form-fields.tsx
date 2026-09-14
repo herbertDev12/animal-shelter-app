@@ -1,19 +1,13 @@
-import {
-  ContractStatus,
-  ContractStatusLabel,
-  enumOptions,
-} from "@repo/schemas";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
 import { RHFDateInput } from "@/components/fields/rhf-date-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchSuppliers } from "@/modules/supplier/services";
+import { fetchSupplierOptions } from "@/modules/supplier/services";
+import { CONTRACT_STATUS_OPTIONS } from "@/lib/enum-ui";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
-
-const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
 
 export function TransportServiceFormFields<T extends FieldValues>({
   control,
@@ -28,11 +22,7 @@ export function TransportServiceFormFields<T extends FieldValues>({
         label="Supplier"
         placeholder="Select a supplier"
         queryKey={["suppliers", "options"]}
-        queryFn={() =>
-          fetchSuppliers({ limit: 100 }).then((rows) =>
-            rows.map((s) => ({ id: s.id, label: s.name })),
-          )
-        }
+        queryFn={fetchSupplierOptions}
       />
       <RHFInput
         name={"vehicle" as Path<T>}
@@ -53,7 +43,7 @@ export function TransportServiceFormFields<T extends FieldValues>({
         control={control}
         label="Status"
         placeholder="Select status"
-        options={STATUS_OPTIONS}
+        options={CONTRACT_STATUS_OPTIONS}
       />
       <RHFDateInput
         name={"start_date" as Path<T>}

@@ -2,7 +2,7 @@ import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchContracts } from "@/modules/contract/services";
+import { fetchContractOptions } from "@/modules/contract/services";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -20,11 +20,7 @@ export function ServiceOfferedFormFields<T extends FieldValues>({
         label="Contract"
         placeholder="Select a contract"
         queryKey={["contracts", "options"]}
-        queryFn={() =>
-          fetchContracts({ limit: 100 }).then((rows) =>
-            rows.map((c) => ({ id: c.id, label: `Contract #${c.id}` })),
-          )
-        }
+        queryFn={fetchContractOptions}
       />
       <RHFInput
         name={"name" as Path<T>}

@@ -103,7 +103,7 @@ export function ClinicsList() {
                 onClick={() =>
                   navigate({
                     to: "/clinics/$clinicId/edit",
-                    params: { clinicId: String(row.original.id) },
+                    params: { clinicId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"

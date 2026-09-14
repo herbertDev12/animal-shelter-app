@@ -2,8 +2,8 @@ import { Control, Controller, FieldValues, Path } from "react-hook-form";
 import { Label } from "@repo/ui";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchAnimals } from "@/modules/animal/services";
-import { fetchServicesOffered } from "@/modules/service-offered/services";
+import { fetchAnimalOptions } from "@/modules/animal/services";
+import { fetchServiceOfferedOptions } from "@/modules/service-offered/services";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -21,11 +21,7 @@ export function ActivityFormFields<T extends FieldValues>({
         label="Animal"
         placeholder="Select an animal"
         queryKey={["animals", "options"]}
-        queryFn={() =>
-          fetchAnimals({ limit: 100 }).then((rows) =>
-            rows.map((a) => ({ id: a.id, label: a.name })),
-          )
-        }
+        queryFn={fetchAnimalOptions}
       />
       <RHFFkSelect
         name={"id_service" as Path<T>}
@@ -33,14 +29,7 @@ export function ActivityFormFields<T extends FieldValues>({
         label="Service"
         placeholder="Select a service"
         queryKey={["services-offered", "options"]}
-        queryFn={() =>
-          fetchServicesOffered({ limit: 100 }).then((rows) =>
-            rows.map((s) => ({
-              id: s.id,
-              label: `${s.name} (Contract #${s.id_contract})`,
-            })),
-          )
-        }
+        queryFn={fetchServiceOfferedOptions}
       />
       <Controller
         name={"date" as Path<T>}

@@ -15,6 +15,9 @@ import {
 import type { ServiceOffered } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchServicesOffered, deleteServiceOffered } from "../services";
+import { shortId } from "@/lib/utils/short-id";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchContractOptions } from "@/modules/contract/services";
 
 export function ServicesOfferedList() {
   const queryClient = useQueryClient();
@@ -59,7 +62,7 @@ export function ServicesOfferedList() {
   const handleDelete = (service: ServiceOffered) => {
     if (
       window.confirm(
-        `Are you sure you want to delete service offered #${service.id}?`,
+        `Are you sure you want to delete service offered #${shortId(service.id)}?`,
       )
     ) {
       deleteMutation.mutate(service.id);
@@ -105,7 +108,7 @@ export function ServicesOfferedList() {
                 onClick={() =>
                   navigate({
                     to: "/services-offered/$serviceId/edit",
-                    params: { serviceId: String(row.original.id) },
+                    params: { serviceId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -152,19 +155,14 @@ export function ServicesOfferedList() {
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Contract ID
+            Contract
           </label>
-          <Input
-            type="text"
-            value={filters.id_contract ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_contract: e.target.value || null,
-                offset: 0,
-              })
-            }
+          <FkFilterSelect
+            value={filters.id_contract}
+            onChange={(value) => setFilters({ id_contract: value, offset: 0 })}
+            queryKey={["contracts", "options"]}
+            queryFn={fetchContractOptions}
             placeholder="Any contract"
-            className="w-40 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
           />
         </div>
 

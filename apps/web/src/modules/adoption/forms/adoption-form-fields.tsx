@@ -2,7 +2,7 @@ import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFDateInput } from "@/components/fields/rhf-date-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchAnimals } from "@/modules/animal/services";
+import { fetchAnimalOptions } from "@/modules/animal/services";
 
 export function AdoptionFormFields<T extends FieldValues>({
   control,
@@ -17,11 +17,7 @@ export function AdoptionFormFields<T extends FieldValues>({
         label="Animal"
         placeholder="Select an animal"
         queryKey={["animals", "options"]}
-        queryFn={() =>
-          fetchAnimals({ limit: 100 }).then((rows) =>
-            rows.map((a) => ({ id: a.id, label: a.name })),
-          )
-        }
+        queryFn={fetchAnimalOptions}
       />
       <RHFDateInput
         name={"adoption_date" as Path<T>}

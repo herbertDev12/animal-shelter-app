@@ -15,6 +15,9 @@ import {
 import type { Donation } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchDonations, deleteDonation } from "../services";
+import { shortId } from "@/lib/utils/short-id";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchAnimalOptions } from "@/modules/animal/services";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -74,7 +77,7 @@ export function DonationsList() {
   const handleDelete = (donation: Donation) => {
     if (
       window.confirm(
-        `Are you sure you want to delete donation #${donation.id}?`,
+        `Are you sure you want to delete donation #${shortId(donation.id)}?`,
       )
     ) {
       deleteMutation.mutate(donation.id);
@@ -122,7 +125,7 @@ export function DonationsList() {
                 onClick={() =>
                   navigate({
                     to: "/donations/$donationId/edit",
-                    params: { donationId: String(row.original.id) },
+                    params: { donationId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -167,20 +170,14 @@ export function DonationsList() {
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Animal ID
+            Animal
           </label>
-          <Input
-            type="number"
-            min={1}
-            value={filters.id_animal ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_animal: e.target.value || null,
-                offset: 0,
-              })
-            }
-            placeholder="Any"
-            className="w-28 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
+          <FkFilterSelect
+            value={filters.id_animal}
+            onChange={(value) => setFilters({ id_animal: value, offset: 0 })}
+            queryKey={["animals", "options"]}
+            queryFn={fetchAnimalOptions}
+            placeholder="Any animal"
           />
         </div>
 

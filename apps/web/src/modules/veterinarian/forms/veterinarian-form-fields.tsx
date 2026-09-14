@@ -2,7 +2,7 @@ import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFNumberInput } from "@/components/fields/rhf-number-input";
 import { RHFFkSelect } from "@/components/fields/rhf-fk-select";
-import { fetchClinics } from "@/modules/clinic/services";
+import { fetchClinicOptions } from "@/modules/clinic/services";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -28,11 +28,7 @@ export function VeterinarianFormFields<T extends FieldValues>({
         label="Clinic"
         placeholder="Select a clinic"
         queryKey={["clinics", "options"]}
-        queryFn={() =>
-          fetchClinics({ limit: 100 }).then((rows) =>
-            rows.map((c) => ({ id: c.id, label: c.name })),
-          )
-        }
+        queryFn={fetchClinicOptions}
       />
       <RHFInput
         name={"specialty" as Path<T>}

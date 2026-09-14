@@ -41,8 +41,8 @@ export function RHFFkSelect<T extends FieldValues>({
         <div className="flex flex-col gap-2">
           {label && <Label htmlFor={name}>{label}</Label>}
           <Select
-            value={field.value != null ? String(field.value) : undefined}
-            onValueChange={(value) => field.onChange(value)}
+            value={field.value ?? undefined}
+            onValueChange={field.onChange}
           >
             <SelectTrigger
               id={name}
@@ -54,7 +54,7 @@ export function RHFFkSelect<T extends FieldValues>({
               {options.map((option) => (
                 <SelectItem
                   key={option.id}
-                  value={String(option.id)}
+                  value={option.id}
                   className="focus:bg-[#1f2937] focus:text-white"
                 >
                   {option.label}

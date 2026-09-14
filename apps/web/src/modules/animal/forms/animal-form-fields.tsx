@@ -1,16 +1,8 @@
 import { Control, Controller, FieldValues, Path } from "react-hook-form";
-import {
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui";
-import { AnimalStatus, AnimalStatusLabel, enumOptions } from "@repo/schemas";
+import { Label } from "@repo/ui";
 import { RHFInput } from "@/components/fields/rhf-input";
-
-const STATUS_OPTIONS = enumOptions(AnimalStatusLabel, AnimalStatus);
+import { RHFSelect } from "@/components/fields/rhf-select";
+import { ANIMAL_STATUS_FORM_OPTIONS } from "@/lib/enum-ui";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
@@ -101,37 +93,12 @@ export function AnimalFormFields<T extends FieldValues>({
         )}
       />
 
-      <Controller
+      <RHFSelect
         name={"status" as Path<T>}
         control={control}
-        render={({ field, fieldState: { error } }) => (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="status">Status</Label>
-            <Select
-              value={field.value != null ? String(field.value) : undefined}
-              onValueChange={(value) => field.onChange(Number(value))}
-            >
-              <SelectTrigger
-                id="status"
-                className="bg-[#0b0e14] border-gray-800 text-white"
-              >
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#10131a] border-gray-800 text-white">
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={String(option.value)}
-                    className="capitalize focus:bg-[#1f2937] focus:text-white"
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {error && <p className="text-sm text-red-500">{error.message}</p>}
-          </div>
-        )}
+        label="Status"
+        placeholder="Select status"
+        options={ANIMAL_STATUS_FORM_OPTIONS}
       />
     </div>
   );

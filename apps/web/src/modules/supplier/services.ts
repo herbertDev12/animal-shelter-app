@@ -4,6 +4,7 @@ import type {
   SearchSuppliersFilters,
 } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+import type { FkOption } from "@/components/fields/rhf-fk-select";
 
 export const fetchSuppliers = (
   filters: Partial<SearchSuppliersFilters> = {},
@@ -49,3 +50,8 @@ export const deleteSupplier = (id: string): Promise<void> => {
     method: "DELETE",
   });
 };
+
+export const fetchSupplierOptions = (): Promise<FkOption[]> =>
+  fetchSuppliers({ limit: 100 }).then((rows) =>
+    rows.map((supplier) => ({ id: supplier.id, label: supplier.name })),
+  );

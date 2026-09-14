@@ -15,12 +15,8 @@ import {
 import { AnimalStatus, AnimalStatusLabel, type Animal } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchAnimals, deleteAnimal } from "../services";
-
-const statusBadgeClass: Partial<Record<AnimalStatus, string>> = {
-  [AnimalStatus.Available]: "bg-green-500/15 text-green-400",
-  [AnimalStatus.Adopted]: "bg-purple-500/15 text-purple-400",
-  [AnimalStatus.Reserved]: "bg-yellow-500/15 text-yellow-400",
-};
+import { StatusBadge } from "@/components/status-badge";
+import { ANIMAL_STATUS_BADGE_CLASS } from "@/lib/enum-ui";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -127,13 +123,10 @@ export function AnimalsList() {
         cell: ({ getValue }) => {
           const status = getValue() as AnimalStatus;
           return (
-            <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
-              }`}
-            >
-              {AnimalStatusLabel[status]}
-            </span>
+            <StatusBadge
+              label={AnimalStatusLabel[status]}
+              className={ANIMAL_STATUS_BADGE_CLASS[status]}
+            />
           );
         },
       },
@@ -162,7 +155,7 @@ export function AnimalsList() {
                 onClick={() =>
                   navigate({
                     to: "/animals/$animalId/edit",
-                    params: { animalId: String(row.original.id) },
+                    params: { animalId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
