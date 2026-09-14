@@ -57,8 +57,11 @@ export async function closeTestApp(app: INestApplication<App>): Promise<void> {
   await app.close();
 }
 
-/** Id used for "not found" assertions — assumed to never exist. */
-export const MISSING_ID = 999999999;
+/** Id used for "not found" assertions — a well-formed UUID that never exists. */
+export const MISSING_ID = '00000000-0000-4000-8000-000000000000';
+
+/** Well-formed input that is not a UUID, for ParseUUIDPipe / z.uuid() checks. */
+export const INVALID_ID = 'not-a-uuid';
 
 /**
  * Fetches the first id from a list endpoint so create tests can reference real
@@ -69,10 +72,10 @@ export async function getExistingId(
   app: INestApplication<App>,
   listPath: string,
   idField = 'id',
-): Promise<number> {
+): Promise<string> {
   const api = await createAdminAgent(app.getHttpServer());
   const res = await api.get(listPath).expect(200);
-  const rows = res.body as Array<Record<string, number>>;
+  const rows = res.body as Array<Record<string, string>>;
   if (!Array.isArray(rows) || rows.length === 0) {
     throw new Error(
       `No rows returned from ${listPath} to derive a foreign key`,

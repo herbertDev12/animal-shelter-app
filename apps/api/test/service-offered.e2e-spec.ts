@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
   MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -13,7 +14,7 @@ describe('Services Offered (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let contractId: number;
+  let contractId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -52,7 +53,7 @@ describe('Services Offered (e2e)', () => {
   });
 
   describe('GET /services-offered/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/services-offered/abc').expect(400);
     });
 
@@ -68,10 +69,10 @@ describe('Services Offered (e2e)', () => {
       await api.post('/services-offered').send(body).expect(400);
     });
 
-    it('rejects a non-positive id_contract', async () => {
+    it('rejects a non-UUID id_contract', async () => {
       await api
         .post('/services-offered')
-        .send({ ...valid(), id_contract: 0 })
+        .send({ ...valid(), id_contract: INVALID_ID })
         .expect(400);
     });
 
@@ -111,7 +112,7 @@ describe('Services Offered (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a service with default surcharge 0', async () => {
       const res = await api.post('/services-offered').send(valid()).expect(201);

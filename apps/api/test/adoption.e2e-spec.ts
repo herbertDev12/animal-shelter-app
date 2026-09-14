@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -12,7 +14,7 @@ describe('Adoptions (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let animalId: number;
+  let animalId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -55,12 +57,12 @@ describe('Adoptions (e2e)', () => {
   });
 
   describe('GET /adoptions/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/adoptions/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/adoptions/999999999').expect(404);
+      await api.get(`/adoptions/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -75,7 +77,7 @@ describe('Adoptions (e2e)', () => {
     it('rejects id_animal below 1', async () => {
       await api
         .post('/adoptions')
-        .send({ id_animal: 0, adoption_date: '2024-01-01' })
+        .send({ id_animal: INVALID_ID, adoption_date: '2024-01-01' })
         .expect(400);
     });
 
@@ -103,7 +105,7 @@ describe('Adoptions (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates an adoption', async () => {
       const res = await api

@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -12,7 +13,7 @@ describe('Reports (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let animalId: number;
+  let animalId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -91,12 +92,14 @@ describe('Reports (e2e)', () => {
 
     it('accepts optional clinic_id and province filters', async () => {
       const res = await api
-        .get('/reports/active-veterinarians?clinic_id=1&province=Havana')
+        .get(
+          `/reports/active-veterinarians?clinic_id=${MISSING_ID}&province=Havana`,
+        )
         .expect(200);
       expectPaginated(res.body);
     });
 
-    it('rejects a non-numeric clinic_id', async () => {
+    it('rejects a non-UUID clinic_id', async () => {
       await api.get('/reports/active-veterinarians?clinic_id=abc').expect(400);
     });
   });

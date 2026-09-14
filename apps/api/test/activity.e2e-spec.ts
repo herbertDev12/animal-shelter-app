@@ -1,21 +1,24 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
   createAdminAgent,
   ApiAgent,
 } from './utils/test-app';
+import { ContractCategory, ContractStatus } from '@repo/schemas';
 
 describe('Activities (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let animalId: number;
-  let supplierId: number;
-  let activeContractId: number;
-  let activeServiceId: number;
+  let animalId: string;
+  let supplierId: string;
+  let activeContractId: string;
+  let activeServiceId: string;
   const cleanup: Array<() => Promise<unknown>> = [];
 
   beforeAll(async () => {
@@ -30,7 +33,7 @@ describe('Activities (e2e)', () => {
       .post('/contracts')
       .send({
         id_supplier: supplierId,
-        contract_category: 'Service',
+        contract_category: ContractCategory.Service,
         start_date: '2024-01-01',
         end_date: '2030-12-31',
       })
@@ -78,12 +81,12 @@ describe('Activities (e2e)', () => {
   });
 
   describe('GET /activities/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/activities/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/activities/999999999').expect(404);
+      await api.get(`/activities/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -95,10 +98,14 @@ describe('Activities (e2e)', () => {
         .expect(400);
     });
 
-    it('rejects a non-positive id_service', async () => {
+    it('rejects a non-UUID id_service', async () => {
       await api
         .post('/activities')
-        .send({ id_animal: animalId, id_service: 0, date: '2024-01-01' })
+        .send({
+          id_animal: animalId,
+          id_service: INVALID_ID,
+          date: '2024-01-01',
+        })
         .expect(400);
     });
 
@@ -135,10 +142,10 @@ describe('Activities (e2e)', () => {
         .post('/contracts')
         .send({
           id_supplier: supplierId,
-          contract_category: 'Service',
+          contract_category: ContractCategory.Service,
           start_date: '2024-01-01',
           end_date: '2030-12-31',
-          status: 'Inactive',
+          status: ContractStatus.Inactive,
         })
         .expect(201);
       const inactiveContractId = contract.body.id;
@@ -168,7 +175,7 @@ describe('Activities (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates an activity', async () => {
       const res = await api

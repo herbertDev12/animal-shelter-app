@@ -2,18 +2,20 @@ import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
   MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
   createAdminAgent,
   ApiAgent,
 } from './utils/test-app';
+import { ContractCategory, ContractStatus } from '@repo/schemas';
 
 describe('Contracts (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let supplierId: number;
+  let supplierId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -50,7 +52,7 @@ describe('Contracts (e2e)', () => {
   });
 
   describe('GET /contracts/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/contracts/abc').expect(400);
     });
 
@@ -62,7 +64,7 @@ describe('Contracts (e2e)', () => {
   describe('POST /contracts validation', () => {
     const valid = () => ({
       id_supplier: supplierId,
-      contract_category: 'Food',
+      contract_category: ContractCategory.Food,
       start_date: '2024-01-01',
       end_date: '2024-12-31',
     });
@@ -73,10 +75,10 @@ describe('Contracts (e2e)', () => {
       await api.post('/contracts').send(body).expect(400);
     });
 
-    it('rejects a non-positive id_supplier', async () => {
+    it('rejects a non-UUID id_supplier', async () => {
       await api
         .post('/contracts')
-        .send({ ...valid(), id_supplier: 0 })
+        .send({ ...valid(), id_supplier: INVALID_ID })
         .expect(400);
     });
 
@@ -106,7 +108,7 @@ describe('Contracts (e2e)', () => {
     it('returns 404 when patching a missing contract', async () => {
       await api
         .patch(`/contracts/${MISSING_ID}`)
-        .send({ status: 'Inactive' })
+        .send({ status: ContractStatus.Inactive })
         .expect(404);
     });
 
@@ -116,14 +118,14 @@ describe('Contracts (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a contract with default status Active', async () => {
       const res = await api
         .post('/contracts')
         .send({
           id_supplier: supplierId,
-          contract_category: 'Food',
+          contract_category: ContractCategory.Food,
           start_date: '2024-01-01',
           // Far-future end date so the auto-expire trigger keeps it Active.
           end_date: '2030-12-31',
@@ -132,7 +134,7 @@ describe('Contracts (e2e)', () => {
         .expect(201);
       createdId = res.body.id;
       expect(createdId).toBeDefined();
-      expect(res.body.status).toBe('Active');
+      expect(res.body.status).toBe(ContractStatus.Active);
     });
 
     it('reads the created contract by id', async () => {
@@ -142,10 +144,10 @@ describe('Contracts (e2e)', () => {
     it('updates the contract (PATCH)', async () => {
       await api
         .patch(`/contracts/${createdId}`)
-        .send({ status: 'Inactive' })
+        .send({ status: ContractStatus.Inactive })
         .expect(200);
       const res = await api.get(`/contracts/${createdId}`).expect(200);
-      expect(res.body.status).toBe('Inactive');
+      expect(res.body.status).toBe(ContractStatus.Inactive);
     });
 
     it('rejects a PATCH with end_date before start_date', async () => {
