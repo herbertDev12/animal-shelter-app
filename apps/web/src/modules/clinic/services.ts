@@ -1,8 +1,7 @@
 import type { Clinic, CreateClinic, SearchClinicsFilters } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchClinics = async (
+export const fetchClinics = (
   filters: Partial<SearchClinicsFilters> = {},
 ): Promise<Clinic[]> => {
   const params = new URLSearchParams();
@@ -13,45 +12,32 @@ export const fetchClinics = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/clinics/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch clinics");
-  return response.json();
+  return fetchWithAuth<Clinic[]>(`/clinics/search?${params.toString()}`);
 };
 
-export const fetchClinic = async (id: number): Promise<Clinic> => {
-  const response = await fetch(`${API_URL}/clinics/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch clinic");
-  return response.json();
+export const fetchClinic = (id: number): Promise<Clinic> => {
+  return fetchWithAuth<Clinic>(`/clinics/${id}`);
 };
 
-export const createClinic = async (data: CreateClinic): Promise<Clinic> => {
-  const response = await fetch(`${API_URL}/clinics`, {
+export const createClinic = (data: CreateClinic): Promise<Clinic> => {
+  return fetchWithAuth<Clinic>(`/clinics`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create clinic");
-  return response.json();
 };
 
-export const updateClinic = async (
+export const updateClinic = (
   id: number,
   data: Partial<CreateClinic>,
 ): Promise<Clinic> => {
-  const response = await fetch(`${API_URL}/clinics/${id}`, {
+  return fetchWithAuth<Clinic>(`/clinics/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update clinic");
-  return response.json();
 };
 
-export const deleteClinic = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/clinics/${id}`, {
+export const deleteClinic = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/clinics/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete clinic");
 };

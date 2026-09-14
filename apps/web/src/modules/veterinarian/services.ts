@@ -3,10 +3,9 @@ import type {
   SearchVeterinariansFilters,
   Veterinarian,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchVeterinarians = async (
+export const fetchVeterinarians = (
   filters: Partial<SearchVeterinariansFilters> = {},
 ): Promise<Veterinarian[]> => {
   const params = new URLSearchParams();
@@ -19,47 +18,36 @@ export const fetchVeterinarians = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/veterinarians/search?${params.toString()}`,
+  return fetchWithAuth<Veterinarian[]>(
+    `/veterinarians/search?${params.toString()}`,
   );
-  if (!response.ok) throw new Error("Failed to fetch veterinarians");
-  return response.json();
 };
 
-export const fetchVeterinarian = async (id: number): Promise<Veterinarian> => {
-  const response = await fetch(`${API_URL}/veterinarians/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch veterinarian");
-  return response.json();
+export const fetchVeterinarian = (id: number): Promise<Veterinarian> => {
+  return fetchWithAuth<Veterinarian>(`/veterinarians/${id}`);
 };
 
-export const createVeterinarian = async (
+export const createVeterinarian = (
   data: CreateVeterinarian,
 ): Promise<Veterinarian> => {
-  const response = await fetch(`${API_URL}/veterinarians`, {
+  return fetchWithAuth<Veterinarian>(`/veterinarians`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create veterinarian");
-  return response.json();
 };
 
-export const updateVeterinarian = async (
+export const updateVeterinarian = (
   id: number,
   data: Partial<CreateVeterinarian>,
 ): Promise<Veterinarian> => {
-  const response = await fetch(`${API_URL}/veterinarians/${id}`, {
+  return fetchWithAuth<Veterinarian>(`/veterinarians/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update veterinarian");
-  return response.json();
 };
 
-export const deleteVeterinarian = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/veterinarians/${id}`, {
+export const deleteVeterinarian = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/veterinarians/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete veterinarian");
 };

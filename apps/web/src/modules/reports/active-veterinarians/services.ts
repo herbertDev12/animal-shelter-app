@@ -1,7 +1,6 @@
-export const fetchActiveVeterinarians = async () => {
-  const response = await fetch(
-    `${import.meta.env.VITE_PUBLIC_API_URL}/reports/active-veterinarians`,
-  );
-  if (!response.ok) throw new Error("Network response was not ok");
-  return response.json();
-};
+import type { ActiveVeterinariansResponse } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+
+export const fetchActiveVeterinarians =
+  (): Promise<ActiveVeterinariansResponse> =>
+    fetchWithAuth<ActiveVeterinariansResponse>(`/reports/active-veterinarians`);

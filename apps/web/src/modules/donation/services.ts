@@ -3,10 +3,9 @@ import type {
   CreateDonation,
   SearchDonationsFilters,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchDonations = async (
+export const fetchDonations = (
   filters: Partial<SearchDonationsFilters> = {},
 ): Promise<Donation[]> => {
   const params = new URLSearchParams();
@@ -25,47 +24,32 @@ export const fetchDonations = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/donations/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch donations");
-  return response.json();
+  return fetchWithAuth<Donation[]>(`/donations/search?${params.toString()}`);
 };
 
-export const fetchDonation = async (id: number): Promise<Donation> => {
-  const response = await fetch(`${API_URL}/donations/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch donation");
-  return response.json();
+export const fetchDonation = (id: number): Promise<Donation> => {
+  return fetchWithAuth<Donation>(`/donations/${id}`);
 };
 
-export const createDonation = async (
-  data: CreateDonation,
-): Promise<Donation> => {
-  const response = await fetch(`${API_URL}/donations`, {
+export const createDonation = (data: CreateDonation): Promise<Donation> => {
+  return fetchWithAuth<Donation>(`/donations`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create donation");
-  return response.json();
 };
 
-export const updateDonation = async (
+export const updateDonation = (
   id: number,
   data: Partial<CreateDonation>,
 ): Promise<Donation> => {
-  const response = await fetch(`${API_URL}/donations/${id}`, {
+  return fetchWithAuth<Donation>(`/donations/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update donation");
-  return response.json();
 };
 
-export const deleteDonation = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/donations/${id}`, {
+export const deleteDonation = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/donations/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete donation");
 };

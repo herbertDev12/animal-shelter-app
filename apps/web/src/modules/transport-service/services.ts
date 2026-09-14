@@ -3,10 +3,9 @@ import type {
   CreateTransportService,
   SearchTransportServicesFilters,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchTransportServices = async (
+export const fetchTransportServices = (
   filters: Partial<SearchTransportServicesFilters> = {},
 ): Promise<TransportService[]> => {
   const params = new URLSearchParams();
@@ -20,49 +19,38 @@ export const fetchTransportServices = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/transport-services/search?${params.toString()}`,
+  return fetchWithAuth<TransportService[]>(
+    `/transport-services/search?${params.toString()}`,
   );
-  if (!response.ok) throw new Error("Failed to fetch transport services");
-  return response.json();
 };
 
-export const fetchTransportService = async (
+export const fetchTransportService = (
   id: number,
 ): Promise<TransportService> => {
-  const response = await fetch(`${API_URL}/transport-services/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch transport service");
-  return response.json();
+  return fetchWithAuth<TransportService>(`/transport-services/${id}`);
 };
 
-export const createTransportService = async (
+export const createTransportService = (
   data: CreateTransportService,
 ): Promise<TransportService> => {
-  const response = await fetch(`${API_URL}/transport-services`, {
+  return fetchWithAuth<TransportService>(`/transport-services`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create transport service");
-  return response.json();
 };
 
-export const updateTransportService = async (
+export const updateTransportService = (
   id: number,
   data: Partial<CreateTransportService>,
 ): Promise<TransportService> => {
-  const response = await fetch(`${API_URL}/transport-services/${id}`, {
+  return fetchWithAuth<TransportService>(`/transport-services/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update transport service");
-  return response.json();
 };
 
-export const deleteTransportService = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/transport-services/${id}`, {
+export const deleteTransportService = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/transport-services/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete transport service");
 };

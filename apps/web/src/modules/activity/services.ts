@@ -3,10 +3,9 @@ import type {
   CreateActivity,
   SearchActivityFilters,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchActivities = async (
+export const fetchActivities = (
   filters: Partial<SearchActivityFilters> = {},
 ): Promise<Activity[]> => {
   const params = new URLSearchParams();
@@ -20,47 +19,32 @@ export const fetchActivities = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/activities/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch activities");
-  return response.json();
+  return fetchWithAuth<Activity[]>(`/activities/search?${params.toString()}`);
 };
 
-export const fetchActivity = async (id: number): Promise<Activity> => {
-  const response = await fetch(`${API_URL}/activities/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch activity");
-  return response.json();
+export const fetchActivity = (id: number): Promise<Activity> => {
+  return fetchWithAuth<Activity>(`/activities/${id}`);
 };
 
-export const createActivity = async (
-  data: CreateActivity,
-): Promise<Activity> => {
-  const response = await fetch(`${API_URL}/activities`, {
+export const createActivity = (data: CreateActivity): Promise<Activity> => {
+  return fetchWithAuth<Activity>(`/activities`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create activity");
-  return response.json();
 };
 
-export const updateActivity = async (
+export const updateActivity = (
   id: number,
   data: Partial<CreateActivity>,
 ): Promise<Activity> => {
-  const response = await fetch(`${API_URL}/activities/${id}`, {
+  return fetchWithAuth<Activity>(`/activities/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update activity");
-  return response.json();
 };
 
-export const deleteActivity = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/activities/${id}`, {
+export const deleteActivity = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/activities/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete activity");
 };

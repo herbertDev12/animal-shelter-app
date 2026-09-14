@@ -1,8 +1,7 @@
 import type { Animal, CreateAnimal, SearchAnimalsFilters } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchAnimals = async (
+export const fetchAnimals = (
   filters: Partial<SearchAnimalsFilters> = {},
 ): Promise<Animal[]> => {
   const params = new URLSearchParams();
@@ -17,45 +16,32 @@ export const fetchAnimals = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/animals/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch animals");
-  return response.json();
+  return fetchWithAuth<Animal[]>(`/animals/search?${params.toString()}`);
 };
 
-export const fetchAnimal = async (id: number): Promise<Animal> => {
-  const response = await fetch(`${API_URL}/animals/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch animal");
-  return response.json();
+export const fetchAnimal = (id: number): Promise<Animal> => {
+  return fetchWithAuth<Animal>(`/animals/${id}`);
 };
 
-export const createAnimal = async (data: CreateAnimal): Promise<Animal> => {
-  const response = await fetch(`${API_URL}/animals`, {
+export const createAnimal = (data: CreateAnimal): Promise<Animal> => {
+  return fetchWithAuth<Animal>(`/animals`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create animal");
-  return response.json();
 };
 
-export const updateAnimal = async (
+export const updateAnimal = (
   id: number,
   data: Partial<CreateAnimal>,
 ): Promise<Animal> => {
-  const response = await fetch(`${API_URL}/animals/${id}`, {
+  return fetchWithAuth<Animal>(`/animals/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update animal");
-  return response.json();
 };
 
-export const deleteAnimal = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/animals/${id}`, {
+export const deleteAnimal = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/animals/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete animal");
 };
