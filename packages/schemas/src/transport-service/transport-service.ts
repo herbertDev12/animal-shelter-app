@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { contractStatusEnum } from "../contract/contract";
+import { ContractCategory, ContractStatus, coercedIntEnum } from "../enums";
 
 const transportServiceBaseSchema = z.object({
-  id_supplier: z.number().int().positive("Supplier ID must be positive"),
+  id_supplier: z.uuid("A valid supplier is required"),
   start_date: z.coerce.date(),
   end_date: z.coerce.date(),
   reconciliation_date: z.coerce.date().optional().nullable(),
   description: z.string().max(300).optional().nullable(),
-  status: contractStatusEnum.default("Active"),
+  status: contractStatusEnum.default(ContractStatus.Active),
   vehicle: z.string().min(1, "Vehicle is required").max(100),
   transport_modality: z
     .string()
@@ -39,8 +40,8 @@ export const updateTransportServiceSchema = transportServiceBaseSchema
   );
 
 export const searchTransportServicesFiltersSchema = z.object({
-  id_supplier: z.coerce.number().int().optional(),
-  status: contractStatusEnum.optional(),
+  id_supplier: z.uuid("A valid supplier is required").optional(),
+  status: coercedIntEnum(ContractStatus).optional(),
   vehicle: z.string().optional(),
   transport_modality: z.string().optional(),
   limit: z.coerce.number().int().min(1).default(10),
@@ -48,9 +49,9 @@ export const searchTransportServicesFiltersSchema = z.object({
 });
 
 export const transportServiceSchema = z.object({
-  id: z.number().int(),
-  id_supplier: z.number().int(),
-  contract_category: z.literal("Service"),
+  id: z.uuid(),
+  id_supplier: z.uuid("A valid supplier is required"),
+  contract_category: z.literal(ContractCategory.Service),
   start_date: z.date(),
   end_date: z.date(),
   reconciliation_date: z.date().optional().nullable(),

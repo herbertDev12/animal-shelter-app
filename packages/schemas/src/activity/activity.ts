@@ -1,24 +1,24 @@
 import { z } from "zod";
 
 export const createActivitySchema = z.object({
-  id_animal: z.number().int().positive("Animal ID is required"),
-  id_service: z.number().int().positive("Service ID is required"),
+  id_animal: z.uuid("A valid animal is required"),
+  id_service: z.uuid("A valid service is required"),
   description: z.string().max(300).optional().nullable(),
   date: z.string().min(1, "Date is required"),
   time: z.string().optional().nullable(),
 });
 
 export const updateActivitySchema = z.object({
-  id_animal: z.number().int().positive().optional(),
-  id_service: z.number().int().positive().optional(),
+  id_animal: z.uuid("A valid animal is required").optional(),
+  id_service: z.uuid("A valid service is required").optional(),
   description: z.string().max(300).optional().nullable(),
   date: z.string().optional(),
   time: z.string().optional().nullable(),
 });
 
 export const searchActivityFiltersSchema = z.object({
-  id_animal: z.coerce.number().int().optional(),
-  id_service: z.coerce.number().int().optional(),
+  id_animal: z.uuid("A valid animal is required").optional(),
+  id_service: z.uuid("A valid service is required").optional(),
   date_from: z.string().optional(),
   date_to: z.string().optional(),
   limit: z.coerce.number().int().min(1).default(10),
@@ -26,10 +26,10 @@ export const searchActivityFiltersSchema = z.object({
 });
 
 export const activitySchema = z.object({
-  id_activity: z.number().int(),
-  id_animal: z.number().int(),
+  id_activity: z.uuid(),
+  id_animal: z.uuid("A valid animal is required"),
   animal_name: z.string().nullable().optional(),
-  id_service: z.number().int(),
+  id_service: z.uuid("A valid service is required"),
   service_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   date: z.string(),

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const serviceOfferedBaseSchema = z.object({
-  id_contract: z.number().int().positive("Contract ID must be positive"),
+  id_contract: z.uuid("A valid contract is required"),
   name: z.string().min(1, "Name is required").max(100),
   food_type: z.string().max(100).optional().nullable(),
   base_price: z.number().nonnegative("Base price must be >= 0"),
@@ -13,14 +13,14 @@ export const createServiceOfferedSchema = serviceOfferedBaseSchema;
 export const updateServiceOfferedSchema = serviceOfferedBaseSchema.partial();
 
 export const searchServiceOfferedFiltersSchema = z.object({
-  id_contract: z.coerce.number().int().optional(),
+  id_contract: z.uuid("A valid contract is required").optional(),
   food_type: z.string().optional(),
   limit: z.coerce.number().int().min(1).default(10),
   offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const serviceOfferedSchema = serviceOfferedBaseSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
 });
 
 export type CreateServiceOffered = z.infer<typeof createServiceOfferedSchema>;

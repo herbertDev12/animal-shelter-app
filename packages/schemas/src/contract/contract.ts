@@ -1,16 +1,22 @@
 import { z } from "zod";
+import {
+  ContractCategory,
+  ContractStatus,
+  coercedIntEnum,
+  intEnum,
+} from "../enums";
 
-export const contractCategoryEnum = z.enum(["Veterinarian", "Food", "Service"]);
-export const contractStatusEnum = z.enum(["Active", "Inactive", "Expired"]);
+export const contractCategoryEnum = intEnum(ContractCategory);
+export const contractStatusEnum = intEnum(ContractStatus);
 
 const contractBaseSchema = z.object({
-  id_supplier: z.number().int().positive("Supplier ID must be positive"),
+  id_supplier: z.uuid("A valid supplier is required"),
   contract_category: contractCategoryEnum,
   start_date: z.coerce.date(),
   end_date: z.coerce.date(),
   reconciliation_date: z.coerce.date().optional().nullable(),
   description: z.string().max(300).optional().nullable(),
-  status: contractStatusEnum.default("Active"),
+  status: contractStatusEnum.default(ContractStatus.Active),
 });
 
 export const createContractSchema = contractBaseSchema.refine(
@@ -35,19 +41,17 @@ export const updateContractSchema = contractBaseSchema.partial().refine(
 );
 
 export const searchContractsFiltersSchema = z.object({
-  id_supplier: z.coerce.number().int().optional(),
-  contract_category: contractCategoryEnum.optional(),
-  status: contractStatusEnum.optional(),
+  id_supplier: z.uuid("A valid supplier is required").optional(),
+  contract_category: coercedIntEnum(ContractCategory).optional(),
+  status: coercedIntEnum(ContractStatus).optional(),
   limit: z.coerce.number().int().min(1).default(10),
   offset: z.coerce.number().int().min(0).default(0),
 });
 
 export const contractSchema = contractBaseSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
 });
 
-export type ContractCategory = z.infer<typeof contractCategoryEnum>;
-export type ContractStatus = z.infer<typeof contractStatusEnum>;
 export type CreateContract = z.infer<typeof createContractSchema>;
 export type UpdateContract = z.infer<typeof updateContractSchema>;
 export type Contract = z.infer<typeof contractSchema>;

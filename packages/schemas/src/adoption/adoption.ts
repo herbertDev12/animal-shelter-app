@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createAdoptionSchema = z.object({
-  id_animal: z.number().int().min(1, "Animal ID is required"),
+  id_animal: z.uuid("A valid animal is required"),
   adoption_date: z.coerce.date(),
   adoption_price: z.number().min(0).optional(),
 });
@@ -9,7 +9,7 @@ export const createAdoptionSchema = z.object({
 export const updateAdoptionSchema = createAdoptionSchema.partial();
 
 export const searchAdoptionsFiltersSchema = z.object({
-  id_animal: z.coerce.number().int().min(1).optional(),
+  id_animal: z.uuid("A valid animal is required").optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   minPrice: z.coerce.number().min(0).optional(),
@@ -19,7 +19,7 @@ export const searchAdoptionsFiltersSchema = z.object({
 });
 
 export const adoptionSchema = createAdoptionSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
   adoption_price: z.number().min(0).nullish(),
 });
 

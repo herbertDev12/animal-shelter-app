@@ -14,7 +14,7 @@ export const activeVeterinarianSchema = z.object({
 });
 
 export const activeVeterinarianFiltersSchema = z.object({
-  clinic_id: z.coerce.number().int().optional(),
+  clinic_id: z.uuid("A valid clinic is required").optional(),
   province: z.string().optional(),
   limit: z.coerce.number().int().min(1).default(10),
   offset: z.coerce.number().int().min(0).default(0),

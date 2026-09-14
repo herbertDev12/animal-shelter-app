@@ -21,6 +21,4 @@ export type {
   UpdateContract,
   Contract,
   SearchContractsFilters,
-  ContractCategory,
-  ContractStatus,
 } from "./contract";

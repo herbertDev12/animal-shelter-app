@@ -1,3 +1,4 @@
+export * from "./enums";
 export * from "./animal";
 export * from "./auth";
 export * from "./clinic";

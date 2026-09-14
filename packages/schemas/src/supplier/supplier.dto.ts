@@ -20,6 +20,5 @@ export type {
   CreateSupplier,
   UpdateSupplier,
   Supplier,
-  SupplierType,
   SearchSuppliersFilters,
 } from "./supplier";
