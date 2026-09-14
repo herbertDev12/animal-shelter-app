@@ -184,7 +184,7 @@ export class ServiceOfferedController {
   constructor(private readonly serviceOfferedService: ServiceOfferedService) {}
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.serviceOfferedService.findById(id);
   }
 
@@ -195,7 +195,7 @@ export class ServiceOfferedController {
 }
 ```
 
-Note the use of `ParseIntPipe` (converts and validates the numeric `:id`) and the DTOs (`CreateServiceOfferedDto`) that trigger the global Zod validation.
+Note the use of `ParseUUIDPipe` (validates that `:id` is a UUID) and the DTOs (`CreateServiceOfferedDto`) that trigger the global Zod validation.
 
 **`service-offered.service.ts`** — business logic; translates "not found" into an HTTP exception:
 
@@ -204,7 +204,7 @@ Note the use of `ParseIntPipe` (converts and validates the numeric `:id`) and th
 export class ServiceOfferedService {
   constructor(private readonly serviceOfferedRepository: ServiceOfferedRepository) {}
 
-  async findById(id: number): Promise<ServiceOffered> {
+  async findById(id: string): Promise<ServiceOffered> {
     const service = await this.serviceOfferedRepository.findById(id);
     if (!service) {
       throw new NotFoundException(`Service offered with ID ${id} not found`);
@@ -226,14 +226,14 @@ The schema models the pre-existing PostgreSQL tables as they are, using `@@map` 
 
 ```prisma
 model Animal {
-  id_animal  Int       @id @default(autoincrement())
+  id_animal  String    @id @default(uuid()) @db.Uuid
   name       String    @db.VarChar(100)
   species    String    @db.VarChar(50)
   breed      String?   @db.VarChar(50)
   birth_date DateTime? @db.Date
   weight     Decimal?  @db.Decimal(6, 2)
   entry_date DateTime  @db.Date
-  status     String?   @default("available") @db.VarChar(20)
+  status     Int?      @default(1) @db.SmallInt // AnimalStatus in @repo/schemas
 
   activities Activity[]
   adoptions  Adoption[]
@@ -268,7 +268,7 @@ export class ClinicService {
     return rows.map(toClinic);
   }
 
-  async findById(id: number): Promise<Clinic> {
+  async findById(id: string): Promise<Clinic> {
     const row = await this.prisma.clinic.findUnique({ where: { id_clinic: id } });
     if (!row) throw new NotFoundException(`Clinic with ID ${id} not found`);
     return toClinic(row);
@@ -384,7 +384,7 @@ Important details:
 
 ### 4.2. Data model and relationships
 
-The schema (`apps/api/prisma/schema.prisma`, applied through the migrations in `apps/api/prisma/migrations/`) defines **10 tables**. All primary keys are `SERIAL` except the extension tables that share the PK with their parent table. It uses `CHECK` constraints to emulate enums and indexes to speed up frequent queries.
+The schema (`apps/api/prisma/schema.prisma`, applied through the migrations in `apps/api/prisma/migrations/`) defines **10 tables**. All primary keys are UUIDs (`@default(uuid())`) except the extension tables, which reuse the UUID of their parent table. Enumerations are `SMALLINT` columns whose integer values are defined in `packages/schemas/src/enums.ts` and enforced by `CHECK` constraints; indexes speed up frequent queries.
 
 **Main tables:**
 
@@ -392,12 +392,12 @@ The schema (`apps/api/prisma/schema.prisma`, applied through the migrations in `
 |-------|----|-----|-----------|
 | **ShelterConfiguration** | `id_config` | `maintenance_percentage` | (global configuration) |
 | **Clinic** | `id_clinic` | `name`, `province`, `address` | — |
-| **Supplier** | `id_supplier` | `name`, `type` (CHECK: Veterinarian/Food Company/Service Company), `phone`, `contact_email`, `province` | — |
+| **Supplier** | `id_supplier` | `name`, `type` (SMALLINT CHECK: 1 Veterinarian / 2 Food Company / 3 Service Company), `phone`, `contact_email`, `province` | — |
 | **Veterinarian** | `id_supplier` (FK→Supplier) | `modality`, `specialty`, `city_distance` | 1:1 with Supplier, N:1 with Clinic (`id_clinic`) |
-| **Contract** | `id_contract` | `contract_category` (CHECK: Veterinarian/Food/Service), `start_date`, `end_date`, `status`, `base_price` | N:1 with Supplier (`id_supplier`) |
+| **Contract** | `id_contract` | `contract_category` (SMALLINT CHECK: 1 Veterinarian / 2 Food / 3 Service), `start_date`, `end_date`, `status`, `base_price` | N:1 with Supplier (`id_supplier`) |
 | **TransportService** | `id_contract` (FK→Contract) | `vehicle`, `transport_modality` | 1:1 with Contract |
 | **ServiceOffered** | `id_service` | `name`, `service_type`, `food_type` | N:1 with Contract (`id_contract`) |
-| **Animal** | `id_animal` | `species`, `breed`, `birth_date`, `weight`, `entry_date`, `status` (CHECK: available/adopted/reserved/deceased) | — |
+| **Animal** | `id_animal` | `species`, `breed`, `birth_date`, `weight`, `entry_date`, `status` (SMALLINT CHECK: 1 Available / 2 Adopted / 3 Reserved / 4 Deceased) | — |
 | **ActivitySchedule** | `id_schedule` | `activity_type`, `date`, `time`, `duration_days`, `additional_surcharge` | N:1 with Animal and with Contract |
 | **Adoption** | `id_adoption` | `adoption_date`, `adoption_price` | N:1 with Animal |
 | **Donation** | `id_donation` | `amount`, `date`, `donor` | N:1 with Animal |
@@ -439,7 +439,7 @@ Everyday commands (all run from `apps/api`, reading the root `.env` through `dot
 | `pnpm --filter api run db:reset` | Drops, re-migrates and re-seeds the database |
 | `pnpm --filter api run prisma:studio` | Opens Prisma Studio to browse the data |
 
-The seed is `apps/api/prisma/seed.ts` — plain TypeScript against the typed client. It sets **no explicit primary keys**: every insert lets the `SERIAL` sequence allocate normally, which is why no sequence-resynchronization step is needed. It clears the tables in foreign-key order first, so it is safe to re-run.
+The seed is `apps/api/prisma/seed.ts` — plain TypeScript against the typed client. It sets **no explicit primary keys**: every insert gets a generated UUID, and related rows are linked through the ids returned by `create`. It clears the tables in foreign-key order first, so it is safe to re-run.
 
 ### 4.4. Connection from the API
 
@@ -843,7 +843,7 @@ export class ServiceOfferedController {
   constructor(private readonly serviceOfferedService: ServiceOfferedService) {}
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.serviceOfferedService.findById(id);
   }
 
@@ -854,7 +854,7 @@ export class ServiceOfferedController {
 }
 ```
 
-Nótese el uso de `ParseIntPipe` (convierte y valida el `:id` numérico) y los DTOs (`CreateServiceOfferedDto`) que disparan la validación Zod global.
+Nótese el uso de `ParseUUIDPipe` (valida que el `:id` sea un UUID) y los DTOs (`CreateServiceOfferedDto`) que disparan la validación Zod global.
 
 **`service-offered.service.ts`** — lógica de negocio; traduce "no encontrado" en una excepción HTTP:
 
@@ -863,7 +863,7 @@ Nótese el uso de `ParseIntPipe` (convierte y valida el `:id` numérico) y los D
 export class ServiceOfferedService {
   constructor(private readonly serviceOfferedRepository: ServiceOfferedRepository) {}
 
-  async findById(id: number): Promise<ServiceOffered> {
+  async findById(id: string): Promise<ServiceOffered> {
     const service = await this.serviceOfferedRepository.findById(id);
     if (!service) {
       throw new NotFoundException(`Service offered with ID ${id} not found`);
@@ -885,14 +885,14 @@ El esquema modela las tablas PostgreSQL ya existentes tal cual, usando `@@map` /
 
 ```prisma
 model Animal {
-  id_animal  Int       @id @default(autoincrement())
+  id_animal  String    @id @default(uuid()) @db.Uuid
   name       String    @db.VarChar(100)
   species    String    @db.VarChar(50)
   breed      String?   @db.VarChar(50)
   birth_date DateTime? @db.Date
   weight     Decimal?  @db.Decimal(6, 2)
   entry_date DateTime  @db.Date
-  status     String?   @default("available") @db.VarChar(20)
+  status     Int?      @default(1) @db.SmallInt // AnimalStatus in @repo/schemas
 
   activities Activity[]
   adoptions  Adoption[]
@@ -927,7 +927,7 @@ export class ClinicService {
     return rows.map(toClinic);
   }
 
-  async findById(id: number): Promise<Clinic> {
+  async findById(id: string): Promise<Clinic> {
     const row = await this.prisma.clinic.findUnique({ where: { id_clinic: id } });
     if (!row) throw new NotFoundException(`Clinic with ID ${id} not found`);
     return toClinic(row);
@@ -1033,7 +1033,7 @@ Detalles importantes:
 
 ### 4.2. Modelo de datos y relaciones
 
-El esquema (`apps/api/prisma/schema.prisma`, aplicado mediante las migraciones de `apps/api/prisma/migrations/`) define **10 tablas**. Todas las claves primarias son `SERIAL` excepto las tablas de extensión que comparten la PK con su tabla padre. Usa `CHECK` constraints para emular enums e índices para acelerar las consultas frecuentes.
+El esquema (`apps/api/prisma/schema.prisma`, aplicado mediante las migraciones de `apps/api/prisma/migrations/`) define **10 tablas**. Todas las claves primarias son UUID (`@default(uuid())`) excepto las tablas de extensión, que reutilizan el UUID de su tabla padre. Las enumeraciones son columnas `SMALLINT` cuyos valores enteros se definen en `packages/schemas/src/enums.ts` y se validan con `CHECK` constraints; los índices aceleran las consultas frecuentes.
 
 **Tablas principales:**
 
@@ -1041,12 +1041,12 @@ El esquema (`apps/api/prisma/schema.prisma`, aplicado mediante las migraciones d
 |-------|----|-----|-----------|
 | **ShelterConfiguration** | `id_config` | `maintenance_percentage` | (configuración global) |
 | **Clinic** | `id_clinic` | `name`, `province`, `address` | — |
-| **Supplier** | `id_supplier` | `name`, `type` (CHECK: Veterinarian/Food Company/Service Company), `phone`, `contact_email`, `province` | — |
+| **Supplier** | `id_supplier` | `name`, `type` (SMALLINT CHECK: 1 Veterinarian / 2 Food Company / 3 Service Company), `phone`, `contact_email`, `province` | — |
 | **Veterinarian** | `id_supplier` (FK→Supplier) | `modality`, `specialty`, `city_distance` | 1:1 con Supplier, N:1 con Clinic (`id_clinic`) |
-| **Contract** | `id_contract` | `contract_category` (CHECK: Veterinarian/Food/Service), `start_date`, `end_date`, `status`, `base_price` | N:1 con Supplier (`id_supplier`) |
+| **Contract** | `id_contract` | `contract_category` (SMALLINT CHECK: 1 Veterinarian / 2 Food / 3 Service), `start_date`, `end_date`, `status`, `base_price` | N:1 con Supplier (`id_supplier`) |
 | **TransportService** | `id_contract` (FK→Contract) | `vehicle`, `transport_modality` | 1:1 con Contract |
 | **ServiceOffered** | `id_service` | `name`, `service_type`, `food_type` | N:1 con Contract (`id_contract`) |
-| **Animal** | `id_animal` | `species`, `breed`, `birth_date`, `weight`, `entry_date`, `status` (CHECK: available/adopted/reserved/deceased) | — |
+| **Animal** | `id_animal` | `species`, `breed`, `birth_date`, `weight`, `entry_date`, `status` (SMALLINT CHECK: 1 Available / 2 Adopted / 3 Reserved / 4 Deceased) | — |
 | **ActivitySchedule** | `id_schedule` | `activity_type`, `date`, `time`, `duration_days`, `additional_surcharge` | N:1 con Animal y con Contract |
 | **Adoption** | `id_adoption` | `adoption_date`, `adoption_price` | N:1 con Animal |
 | **Donation** | `id_donation` | `amount`, `date`, `donor` | N:1 con Animal |
@@ -1088,7 +1088,7 @@ Comandos de uso diario (todos se ejecutan desde `apps/api` y leen el `.env` de l
 | `pnpm --filter api run db:reset` | Borra, vuelve a migrar y vuelve a sembrar la base de datos |
 | `pnpm --filter api run prisma:studio` | Abre Prisma Studio para explorar los datos |
 
-El seed es `apps/api/prisma/seed.ts` — TypeScript plano contra el cliente tipado. **No fija claves primarias explícitas**: cada inserción deja que la secuencia `SERIAL` asigne el valor con normalidad, razón por la cual ya no hace falta ningún paso de re‑sincronización de secuencias. Antes de insertar limpia las tablas en orden de claves foráneas, así que se puede volver a ejecutar sin problemas.
+El seed es `apps/api/prisma/seed.ts` — TypeScript plano contra el cliente tipado. **No fija claves primarias explícitas**: cada inserción recibe un UUID generado y las filas relacionadas se enlazan con los ids que devuelve `create`. Antes de insertar limpia las tablas en orden de claves foráneas, así que se puede volver a ejecutar sin problemas.
 
 ### 4.4. Conexión desde la API
 

@@ -79,12 +79,12 @@ All commands run from `apps/api` and read the root `.env` through `dotenv-cli`.
 
 ```prisma
 model Animal {
-  id_animal  Int       @id @default(autoincrement())
+  id_animal  String    @id @default(uuid()) @db.Uuid
   name       String    @db.VarChar(100)
   birth_date DateTime? @db.Date
   weight     Decimal?  @db.Decimal(6, 2)
   entry_date DateTime  @db.Date
-  status     String?   @default("available") @db.VarChar(20)
+  status     Int?      @default(1) @db.SmallInt // AnimalStatus in @repo/schemas
 
   activities Activity[]
   adoptions  Adoption[]
@@ -117,7 +117,7 @@ Inject `PrismaService` and query directly. `PrismaModule` is `@Global()`, so not
 export class AnimalService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findById(id: number): Promise<Animal> {
+  async findById(id: string): Promise<Animal> {
     const row = await this.prisma.animal.findUnique({ where: { id_animal: id } });
     if (!row) throw new NotFoundException(`Animal with ID ${id} not found`);
     return toAnimal(row);
@@ -146,7 +146,7 @@ Use `prisma.$transaction()` when several tables must move together, or a nested 
 ```typescript
 // Supplier + its Veterinarian subtype row, in one statement
 await this.prisma.supplier.create({
-  data: { name, type: 'Veterinarian', veterinarian: { create: { id_clinic, specialty } } },
+  data: { name, type: SupplierType.Veterinarian, veterinarian: { create: { id_clinic, specialty } } },
 });
 
 // Two independent updates that must both land
