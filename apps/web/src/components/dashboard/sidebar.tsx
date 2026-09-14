@@ -15,6 +15,7 @@ import {
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "../../lib/cn";
 import { CollapsibleReportsTree } from "./collapsible-reports-tree";
+import { UserCard } from "@/modules/auth/components/user-card";
 
 export function Sidebar() {
   const location = useLocation();
@@ -80,17 +81,7 @@ export function Sidebar() {
           );
         })}
       </nav>
-      <div className="p-4 bg-[#161a21] rounded-xl flex items-center space-x-3">
-        <img
-          className="w-10 h-10 rounded-lg object-cover"
-          src="https://picsum.photos/seed/darell/40/40"
-          alt="User"
-        />
-        <div className="flex-1 overflow-hidden">
-          <p className="text-xs font-bold text-white truncate">user</p>
-          <p className="text-[10px] text-gray-400 truncate">Administrator</p>
-        </div>
-      </div>
+      <UserCard />
     </aside>
   );
 }
