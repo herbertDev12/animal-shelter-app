@@ -116,7 +116,7 @@ describe('Reports (e2e)', () => {
       await api.get('/reports/animal-care-schedule').expect(400);
     });
 
-    it('rejects id_animal below 1', async () => {
+    it('rejects a non-UUID id_animal', async () => {
       await api.get('/reports/animal-care-schedule?id_animal=0').expect(400);
     });
   });

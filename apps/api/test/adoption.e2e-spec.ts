@@ -47,7 +47,7 @@ describe('Adoptions (e2e)', () => {
         .expect(200);
     });
 
-    it('rejects id_animal below 1', async () => {
+    it('rejects a non-UUID id_animal', async () => {
       await api.get('/adoptions/search?id_animal=0').expect(400);
     });
 
@@ -74,7 +74,7 @@ describe('Adoptions (e2e)', () => {
         .expect(400);
     });
 
-    it('rejects id_animal below 1', async () => {
+    it('rejects a non-UUID id_animal', async () => {
       await api
         .post('/adoptions')
         .send({ id_animal: INVALID_ID, adoption_date: '2024-01-01' })
