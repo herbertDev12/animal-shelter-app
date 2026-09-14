@@ -14,7 +14,7 @@ export class ClinicService {
     return rows.map(toClinic);
   }
 
-  async findById(id: number): Promise<Clinic> {
+  async findById(id: string): Promise<Clinic> {
     const row = await this.prisma.clinic.findUnique({
       where: { id_clinic: id },
     });
@@ -47,7 +47,7 @@ export class ClinicService {
     return toClinic(row);
   }
 
-  async update(id: number, data: Partial<CreateClinic>): Promise<Clinic> {
+  async update(id: string, data: Partial<CreateClinic>): Promise<Clinic> {
     await this.findById(id);
     const row = await this.prisma.clinic.update({
       where: { id_clinic: id },
@@ -60,7 +60,7 @@ export class ClinicService {
     return toClinic(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.clinic.delete({ where: { id_clinic: id } });
     return true;

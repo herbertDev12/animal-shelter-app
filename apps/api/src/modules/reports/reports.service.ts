@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
   ActiveVeterinarianFilters,
+  ContractCategory,
+  ContractStatus,
+  SupplierType,
   ActiveVeterinariansResponse,
   AnimalCareScheduleFilters,
   AnimalCareScheduleResponse,
@@ -55,7 +58,7 @@ export class ReportsService {
 
     const where: Prisma.ContractWhereInput = {
       reconciliation_date: { not: null },
-      contract_category: 'Veterinarian',
+      contract_category: ContractCategory.Veterinarian,
       supplier: { is: { veterinarian: { isNot: null } } },
     };
 
@@ -132,7 +135,7 @@ export class ReportsService {
       contract: {
         is: {
           reconciliation_date: { not: null },
-          contract_category: 'Food',
+          contract_category: ContractCategory.Food,
         },
       },
     };
@@ -188,7 +191,7 @@ export class ReportsService {
       contract: {
         is: {
           reconciliation_date: { not: null },
-          contract_category: 'Service',
+          contract_category: ContractCategory.Service,
         },
       },
     };
@@ -259,9 +262,12 @@ export class ReportsService {
     const where: Prisma.VeterinarianWhereInput = {
       supplier: {
         is: {
-          type: 'Veterinarian',
+          type: SupplierType.Veterinarian,
           contracts: {
-            some: { contract_category: 'Veterinarian', status: 'Active' },
+            some: {
+              contract_category: ContractCategory.Veterinarian,
+              status: ContractStatus.Active,
+            },
           },
         },
       },
@@ -404,8 +410,9 @@ export class ReportsService {
       // These buckets deliberately are not a partition: non-transport 'Service'
       // contracts land in none of them, and transport overlaps the total.
       const category = activity.service.contract.contract_category;
-      if (category === 'Veterinarian') totalVet = totalVet.plus(price);
-      if (category === 'Food') totalFood = totalFood.plus(price);
+      if (category === ContractCategory.Veterinarian)
+        totalVet = totalVet.plus(price);
+      if (category === ContractCategory.Food) totalFood = totalFood.plus(price);
       if (activity.service.contract.transport_service) {
         totalTransport = totalTransport.plus(price);
       }
@@ -422,7 +429,7 @@ export class ReportsService {
       // contract was a veterinarian contract AND the supplier actually had a
       // Veterinarian row.
       const assignedVet =
-        contract.contract_category === 'Veterinarian' &&
+        contract.contract_category === ContractCategory.Veterinarian &&
         contract.supplier.veterinarian
           ? contract.supplier.name
           : null;
@@ -512,7 +519,7 @@ export class ReportsService {
     const donationByAnimal = new Map(
       donations.map((row) => [row.id_animal, num(row._sum.amount) ?? 0]),
     );
-    const costByAnimal = new Map<number, Prisma.Decimal>();
+    const costByAnimal = new Map<string, Prisma.Decimal>();
     for (const activity of activityCosts) {
       const price = decimalOf(activity.service.base_price).plus(
         decimalOf(activity.service.surcharge),

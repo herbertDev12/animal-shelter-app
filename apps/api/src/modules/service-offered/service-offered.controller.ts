@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { ServiceOfferedService } from './service-offered.service';
@@ -35,7 +35,7 @@ export class ServiceOfferedController {
 
   @RequirePermission('service-offered.read')
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.serviceOfferedService.findById(id);
   }
 
@@ -48,7 +48,7 @@ export class ServiceOfferedController {
   @RequirePermission('service-offered.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateServiceOfferedDto,
   ) {
     return this.serviceOfferedService.update(id, data);
@@ -56,7 +56,7 @@ export class ServiceOfferedController {
 
   @RequirePermission('service-offered.edit')
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.serviceOfferedService.remove(id);
   }
 }

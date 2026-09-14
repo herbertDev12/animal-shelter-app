@@ -6,6 +6,8 @@ import {
 import type { Prisma } from '@prisma/client';
 import {
   Activity,
+  ContractStatus,
+  ContractStatusLabel,
   CreateActivity,
   SearchActivityFilters,
   UpdateActivity,
@@ -41,7 +43,7 @@ export class ActivityService {
     return rows.map(toActivity);
   }
 
-  async findById(id: number): Promise<Activity> {
+  async findById(id: string): Promise<Activity> {
     const row = await this.prisma.activity.findUnique({
       where: { id_activity: id },
       include: withNames,
@@ -86,7 +88,7 @@ export class ActivityService {
     return toActivity(row);
   }
 
-  async update(id: number, data: UpdateActivity): Promise<Activity> {
+  async update(id: string, data: UpdateActivity): Promise<Activity> {
     const row = await this.prisma.$transaction(async (tx) => {
       const existing = await tx.activity.findUnique({
         where: { id_activity: id },
@@ -117,7 +119,7 @@ export class ActivityService {
     return toActivity(row);
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.activity.delete({ where: { id_activity: id } });
     return true;
@@ -131,7 +133,7 @@ export class ActivityService {
  */
 async function assertContractActive(
   tx: Prisma.TransactionClient,
-  id_service: number,
+  id_service: string,
 ): Promise<void> {
   const service = await tx.serviceOffered.findUnique({
     where: { id_service },
@@ -148,9 +150,9 @@ async function assertContractActive(
   }
 
   const status = autoExpire(service.contract);
-  if (status !== 'Active') {
+  if (status !== ContractStatus.Active) {
     throw new BadRequestException(
-      `Contract ${service.id_contract} is not active (status: ${status})`,
+      `Contract ${service.id_contract} is not active (status: ${ContractStatusLabel[status]})`,
     );
   }
 }

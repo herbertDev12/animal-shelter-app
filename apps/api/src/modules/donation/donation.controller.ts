@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { DonationService } from './donation.service';
@@ -31,7 +31,7 @@ export class DonationController {
 
   @RequirePermission('donation.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.donationService.findById(id);
   }
 
@@ -44,7 +44,7 @@ export class DonationController {
   @RequirePermission('donation.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Partial<CreateDonationDto>,
   ) {
     return this.donationService.update(id, data);
@@ -52,7 +52,7 @@ export class DonationController {
 
   @RequirePermission('donation.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.donationService.delete(id);
   }
 }

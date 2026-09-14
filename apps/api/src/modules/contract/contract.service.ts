@@ -26,12 +26,12 @@ export class ContractService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Flips overdue contracts to 'Expired'.
+   * Flips overdue contracts to Expired.
    *
    * The `trg_auto_expire_contract` trigger did this on every write, so a
    * contract only expired if something happened to touch it. With the trigger
    * gone the stored column is kept honest here instead — as a stored value, not
-   * a derived one, so that `search({ status: 'Active' })`, which filters on the
+   * a derived one, so that `search({ status: ContractStatus.Active })`, which filters on the
    * column, agrees with what callers are shown.
    */
   async expireOverdue(): Promise<void> {
@@ -40,8 +40,8 @@ export class ContractService {
     this.lastExpirySweep = now;
 
     await this.prisma.contract.updateMany({
-      where: { status: 'Active', end_date: { lt: todayUtc() } },
-      data: { status: 'Expired' },
+      where: { status: ContractStatus.Active, end_date: { lt: todayUtc() } },
+      data: { status: ContractStatus.Expired },
     });
   }
 
@@ -53,7 +53,7 @@ export class ContractService {
     return rows.map(toContract);
   }
 
-  async findById(id: number): Promise<Contract> {
+  async findById(id: string): Promise<Contract> {
     await this.expireOverdue();
     const row = await this.prisma.contract.findUnique({
       where: { id_contract: id },
@@ -92,13 +92,16 @@ export class ContractService {
           ? toDateOnly(data.reconciliation_date)
           : null,
         description: data.description ?? null,
-        status: autoExpire({ end_date, status: data.status || 'Active' }),
+        status: autoExpire({
+          end_date,
+          status: data.status ?? ContractStatus.Active,
+        }),
       },
     });
     return toContract(row);
   }
 
-  async update(id: number, data: UpdateContract): Promise<Contract> {
+  async update(id: string, data: UpdateContract): Promise<Contract> {
     const existing = await this.prisma.contract.findUnique({
       where: { id_contract: id },
     });
@@ -141,7 +144,7 @@ export class ContractService {
     return toContract(row);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.contract.delete({ where: { id_contract: id } });
     return true;

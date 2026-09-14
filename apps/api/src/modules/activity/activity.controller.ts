@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { ActivityService } from './activity.service';
@@ -35,7 +35,7 @@ export class ActivityController {
 
   @RequirePermission('activity.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.activityService.findById(id);
   }
 
@@ -48,7 +48,7 @@ export class ActivityController {
   @RequirePermission('activity.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateActivityDto,
   ) {
     return this.activityService.update(id, data);
@@ -56,7 +56,7 @@ export class ActivityController {
 
   @RequirePermission('activity.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.activityService.delete(id);
   }
 }

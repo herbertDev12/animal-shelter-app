@@ -1,9 +1,12 @@
+import { ContractStatus } from '@repo/schemas';
 import { todayUtc } from '../../common/prisma-scalars';
 
 export function autoExpire(row: {
   end_date: Date;
-  status?: string | null;
-}): string {
-  const status = row.status ?? 'Active';
-  return status === 'Active' && row.end_date < todayUtc() ? 'Expired' : status;
+  status?: number | null;
+}): ContractStatus {
+  const status = (row.status ?? ContractStatus.Active) as ContractStatus;
+  return status === ContractStatus.Active && row.end_date < todayUtc()
+    ? ContractStatus.Expired
+    : status;
 }

@@ -7,7 +7,7 @@ import {
   Param,
   Body,
   Query,
-  ParseIntPipe,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { RequirePermission } from '../auth/permissions.decorator';
 import { ClinicService } from './clinic.service';
@@ -31,7 +31,7 @@ export class ClinicController {
 
   @RequirePermission('clinic.read')
   @Get(':id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.clinicsService.findById(id);
   }
 
@@ -44,7 +44,7 @@ export class ClinicController {
   @RequirePermission('clinic.edit')
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() data: Partial<CreateClinicDto>,
   ) {
     return this.clinicsService.update(id, data);
@@ -52,7 +52,7 @@ export class ClinicController {
 
   @RequirePermission('clinic.edit')
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) id: number) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     return this.clinicsService.delete(id);
   }
 }

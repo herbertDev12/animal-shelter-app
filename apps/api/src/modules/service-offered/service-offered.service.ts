@@ -20,7 +20,7 @@ export class ServiceOfferedService {
     return rows.map(toServiceOffered);
   }
 
-  async findById(id: number): Promise<ServiceOffered> {
+  async findById(id: string): Promise<ServiceOffered> {
     const row = await this.prisma.serviceOffered.findUnique({
       where: { id_service: id },
     });
@@ -59,7 +59,7 @@ export class ServiceOfferedService {
   }
 
   async update(
-    id: number,
+    id: string,
     data: UpdateServiceOffered,
   ): Promise<ServiceOffered> {
     await this.findById(id);
@@ -76,7 +76,7 @@ export class ServiceOfferedService {
     return toServiceOffered(row);
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: string): Promise<boolean> {
     await this.findById(id);
     await this.prisma.serviceOffered.delete({ where: { id_service: id } });
     return true;
