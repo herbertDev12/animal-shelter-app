@@ -1,11 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
   closeTestApp,
   createTestApp,
   createAdminAgent,
   ApiAgent,
 } from './utils/test-app';
+import { AnimalStatus } from '@repo/schemas';
 
 describe('Animals (e2e)', () => {
   let app: INestApplication<App>;
@@ -55,7 +57,9 @@ describe('Animals (e2e)', () => {
 
     it('accepts repeated status query params as an array', async () => {
       await api
-        .get('/animals/search?status=available&status=adopted')
+        .get(
+          `/animals/search?status=${AnimalStatus.Available}&status=${AnimalStatus.Adopted}`,
+        )
         .expect(200);
     });
 
@@ -73,12 +77,12 @@ describe('Animals (e2e)', () => {
   });
 
   describe('GET /animals/:id', () => {
-    it('rejects a non-numeric id via ParseIntPipe', async () => {
+    it('rejects a non-UUID id via ParseUUIDPipe', async () => {
       await api.get('/animals/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/animals/999999999').expect(404);
+      await api.get(`/animals/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -131,7 +135,7 @@ describe('Animals (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates an animal with all required fields and default status', async () => {
       const res = await api
@@ -146,7 +150,7 @@ describe('Animals (e2e)', () => {
         .expect(201);
 
       expect(res.body.id).toBeDefined();
-      expect(res.body.status).toBe('available'); // default applied
+      expect(res.body.status).toBe(AnimalStatus.Available); // default applied
       expect(res.body.birth_date).toBeTruthy();
       createdId = res.body.id;
     });
@@ -159,12 +163,12 @@ describe('Animals (e2e)', () => {
     it('updates the animal (partial)', async () => {
       await api
         .put(`/animals/${createdId}`)
-        .send({ name: 'E2E Renamed Dog', status: 'reserved' })
+        .send({ name: 'E2E Renamed Dog', status: AnimalStatus.Reserved })
         .expect(200);
 
       const res = await api.get(`/animals/${createdId}`).expect(200);
       expect(res.body.name).toBe('E2E Renamed Dog');
-      expect(res.body.status).toBe('reserved');
+      expect(res.body.status).toBe(AnimalStatus.Reserved);
     });
 
     it('deletes the animal', async () => {

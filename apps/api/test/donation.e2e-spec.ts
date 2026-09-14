@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -12,7 +13,7 @@ describe('Donations (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let animalId: number;
+  let animalId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -49,12 +50,12 @@ describe('Donations (e2e)', () => {
   });
 
   describe('GET /donations/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/donations/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/donations/999999999').expect(404);
+      await api.get(`/donations/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -101,7 +102,7 @@ describe('Donations (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a donation', async () => {
       const res = await api

@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -12,7 +14,7 @@ describe('Veterinarians (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let clinicId: number;
+  let clinicId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -45,18 +47,18 @@ describe('Veterinarians (e2e)', () => {
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
-    it('rejects a non-numeric id_clinic', async () => {
+    it('rejects a non-UUID id_clinic', async () => {
       await api.get('/veterinarians/search?id_clinic=abc').expect(400);
     });
   });
 
   describe('GET /veterinarians/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/veterinarians/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/veterinarians/999999999').expect(404);
+      await api.get(`/veterinarians/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -73,10 +75,10 @@ describe('Veterinarians (e2e)', () => {
       await api.post('/veterinarians').send(body).expect(400);
     });
 
-    it('rejects a non-positive id_clinic', async () => {
+    it('rejects a non-UUID id_clinic', async () => {
       await api
         .post('/veterinarians')
-        .send({ ...valid(), id_clinic: 0 })
+        .send({ ...valid(), id_clinic: INVALID_ID })
         .expect(400);
     });
 
@@ -96,7 +98,7 @@ describe('Veterinarians (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a veterinarian', async () => {
       const res = await api.post('/veterinarians').send(valid()).expect(201);

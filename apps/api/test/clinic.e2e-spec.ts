@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
   closeTestApp,
   createTestApp,
   createAdminAgent,
@@ -46,12 +47,12 @@ describe('Clinics (e2e)', () => {
   });
 
   describe('GET /clinics/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/clinics/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/clinics/999999999').expect(404);
+      await api.get(`/clinics/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -66,7 +67,7 @@ describe('Clinics (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a clinic', async () => {
       const res = await api

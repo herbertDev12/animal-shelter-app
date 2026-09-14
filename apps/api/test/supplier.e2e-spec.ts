@@ -2,11 +2,13 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
   closeTestApp,
   createTestApp,
   createAdminAgent,
   ApiAgent,
 } from './utils/test-app';
+import { SupplierType } from '@repo/schemas';
 
 describe('Suppliers (e2e)', () => {
   let app: INestApplication<App>;
@@ -51,18 +53,21 @@ describe('Suppliers (e2e)', () => {
   });
 
   describe('GET /suppliers/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/suppliers/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/suppliers/999999999').expect(404);
+      await api.get(`/suppliers/${MISSING_ID}`).expect(404);
     });
   });
 
   describe('POST /suppliers validation', () => {
     it('rejects a missing name', async () => {
-      await api.post('/suppliers').send({ type: 'Veterinarian' }).expect(400);
+      await api
+        .post('/suppliers')
+        .send({ type: SupplierType.Veterinarian })
+        .expect(400);
     });
 
     it('rejects a missing type', async () => {
@@ -72,7 +77,7 @@ describe('Suppliers (e2e)', () => {
     it('rejects an invalid type enum value', async () => {
       await api
         .post('/suppliers')
-        .send({ name: 'Acme', type: 'Food' }) // must be "Food Company"
+        .send({ name: 'Acme', type: 'Food Company' }) // must be the SupplierType integer, not its label
         .expect(400);
     });
 
@@ -81,7 +86,7 @@ describe('Suppliers (e2e)', () => {
         .post('/suppliers')
         .send({
           name: 'Acme',
-          type: 'Food Company',
+          type: SupplierType.FoodCompany,
           contact_email: 'not-email',
         })
         .expect(400);
@@ -92,7 +97,7 @@ describe('Suppliers (e2e)', () => {
         .post('/suppliers')
         .send({
           name: 'E2E Empty Email',
-          type: 'Food Company',
+          type: SupplierType.FoodCompany,
           contact_email: '',
         })
         .expect(201);
@@ -101,20 +106,20 @@ describe('Suppliers (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a supplier', async () => {
       const res = await api
         .post('/suppliers')
         .send({
           name: 'E2E Supplier',
-          type: 'Service Company',
+          type: SupplierType.ServiceCompany,
           contact_email: 'e2e@example.com',
           province: 'Havana',
         })
         .expect(201);
       expect(res.body.id).toBeDefined();
-      expect(res.body.type).toBe('Service Company');
+      expect(res.body.type).toBe(SupplierType.ServiceCompany);
       createdId = res.body.id;
     });
 

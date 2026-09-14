@@ -1,6 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { App } from 'supertest/types';
 import {
+  MISSING_ID,
+  INVALID_ID,
   closeTestApp,
   createTestApp,
   getExistingId,
@@ -12,7 +14,7 @@ describe('Transport Services (e2e)', () => {
   let app: INestApplication<App>;
   let server: App;
   let api: ApiAgent;
-  let supplierId: number;
+  let supplierId: string;
 
   beforeAll(async () => {
     app = await createTestApp();
@@ -53,12 +55,12 @@ describe('Transport Services (e2e)', () => {
   });
 
   describe('GET /transport-services/:id', () => {
-    it('rejects a non-numeric id', async () => {
+    it('rejects a non-UUID id', async () => {
       await api.get('/transport-services/abc').expect(400);
     });
 
     it('returns 404 for a missing id', async () => {
-      await api.get('/transport-services/999999999').expect(404);
+      await api.get(`/transport-services/${MISSING_ID}`).expect(404);
     });
   });
 
@@ -82,10 +84,10 @@ describe('Transport Services (e2e)', () => {
       await api.post('/transport-services').send(body).expect(400);
     });
 
-    it('rejects a non-positive id_supplier', async () => {
+    it('rejects a non-UUID id_supplier', async () => {
       await api
         .post('/transport-services')
-        .send({ ...valid(), id_supplier: 0 })
+        .send({ ...valid(), id_supplier: INVALID_ID })
         .expect(400);
     });
 
@@ -105,7 +107,7 @@ describe('Transport Services (e2e)', () => {
   });
 
   describe('CRUD round-trip', () => {
-    let createdId: number;
+    let createdId: string;
 
     it('creates a transport service', async () => {
       const res = await api
