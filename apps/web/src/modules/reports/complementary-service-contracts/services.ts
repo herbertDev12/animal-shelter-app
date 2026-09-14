@@ -1,7 +1,8 @@
-export const fetchComplementaryServiceContracts = async () => {
-  const response = await fetch(
-    `${import.meta.env.VITE_PUBLIC_API_URL}/reports/complementary-service-contracts`,
-  );
-  if (!response.ok) throw new Error("Network response was not ok");
-  return response.json();
-};
+import type { ComplementaryServiceContractsResponse } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+
+export const fetchComplementaryServiceContracts =
+  (): Promise<ComplementaryServiceContractsResponse> =>
+    fetchWithAuth<ComplementaryServiceContractsResponse>(
+      `/reports/complementary-service-contracts`,
+    );

@@ -1,7 +1,8 @@
-export const fetchFoodSupplierContracts = async () => {
-  const response = await fetch(
-    `${import.meta.env.VITE_PUBLIC_API_URL}/reports/food-supplier-contracts`,
-  );
-  if (!response.ok) throw new Error("Network response was not ok");
-  return response.json();
-};
+import type { FoodSupplierContractsResponse } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+
+export const fetchFoodSupplierContracts =
+  (): Promise<FoodSupplierContractsResponse> =>
+    fetchWithAuth<FoodSupplierContractsResponse>(
+      `/reports/food-supplier-contracts`,
+    );

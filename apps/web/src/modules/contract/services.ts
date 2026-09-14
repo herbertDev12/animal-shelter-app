@@ -4,10 +4,9 @@ import type {
   SearchContractsFilters,
   Supplier,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchContracts = async (
+export const fetchContracts = (
   filters: Partial<SearchContractsFilters> = {},
 ): Promise<Contract[]> => {
   const params = new URLSearchParams();
@@ -20,53 +19,36 @@ export const fetchContracts = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/contracts/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch contracts");
-  return response.json();
+  return fetchWithAuth<Contract[]>(`/contracts/search?${params.toString()}`);
 };
 
-export const fetchContract = async (id: number): Promise<Contract> => {
-  const response = await fetch(`${API_URL}/contracts/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch contract");
-  return response.json();
+export const fetchContract = (id: number): Promise<Contract> => {
+  return fetchWithAuth<Contract>(`/contracts/${id}`);
 };
 
-export const createContract = async (
-  data: CreateContract,
-): Promise<Contract> => {
-  const response = await fetch(`${API_URL}/contracts`, {
+export const createContract = (data: CreateContract): Promise<Contract> => {
+  return fetchWithAuth<Contract>(`/contracts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create contract");
-  return response.json();
 };
 
-export const updateContract = async (
+export const updateContract = (
   id: number,
   data: Partial<CreateContract>,
 ): Promise<Contract> => {
-  const response = await fetch(`${API_URL}/contracts/${id}`, {
+  return fetchWithAuth<Contract>(`/contracts/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update contract");
-  return response.json();
 };
 
-export const deleteContract = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/contracts/${id}`, {
+export const deleteContract = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/contracts/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete contract");
 };
 
-export const fetchSuppliers = async (): Promise<Supplier[]> => {
-  const response = await fetch(`${API_URL}/suppliers`);
-  if (!response.ok) throw new Error("Failed to fetch suppliers");
-  return response.json();
+export const fetchSuppliers = (): Promise<Supplier[]> => {
+  return fetchWithAuth<Supplier[]>(`/suppliers`);
 };

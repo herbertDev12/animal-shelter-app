@@ -3,10 +3,9 @@ import type {
   CreateAdoption,
   SearchAdoptionsFilters,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchAdoptions = async (
+export const fetchAdoptions = (
   filters: Partial<SearchAdoptionsFilters> = {},
 ): Promise<Adoption[]> => {
   const params = new URLSearchParams();
@@ -24,47 +23,32 @@ export const fetchAdoptions = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/adoptions/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch adoptions");
-  return response.json();
+  return fetchWithAuth<Adoption[]>(`/adoptions/search?${params.toString()}`);
 };
 
-export const fetchAdoption = async (id: number): Promise<Adoption> => {
-  const response = await fetch(`${API_URL}/adoptions/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch adoption");
-  return response.json();
+export const fetchAdoption = (id: number): Promise<Adoption> => {
+  return fetchWithAuth<Adoption>(`/adoptions/${id}`);
 };
 
-export const createAdoption = async (
-  data: CreateAdoption,
-): Promise<Adoption> => {
-  const response = await fetch(`${API_URL}/adoptions`, {
+export const createAdoption = (data: CreateAdoption): Promise<Adoption> => {
+  return fetchWithAuth<Adoption>(`/adoptions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create adoption");
-  return response.json();
 };
 
-export const updateAdoption = async (
+export const updateAdoption = (
   id: number,
   data: Partial<CreateAdoption>,
 ): Promise<Adoption> => {
-  const response = await fetch(`${API_URL}/adoptions/${id}`, {
+  return fetchWithAuth<Adoption>(`/adoptions/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update adoption");
-  return response.json();
 };
 
-export const deleteAdoption = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/adoptions/${id}`, {
+export const deleteAdoption = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/adoptions/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete adoption");
 };

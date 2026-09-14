@@ -3,10 +3,9 @@ import type {
   CreateSupplier,
   SearchSuppliersFilters,
 } from "@repo/schemas";
+import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
-
-export const fetchSuppliers = async (
+export const fetchSuppliers = (
   filters: Partial<SearchSuppliersFilters> = {},
 ): Promise<Supplier[]> => {
   const params = new URLSearchParams();
@@ -21,47 +20,32 @@ export const fetchSuppliers = async (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  const response = await fetch(
-    `${API_URL}/suppliers/search?${params.toString()}`,
-  );
-  if (!response.ok) throw new Error("Failed to fetch suppliers");
-  return response.json();
+  return fetchWithAuth<Supplier[]>(`/suppliers/search?${params.toString()}`);
 };
 
-export const fetchSupplier = async (id: number): Promise<Supplier> => {
-  const response = await fetch(`${API_URL}/suppliers/${id}`);
-  if (!response.ok) throw new Error("Failed to fetch supplier");
-  return response.json();
+export const fetchSupplier = (id: number): Promise<Supplier> => {
+  return fetchWithAuth<Supplier>(`/suppliers/${id}`);
 };
 
-export const createSupplier = async (
-  data: CreateSupplier,
-): Promise<Supplier> => {
-  const response = await fetch(`${API_URL}/suppliers`, {
+export const createSupplier = (data: CreateSupplier): Promise<Supplier> => {
+  return fetchWithAuth<Supplier>(`/suppliers`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to create supplier");
-  return response.json();
 };
 
-export const updateSupplier = async (
+export const updateSupplier = (
   id: number,
   data: Partial<CreateSupplier>,
 ): Promise<Supplier> => {
-  const response = await fetch(`${API_URL}/suppliers/${id}`, {
+  return fetchWithAuth<Supplier>(`/suppliers/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error("Failed to update supplier");
-  return response.json();
 };
 
-export const deleteSupplier = async (id: number): Promise<void> => {
-  const response = await fetch(`${API_URL}/suppliers/${id}`, {
+export const deleteSupplier = (id: number): Promise<void> => {
+  return fetchWithAuth<void>(`/suppliers/${id}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete supplier");
 };
