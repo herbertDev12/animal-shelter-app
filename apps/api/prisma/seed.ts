@@ -7,14 +7,18 @@ import {
   WORKER_EXCLUDED_MODULES,
   WORKER_ROLE,
 } from '../src/modules/auth/permissions';
+import {
+  AnimalStatus,
+  ContractCategory,
+  ContractStatus,
+  SupplierType,
+} from '@repo/schemas';
 
 /**
  * Development seed data.
  *
- * Unlike the SQL seed this replaces, nothing here sets an explicit primary key.
- * The old file did, which left every SERIAL sequence parked at 1 and required a
- * separate `setval` script to stop the next INSERT colliding; letting the
- * sequences allocate normally removes that whole class of problem.
+ * Nothing here sets an explicit primary key: every id is a UUID generated on
+ * insert, so rows are looked up by the values returned from `create`.
  *
  * Re-runnable: it clears the shelter tables in foreign-key order first. Access
  * control (permissions, roles, the admin account) is upserted instead, so
@@ -141,7 +145,7 @@ async function main(): Promise<void> {
     data: {
       name: 'VetSuministros CR',
       address: 'Zona Industrial, San Jose',
-      type: 'Veterinarian',
+      type: SupplierType.Veterinarian,
       phone: '+506 2222 3333',
       contact_email: 'contacto@vetsuministros.cr',
       contact_name: 'Carlos Mora',
@@ -159,12 +163,12 @@ async function main(): Promise<void> {
       contracts: {
         create: [
           {
-            contract_category: 'Veterinarian',
+            contract_category: ContractCategory.Veterinarian,
             start_date: date('2026-01-01'),
             end_date: date('2026-12-31'),
             reconciliation_date: date('2026-01-15'),
             description: 'Annual veterinary supplies contract',
-            status: 'Active',
+            status: ContractStatus.Active,
             services: {
               create: [
                 {
@@ -181,12 +185,12 @@ async function main(): Promise<void> {
             },
           },
           {
-            contract_category: 'Veterinarian',
+            contract_category: ContractCategory.Veterinarian,
             start_date: date('2024-01-01'),
             end_date: date('2024-12-31'),
             reconciliation_date: date('2024-06-30'),
             description: 'Previous year veterinary contract',
-            status: 'Expired',
+            status: ContractStatus.Expired,
           },
         ],
       },
@@ -194,7 +198,7 @@ async function main(): Promise<void> {
     include: {
       contracts: {
         include: { services: true },
-        orderBy: { id_contract: 'asc' },
+        orderBy: { start_date: 'desc' },
       },
     },
   });
@@ -204,7 +208,7 @@ async function main(): Promise<void> {
     data: {
       name: 'PetFood Premium',
       address: 'La Uruca, San Jose',
-      type: 'Food Company',
+      type: SupplierType.FoodCompany,
       phone: '+506 2244 5555',
       contact_email: 'ventas@petfood.cr',
       contact_name: 'Ana Rodriguez',
@@ -212,11 +216,11 @@ async function main(): Promise<void> {
       contracts: {
         create: [
           {
-            contract_category: 'Food',
+            contract_category: ContractCategory.Food,
             start_date: date('2026-03-01'),
             end_date: date('2026-12-31'),
             description: 'Premium dog and cat food supply',
-            status: 'Active',
+            status: ContractStatus.Active,
             services: {
               create: [
                 {
@@ -235,12 +239,12 @@ async function main(): Promise<void> {
             },
           },
           {
-            contract_category: 'Food',
+            contract_category: ContractCategory.Food,
             start_date: date('2026-01-01'),
             end_date: date('2027-12-31'),
             reconciliation_date: date('2026-04-10'),
             description: 'Premium food supply - reconciled',
-            status: 'Active',
+            status: ContractStatus.Active,
             services: {
               create: [
                 {
@@ -258,7 +262,7 @@ async function main(): Promise<void> {
     include: {
       contracts: {
         include: { services: true },
-        orderBy: { id_contract: 'asc' },
+        orderBy: { start_date: 'desc' },
       },
     },
   });
@@ -268,7 +272,7 @@ async function main(): Promise<void> {
     data: {
       name: 'TransPet Costa Rica',
       address: 'Cartago centro',
-      type: 'Service Company',
+      type: SupplierType.ServiceCompany,
       phone: '+506 2555 6666',
       contact_email: 'info@transpet.cr',
       contact_name: 'Luis Hernandez',
@@ -276,11 +280,11 @@ async function main(): Promise<void> {
       contracts: {
         create: [
           {
-            contract_category: 'Service',
+            contract_category: ContractCategory.Service,
             start_date: date('2026-06-01'),
             end_date: date('2027-05-31'),
             description: 'Animal transport for vet appointments',
-            status: 'Active',
+            status: ContractStatus.Active,
             transport_service: {
               create: {
                 vehicle: 'Toyota Hiace Van',
@@ -308,7 +312,7 @@ async function main(): Promise<void> {
     include: {
       contracts: {
         include: { services: true },
-        orderBy: { id_contract: 'asc' },
+        orderBy: { start_date: 'desc' },
       },
     },
   });
@@ -318,7 +322,7 @@ async function main(): Promise<void> {
     data: {
       name: 'VetMovil CR',
       address: 'Limón centro',
-      type: 'Veterinarian',
+      type: SupplierType.Veterinarian,
       phone: '+506 2777 8888',
       contact_email: 'servicios@vetmovil.cr',
       contact_name: 'Maria Chen',
@@ -336,12 +340,12 @@ async function main(): Promise<void> {
       contracts: {
         create: [
           {
-            contract_category: 'Service',
+            contract_category: ContractCategory.Service,
             start_date: date('2026-01-01'),
             end_date: date('2027-12-31'),
             reconciliation_date: date('2026-03-15'),
             description: 'Mobile vet transport - reconciled',
-            status: 'Active',
+            status: ContractStatus.Active,
             transport_service: {
               create: {
                 vehicle: 'Nissan NV200',
@@ -372,9 +376,17 @@ async function main(): Promise<void> {
       '2022-05-10',
       '30.50',
       '2025-01-15',
-      'available',
+      AnimalStatus.Available,
     ],
-    ['Luna', 'Cat', 'Siamese', '2023-02-20', '4.20', '2025-03-01', 'available'],
+    [
+      'Luna',
+      'Cat',
+      'Siamese',
+      '2023-02-20',
+      '4.20',
+      '2025-03-01',
+      AnimalStatus.Available,
+    ],
     [
       'Rocky',
       'Dog',
@@ -382,10 +394,26 @@ async function main(): Promise<void> {
       '2021-11-05',
       '38.00',
       '2024-11-20',
-      'adopted',
+      AnimalStatus.Adopted,
     ],
-    ['Nala', 'Cat', 'Persian', '2024-01-10', '3.80', '2025-06-10', 'available'],
-    ['Toby', 'Dog', 'Beagle', '2023-07-15', '12.30', '2025-04-22', 'available'],
+    [
+      'Nala',
+      'Cat',
+      'Persian',
+      '2024-01-10',
+      '3.80',
+      '2025-06-10',
+      AnimalStatus.Available,
+    ],
+    [
+      'Toby',
+      'Dog',
+      'Beagle',
+      '2023-07-15',
+      '12.30',
+      '2025-04-22',
+      AnimalStatus.Available,
+    ],
     [
       'Milo',
       'Rabbit',
@@ -393,9 +421,17 @@ async function main(): Promise<void> {
       '2024-03-01',
       '1.50',
       '2025-07-05',
-      'available',
+      AnimalStatus.Available,
     ],
-    ['Bella', 'Dog', 'Poodle', '2022-09-18', '6.70', '2025-02-14', 'adopted'],
+    [
+      'Bella',
+      'Dog',
+      'Poodle',
+      '2022-09-18',
+      '6.70',
+      '2025-02-14',
+      AnimalStatus.Adopted,
+    ],
     [
       'Simba',
       'Cat',
@@ -403,11 +439,11 @@ async function main(): Promise<void> {
       '2023-12-25',
       '6.10',
       '2025-05-30',
-      'deceased',
+      AnimalStatus.Deceased,
     ],
   ] as const;
 
-  const animals: Record<string, number> = {};
+  const animals: Record<string, string> = {};
   for (const [
     name,
     species,
