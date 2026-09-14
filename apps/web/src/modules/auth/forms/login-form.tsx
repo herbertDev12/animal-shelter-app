@@ -12,6 +12,9 @@ import { setToken } from "@/lib/api/token";
 import { safeRedirect } from "@/lib/utils/safe-redirect";
 import { sessionQueryKey } from "../use-session";
 
+const inputClassName =
+  "border-white/70 bg-[#0b0e14] text-white placeholder:text-gray-400 focus-visible:border-[#cc97ff] focus-visible:ring-[#cc97ff]";
+
 interface LoginFormProps {
   redirectTo?: string;
 }
@@ -67,6 +70,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         name="email"
         control={control}
         label="Email"
+        labelClassName="text-white"
+        className={inputClassName}
         type="email"
         autoComplete="email"
         placeholder="you@example.com"
@@ -75,6 +80,8 @@ export function LoginForm({ redirectTo }: LoginFormProps) {
         name="password"
         control={control}
         label="Password"
+        labelClassName="text-white"
+        className={inputClassName}
         type="password"
         autoComplete="current-password"
         placeholder="••••••••"
