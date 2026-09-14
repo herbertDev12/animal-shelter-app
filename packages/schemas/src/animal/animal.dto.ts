@@ -21,5 +21,4 @@ export type {
   UpdateAnimal,
   Animal,
   SearchAnimalsFilters,
-  AnimalStatus,
 } from "./animal";

@@ -1,10 +1,7 @@
 import { z } from "zod";
+import { SupplierType, coercedIntEnum, intEnum } from "../enums";
 
-export const supplierTypeEnum = z.enum([
-  "Veterinarian",
-  "Food Company",
-  "Service Company",
-]);
+export const supplierTypeEnum = intEnum(SupplierType);
 
 export const createSupplierSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -20,7 +17,7 @@ export const updateSupplierSchema = createSupplierSchema.partial();
 
 export const searchSuppliersFiltersSchema = z.object({
   name: z.string().optional(),
-  type: supplierTypeEnum.optional(),
+  type: coercedIntEnum(SupplierType).optional(),
   province: z.string().optional(),
   phone: z.string().optional(),
   contact_email: z.string().email().optional().or(z.literal("")),
@@ -30,7 +27,7 @@ export const searchSuppliersFiltersSchema = z.object({
 });
 
 export const supplierSchema = createSupplierSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
   // Nullable columns come back as null, not absent.
   address: z.string().nullish(),
   phone: z.string().nullish(),
@@ -42,7 +39,6 @@ export const supplierSchema = createSupplierSchema.extend({
 export type CreateSupplier = z.infer<typeof createSupplierSchema>;
 export type UpdateSupplier = z.infer<typeof updateSupplierSchema>;
 export type Supplier = z.infer<typeof supplierSchema>;
-export type SupplierType = z.infer<typeof supplierTypeEnum>;
 export type SearchSuppliersFilters = z.infer<
   typeof searchSuppliersFiltersSchema
 >;

@@ -2,6 +2,7 @@
 // Excludes every *.dto.ts file, which imports `nestjs-zod` (a server-only
 // package that crashes in the browser). Resolved via the `browser` export
 // condition in package.json — see also the full barrel in ./index.ts.
+export * from "./enums";
 export * from "./animal/animal";
 export * from "./auth/auth";
 export * from "./clinic/clinic";

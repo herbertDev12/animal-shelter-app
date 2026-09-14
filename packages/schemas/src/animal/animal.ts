@@ -1,12 +1,8 @@
 import { z } from "zod";
+import { AnimalStatus, coercedIntEnum, intEnum } from "../enums";
 
 // Mirrors the Animal.status CHECK constraint in the database.
-const animalStatusEnum = z.enum([
-  "available",
-  "adopted",
-  "reserved",
-  "deceased",
-]);
+const animalStatusEnum = intEnum(AnimalStatus);
 
 const animalBaseSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -14,7 +10,7 @@ const animalBaseSchema = z.object({
   breed: z.string().min(1, "Breed is required"),
   birth_date: z.coerce.date({ error: "Birth date is required" }),
   weight: z.number({ error: "Weight is required" }).min(0),
-  status: animalStatusEnum.default("available"),
+  status: animalStatusEnum.default(AnimalStatus.Available),
 });
 
 const birthDateNotInFuture = (data: { birth_date?: Date }) =>
@@ -41,7 +37,7 @@ export const updateAnimalSchema = animalBaseSchema
 export const searchAnimalsFiltersSchema = z.object({
   species: z.string().optional(),
   breed: z.string().optional(),
-  status: z.array(z.string()).optional(),
+  status: z.array(coercedIntEnum(AnimalStatus)).optional(),
   minAge: z.coerce.number().int().min(0).optional(),
   maxAge: z.coerce.number().int().min(0).optional(),
   limit: z.coerce.number().int().min(1).default(10),
@@ -51,7 +47,7 @@ export const searchAnimalsFiltersSchema = z.object({
 // Nullable in the database, so the response schema accepts null as well as
 // absent; the create/update schemas above stay strict about what may be sent.
 export const animalSchema = z.object({
-  id: z.number().int(),
+  id: z.uuid(),
   name: z.string(),
   species: z.string(),
   breed: z.string().nullish(),
@@ -66,4 +62,3 @@ export type CreateAnimal = z.infer<typeof createAnimalSchema>;
 export type UpdateAnimal = z.infer<typeof updateAnimalSchema>;
 export type Animal = z.infer<typeof animalSchema>;
 export type SearchAnimalsFilters = z.infer<typeof searchAnimalsFiltersSchema>;
-export type AnimalStatus = z.infer<typeof animalStatusEnum>;

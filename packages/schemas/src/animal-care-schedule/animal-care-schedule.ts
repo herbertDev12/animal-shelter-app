@@ -21,7 +21,7 @@ export const animalCareScheduleSchema = z.object({
 });
 
 export const animalCareScheduleFiltersSchema = z.object({
-  id_animal: z.coerce.number().int().min(1),
+  id_animal: z.uuid("A valid animal is required"),
   limit: z.coerce.number().int().min(1).default(10),
   offset: z.coerce.number().int().min(0).default(0),
 });

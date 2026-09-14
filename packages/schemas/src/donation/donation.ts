@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createDonationSchema = z.object({
-  id_animal: z.number().int().min(1, "Animal ID is required"),
+  id_animal: z.uuid("A valid animal is required"),
   amount: z.number().min(0, "Amount must be positive"),
   date: z.coerce.date(),
   donor: z.string().max(100).optional(),
@@ -10,7 +10,7 @@ export const createDonationSchema = z.object({
 export const updateDonationSchema = createDonationSchema.partial();
 
 export const searchDonationsFiltersSchema = z.object({
-  id_animal: z.coerce.number().int().min(1).optional(),
+  id_animal: z.uuid("A valid animal is required").optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   minAmount: z.coerce.number().min(0).optional(),
@@ -21,7 +21,7 @@ export const searchDonationsFiltersSchema = z.object({
 });
 
 export const donationSchema = createDonationSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
   donor: z.string().max(100).nullish(),
 });
 

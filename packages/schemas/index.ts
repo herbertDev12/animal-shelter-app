@@ -1,3 +1,4 @@
+export * from "./src/enums";
 export * from "./src/animal";
 export * from "./src/auth";
 export * from "./src/adoption";

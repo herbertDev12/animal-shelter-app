@@ -17,7 +17,7 @@ export const searchClinicsFiltersSchema = z.object({
 });
 
 export const clinicSchema = createClinicSchema.extend({
-  id: z.number().int(),
+  id: z.uuid(),
   // Nullable columns come back as null, not absent.
   province: z.string().nullish(),
   address: z.string().nullish(),

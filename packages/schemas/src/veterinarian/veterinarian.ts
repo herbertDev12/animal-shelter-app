@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { SupplierType } from "../enums";
 
 export const createVeterinarianSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -7,7 +8,7 @@ export const createVeterinarianSchema = z.object({
   contact_email: z.string().max(100).optional().nullable(),
   contact_name: z.string().max(100).optional().nullable(),
   province: z.string().max(100).optional().nullable(),
-  id_clinic: z.number().int().positive("Clinic ID must be positive"),
+  id_clinic: z.uuid("A valid clinic is required"),
   modality: z.string().max(50).optional().nullable(),
   specialty: z.string().max(100).optional().nullable(),
   fax: z.string().max(20).optional().nullable(),
@@ -22,7 +23,7 @@ export const updateVeterinarianSchema = z.object({
   contact_email: z.string().max(100).optional().nullable(),
   contact_name: z.string().max(100).optional().nullable(),
   province: z.string().max(100).optional().nullable(),
-  id_clinic: z.number().int().positive().optional(),
+  id_clinic: z.uuid("A valid clinic is required").optional(),
   modality: z.string().max(50).optional().nullable(),
   specialty: z.string().max(100).optional().nullable(),
   fax: z.string().max(20).optional().nullable(),
@@ -31,7 +32,7 @@ export const updateVeterinarianSchema = z.object({
 });
 
 export const searchVeterinariansFiltersSchema = z.object({
-  id_clinic: z.coerce.number().int().optional(),
+  id_clinic: z.uuid("A valid clinic is required").optional(),
   modality: z.string().optional(),
   specialty: z.string().optional(),
   province: z.string().optional(),
@@ -40,15 +41,15 @@ export const searchVeterinariansFiltersSchema = z.object({
 });
 
 export const veterinarianSchema = z.object({
-  id: z.number().int(),
+  id: z.uuid(),
   name: z.string(),
   address: z.string().nullable().optional(),
-  type: z.literal("Veterinarian"),
+  type: z.literal(SupplierType.Veterinarian),
   phone: z.string().nullable().optional(),
   contact_email: z.string().nullable().optional(),
   contact_name: z.string().nullable().optional(),
   province: z.string().nullable().optional(),
-  id_clinic: z.number().int(),
+  id_clinic: z.uuid("A valid clinic is required"),
   clinic_name: z.string().nullable().optional(),
   clinic_province: z.string().nullable().optional(),
   modality: z.string().nullable().optional(),
