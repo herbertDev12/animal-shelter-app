@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from "./routes/__root";
+import { Route as LoginRouteImport } from "./routes/login";
 import { Route as IndexRouteImport } from "./routes/index";
 import { Route as VeterinariansIndexRouteImport } from "./routes/veterinarians/index";
 import { Route as TransportServicesIndexRouteImport } from "./routes/transport-services/index";
@@ -47,6 +48,11 @@ import { Route as AnimalsAnimalIdEditRouteImport } from "./routes/animals/$anima
 import { Route as AdoptionsAdoptionIdEditRouteImport } from "./routes/adoptions/$adoptionId.edit";
 import { Route as ActivitiesActivityIdEditRouteImport } from "./routes/activities/$activityId.edit";
 
+const LoginRoute = LoginRouteImport.update({
+  id: "/login",
+  path: "/login",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -244,6 +250,7 @@ const ActivitiesActivityIdEditRoute =
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
   "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
@@ -283,6 +290,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
   "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
@@ -323,6 +331,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
   "/activities/new": typeof ActivitiesNewRoute;
   "/adoptions/new": typeof AdoptionsNewRoute;
   "/animals/new": typeof AnimalsNewRoute;
@@ -364,6 +373,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
     | "/"
+    | "/login"
     | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
@@ -403,6 +413,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
+    | "/login"
     | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
@@ -442,6 +453,7 @@ export interface FileRouteTypes {
   id:
     | "__root__"
     | "/"
+    | "/login"
     | "/activities/new"
     | "/adoptions/new"
     | "/animals/new"
@@ -482,6 +494,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  LoginRoute: typeof LoginRoute;
   ActivitiesNewRoute: typeof ActivitiesNewRoute;
   AdoptionsNewRoute: typeof AdoptionsNewRoute;
   AnimalsNewRoute: typeof AnimalsNewRoute;
@@ -522,6 +535,13 @@ export interface RootRouteChildren {
 
 declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/": {
       id: "/";
       path: "/";
@@ -786,6 +806,7 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   ActivitiesNewRoute: ActivitiesNewRoute,
   AdoptionsNewRoute: AdoptionsNewRoute,
   AnimalsNewRoute: AnimalsNewRoute,
