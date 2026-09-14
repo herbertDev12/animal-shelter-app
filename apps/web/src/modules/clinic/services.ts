@@ -1,5 +1,6 @@
 import type { Clinic, CreateClinic, SearchClinicsFilters } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+import type { FkOption } from "@/components/fields/rhf-fk-select";
 
 export const fetchClinics = (
   filters: Partial<SearchClinicsFilters> = {},
@@ -41,3 +42,8 @@ export const deleteClinic = (id: string): Promise<void> => {
     method: "DELETE",
   });
 };
+
+export const fetchClinicOptions = (): Promise<FkOption[]> =>
+  fetchClinics({ limit: 100 }).then((rows) =>
+    rows.map((clinic) => ({ id: clinic.id, label: clinic.name })),
+  );

@@ -12,6 +12,7 @@ import {
 } from "@repo/schemas";
 import { updateAdoption } from "../services";
 import { AdoptionFormFields } from "./adoption-form-fields";
+import { shortId } from "@/lib/utils/short-id";
 
 interface EditAdoptionFormProps {
   adoption: Adoption;
@@ -73,7 +74,7 @@ export function EditAdoptionForm({
     <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-6">
       <h3 className="text-lg font-bold text-white mb-4">
         Edit Adoption{" "}
-        <span className="text-[#cc97ff]">#{adoption.id.slice(0, 8)}</span>
+        <span className="text-[#cc97ff]">#{shortId(adoption.id)}</span>
       </h3>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
         <AdoptionFormFields control={control} />

@@ -21,20 +21,17 @@ import {
   ContractCategoryLabel,
   ContractStatus,
   ContractStatusLabel,
-  enumOptions,
   type Contract,
 } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchContracts, deleteContract } from "../services";
-
-const statusBadgeClass: Record<ContractStatus, string> = {
-  [ContractStatus.Active]: "bg-green-500/15 text-green-400",
-  [ContractStatus.Inactive]: "bg-gray-500/15 text-gray-400",
-  [ContractStatus.Expired]: "bg-red-500/15 text-red-400",
-};
-
-const STATUS_OPTIONS = enumOptions(ContractStatusLabel, ContractStatus);
-const CATEGORY_OPTIONS = enumOptions(ContractCategoryLabel, ContractCategory);
+import { shortId } from "@/lib/utils/short-id";
+import { StatusBadge } from "@/components/status-badge";
+import {
+  CONTRACT_CATEGORY_OPTIONS,
+  CONTRACT_STATUS_BADGE_CLASS,
+  CONTRACT_STATUS_OPTIONS,
+} from "@/lib/enum-ui";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -92,7 +89,7 @@ export function ContractsList() {
   const handleDelete = (contract: Contract) => {
     if (
       window.confirm(
-        `Are you sure you want to delete contract #${contract.id}?`,
+        `Are you sure you want to delete contract #${shortId(contract.id)}?`,
       )
     ) {
       deleteMutation.mutate(contract.id);
@@ -124,13 +121,10 @@ export function ContractsList() {
         cell: ({ getValue }) => {
           const status = getValue() as ContractStatus;
           return (
-            <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
-                statusBadgeClass[status] ?? "bg-gray-500/15 text-gray-400"
-              }`}
-            >
-              {ContractStatusLabel[status]}
-            </span>
+            <StatusBadge
+              label={ContractStatusLabel[status]}
+              className={CONTRACT_STATUS_BADGE_CLASS[status]}
+            />
           );
         },
       },
@@ -154,7 +148,7 @@ export function ContractsList() {
                 onClick={() =>
                   navigate({
                     to: "/contracts/$contractId/edit",
-                    params: { contractId: String(row.original.id) },
+                    params: { contractId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -219,7 +213,7 @@ export function ContractsList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any category</SelectItem>
-              {CATEGORY_OPTIONS.map((option) => (
+              {CONTRACT_CATEGORY_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>
@@ -243,7 +237,7 @@ export function ContractsList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any status</SelectItem>
-              {STATUS_OPTIONS.map((option) => (
+              {CONTRACT_STATUS_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

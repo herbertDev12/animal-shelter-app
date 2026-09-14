@@ -3,7 +3,8 @@ import { CustomTable } from "@/components/custom-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { AnimalCareScheduleDto } from "@repo/schemas";
 import { useAnimalCareSchedule } from "./useAnimalCareSchedule";
-import { Input } from "@repo/ui";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchAnimalOptions } from "@/modules/animal/services";
 
 export function AnimalCareScheduleComponent() {
   const [animalId, setAnimalId] = useState("");
@@ -101,14 +102,15 @@ export function AnimalCareScheduleComponent() {
         </div>
         <div className="flex items-center space-x-2">
           <label className="text-sm text-gray-400 whitespace-nowrap">
-            Animal ID:
+            Animal:
           </label>
-          <Input
-            type="text"
-            value={animalId}
-            onChange={(e) => setAnimalId(e.target.value.trim())}
-            placeholder="Animal UUID"
-            className="w-80 h-9 bg-[#161a21] border-[#1a1f2e]"
+          <FkFilterSelect
+            value={animalId || null}
+            onChange={(value) => setAnimalId(value ?? "")}
+            queryKey={["animals", "options"]}
+            queryFn={fetchAnimalOptions}
+            placeholder="Select an animal"
+            allowAll={false}
           />
         </div>
       </div>

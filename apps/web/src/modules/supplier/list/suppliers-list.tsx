@@ -17,16 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui";
-import {
-  SupplierType,
-  SupplierTypeLabel,
-  enumOptions,
-  type Supplier,
-} from "@repo/schemas";
+import { SupplierType, SupplierTypeLabel, type Supplier } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchSuppliers, deleteSupplier } from "../services";
-
-const TYPE_OPTIONS = enumOptions(SupplierTypeLabel, SupplierType);
+import { SUPPLIER_TYPE_OPTIONS } from "@/lib/enum-ui";
 
 export function SuppliersList() {
   const queryClient = useQueryClient();
@@ -71,11 +65,7 @@ export function SuppliersList() {
   });
 
   const handleDelete = (supplier: Supplier) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete supplier #${supplier.id}?`,
-      )
-    ) {
+    if (window.confirm(`Are you sure you want to delete "${supplier.name}"?`)) {
       deleteMutation.mutate(supplier.id);
     }
   };
@@ -112,7 +102,7 @@ export function SuppliersList() {
                 onClick={() =>
                   navigate({
                     to: "/suppliers/$supplierId/edit",
-                    params: { supplierId: String(row.original.id) },
+                    params: { supplierId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -184,7 +174,7 @@ export function SuppliersList() {
             </SelectTrigger>
             <SelectContent className="bg-[#10131a] border-gray-800 text-white">
               <SelectItem value="all">Any type</SelectItem>
-              {TYPE_OPTIONS.map((option) => (
+              {SUPPLIER_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={String(option.value)}>
                   {option.label}
                 </SelectItem>

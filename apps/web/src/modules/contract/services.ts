@@ -1,10 +1,12 @@
-import type {
-  Contract,
-  CreateContract,
-  SearchContractsFilters,
-  Supplier,
+import {
+  ContractCategoryLabel,
+  type Contract,
+  type CreateContract,
+  type SearchContractsFilters,
 } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+import type { FkOption } from "@/components/fields/rhf-fk-select";
+import { shortId } from "@/lib/utils/short-id";
 
 export const fetchContracts = (
   filters: Partial<SearchContractsFilters> = {},
@@ -49,6 +51,13 @@ export const deleteContract = (id: string): Promise<void> => {
   });
 };
 
-export const fetchSuppliers = (): Promise<Supplier[]> => {
-  return fetchWithAuth<Supplier[]>(`/suppliers`);
-};
+/** Contracts have no name, so the label falls back to category + short id. */
+export const fetchContractOptions = (): Promise<FkOption[]> =>
+  fetchContracts({ limit: 100 }).then((rows) =>
+    rows.map((contract) => ({
+      id: contract.id,
+      label:
+        contract.description ??
+        `${ContractCategoryLabel[contract.contract_category]} #${shortId(contract.id)}`,
+    })),
+  );

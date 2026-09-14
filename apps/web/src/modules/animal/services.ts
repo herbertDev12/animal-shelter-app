@@ -1,5 +1,6 @@
 import type { Animal, CreateAnimal, SearchAnimalsFilters } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+import type { FkOption } from "@/components/fields/rhf-fk-select";
 
 export const fetchAnimals = (
   filters: Partial<SearchAnimalsFilters> = {},
@@ -46,3 +47,8 @@ export const deleteAnimal = (id: string): Promise<void> => {
     method: "DELETE",
   });
 };
+
+export const fetchAnimalOptions = (): Promise<FkOption[]> =>
+  fetchAnimals({ limit: 100 }).then((rows) =>
+    rows.map((animal) => ({ id: animal.id, label: animal.name })),
+  );

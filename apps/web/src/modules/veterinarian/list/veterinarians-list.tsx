@@ -15,6 +15,8 @@ import {
 import type { Veterinarian } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchVeterinarians, deleteVeterinarian } from "../services";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchClinicOptions } from "@/modules/clinic/services";
 
 export function VeterinariansList() {
   const queryClient = useQueryClient();
@@ -119,7 +121,7 @@ export function VeterinariansList() {
                 onClick={() =>
                   navigate({
                     to: "/veterinarians/$veterinarianId/edit",
-                    params: { veterinarianId: String(row.original.id) },
+                    params: { veterinarianId: row.original.id },
                   })
                 }
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-200 hover:bg-[#1f2937] transition-colors"
@@ -164,19 +166,14 @@ export function VeterinariansList() {
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Clinic ID
+            Clinic
           </label>
-          <Input
-            type="text"
-            value={filters.id_clinic ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_clinic: e.target.value || null,
-                offset: 0,
-              })
-            }
+          <FkFilterSelect
+            value={filters.id_clinic}
+            onChange={(value) => setFilters({ id_clinic: value, offset: 0 })}
+            queryKey={["clinics", "options"]}
+            queryFn={fetchClinicOptions}
             placeholder="Any clinic"
-            className="w-40 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
           />
         </div>
 

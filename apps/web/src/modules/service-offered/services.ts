@@ -4,6 +4,7 @@ import type {
   SearchServiceOfferedFilters,
 } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
+import type { FkOption } from "@/components/fields/rhf-fk-select";
 
 export const fetchServicesOffered = (
   filters: Partial<SearchServiceOfferedFilters> = {},
@@ -49,3 +50,13 @@ export const deleteServiceOffered = (id: string): Promise<void> => {
     method: "DELETE",
   });
 };
+
+export const fetchServiceOfferedOptions = (): Promise<FkOption[]> =>
+  fetchServicesOffered({ limit: 100 }).then((rows) =>
+    rows.map((service) => ({
+      id: service.id,
+      label: service.food_type
+        ? `${service.name} (${service.food_type})`
+        : service.name,
+    })),
+  );

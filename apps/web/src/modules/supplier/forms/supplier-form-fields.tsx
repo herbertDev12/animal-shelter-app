@@ -1,12 +1,10 @@
-import { SupplierType, SupplierTypeLabel, enumOptions } from "@repo/schemas";
 import { Control, FieldValues, Path } from "react-hook-form";
 import { RHFInput } from "@/components/fields/rhf-input";
 import { RHFSelect } from "@/components/fields/rhf-select";
+import { SUPPLIER_TYPE_OPTIONS } from "@/lib/enum-ui";
 
 const fieldClassName =
   "bg-[#0b0e14] border-gray-800 text-white placeholder:text-gray-500";
-
-const TYPE_OPTIONS = enumOptions(SupplierTypeLabel, SupplierType);
 
 export function SupplierFormFields<T extends FieldValues>({
   control,
@@ -27,7 +25,7 @@ export function SupplierFormFields<T extends FieldValues>({
         control={control}
         label="Type"
         placeholder="Select type"
-        options={TYPE_OPTIONS}
+        options={SUPPLIER_TYPE_OPTIONS}
       />
       <RHFInput
         name={"contact_name" as Path<T>}

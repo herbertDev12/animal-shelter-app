@@ -5,16 +5,14 @@ import { useQueryStates, parseAsInteger, parseAsString } from "nuqs";
 import type { ColumnDef } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Button,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/ui";
+import { Button, Popover, PopoverContent, PopoverTrigger } from "@repo/ui";
 import type { Activity } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchActivities, deleteActivity } from "../services";
+import { shortId } from "@/lib/utils/short-id";
+import { FkFilterSelect } from "@/components/fields/fk-filter-select";
+import { fetchAnimalOptions } from "@/modules/animal/services";
+import { fetchServiceOfferedOptions } from "@/modules/service-offered/services";
 
 function formatDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -70,7 +68,7 @@ export function ActivitiesList() {
   const handleDelete = (activity: Activity) => {
     if (
       window.confirm(
-        `Are you sure you want to delete activity #${activity.id_activity}?`,
+        `Are you sure you want to delete activity #${shortId(activity.id_activity)}?`,
       )
     ) {
       deleteMutation.mutate(activity.id_activity);
@@ -123,7 +121,7 @@ export function ActivitiesList() {
                   navigate({
                     to: "/activities/$activityId/edit",
                     params: {
-                      activityId: String(row.original.id_activity),
+                      activityId: row.original.id_activity,
                     },
                   })
                 }
@@ -169,39 +167,27 @@ export function ActivitiesList() {
       <div className="bg-[#161a21] rounded-2xl border border-gray-800/50 p-4 flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Animal ID
+            Animal
           </label>
-          <Input
-            type="number"
-            min={1}
-            value={filters.id_animal ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_animal: e.target.value || null,
-                offset: 0,
-              })
-            }
-            placeholder="Any"
-            className="w-28 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
+          <FkFilterSelect
+            value={filters.id_animal}
+            onChange={(value) => setFilters({ id_animal: value, offset: 0 })}
+            queryKey={["animals", "options"]}
+            queryFn={fetchAnimalOptions}
+            placeholder="Any animal"
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">
-            Service ID
+            Service
           </label>
-          <Input
-            type="number"
-            min={1}
-            value={filters.id_service ?? ""}
-            onChange={(e) =>
-              setFilters({
-                id_service: e.target.value || null,
-                offset: 0,
-              })
-            }
-            placeholder="Any"
-            className="w-28 bg-[#10131a] border-gray-800 text-white placeholder:text-gray-500"
+          <FkFilterSelect
+            value={filters.id_service}
+            onChange={(value) => setFilters({ id_service: value, offset: 0 })}
+            queryKey={["services-offered", "options"]}
+            queryFn={fetchServiceOfferedOptions}
+            placeholder="Any service"
           />
         </div>
       </div>
