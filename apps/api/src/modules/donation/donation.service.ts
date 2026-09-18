@@ -1,22 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Donation as DonationRow } from '@prisma/client';
+import type { Prisma, Donation as DonationRow } from '@prisma/client';
 import {
   Donation,
+  DonationListItem,
   CreateDonation,
   SearchDonationsFilters,
 } from '@repo/schemas';
 import { numOr0, toDateOnly } from '../../common/prisma-scalars';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** List responses name the animal instead of exposing its id. */
+const withAnimalName = {
+  animal: { select: { name: true } },
+} satisfies Prisma.DonationInclude;
+
+type DonationWithAnimalName = Prisma.DonationGetPayload<{
+  include: typeof withAnimalName;
+}>;
+
 @Injectable()
 export class DonationService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<Donation[]> {
+  async findAll(): Promise<DonationListItem[]> {
     const rows = await this.prisma.donation.findMany({
+      include: withAnimalName,
       orderBy: [{ date: 'desc' }, { id_donation: 'asc' }],
     });
-    return rows.map(toDonation);
+    return rows.map(toDonationListItem);
   }
 
   async findById(id: string): Promise<Donation> {
@@ -27,7 +38,7 @@ export class DonationService {
     return toDonation(row);
   }
 
-  async search(filters: SearchDonationsFilters): Promise<Donation[]> {
+  async search(filters: SearchDonationsFilters): Promise<DonationListItem[]> {
     const rows = await this.prisma.donation.findMany({
       where: {
         id_animal: filters.id_animal,
@@ -37,11 +48,12 @@ export class DonationService {
           ? { contains: filters.donor, mode: 'insensitive' }
           : undefined,
       },
+      include: withAnimalName,
       orderBy: [{ date: 'desc' }, { id_donation: 'asc' }],
       take: filters.limit || 10,
       skip: filters.offset || 0,
     });
-    return rows.map(toDonation);
+    return rows.map(toDonationListItem);
   }
 
   async create(data: CreateDonation): Promise<Donation> {
@@ -93,12 +105,19 @@ function numberRange(min?: number, max?: number) {
   };
 }
 
-function toDonation(row: DonationRow): Donation {
+function donationFields(row: DonationRow) {
   return {
     id: row.id_donation,
-    id_animal: row.id_animal,
     amount: numOr0(row.amount),
     date: row.date,
     donor: row.donor ?? null,
   };
+}
+
+function toDonation(row: DonationRow): Donation {
+  return { ...donationFields(row), id_animal: row.id_animal };
+}
+
+function toDonationListItem(row: DonationWithAnimalName): DonationListItem {
+  return { ...donationFields(row), animal_name: row.animal.name };
 }

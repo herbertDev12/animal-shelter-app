@@ -12,10 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import type { Adoption } from "@repo/schemas";
+import type { AdoptionListItem } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchAdoptions, deleteAdoption } from "../services";
-import { shortId } from "@/lib/utils/short-id";
 import { FkFilterSelect } from "@/components/fields/fk-filter-select";
 import { fetchAnimalOptions } from "@/modules/animal/services";
 
@@ -72,19 +71,19 @@ export function AdoptionsList() {
     },
   });
 
-  const handleDelete = (adoption: Adoption) => {
+  const handleDelete = (adoption: AdoptionListItem) => {
     if (
       window.confirm(
-        `Are you sure you want to delete adoption #${shortId(adoption.id)}?`,
+        `Are you sure you want to delete the adoption of ${adoption.animal_name}?`,
       )
     ) {
       deleteMutation.mutate(adoption.id);
     }
   };
 
-  const columns = useMemo<ColumnDef<Adoption>[]>(
+  const columns = useMemo<ColumnDef<AdoptionListItem>[]>(
     () => [
-      { header: "Animal", accessorKey: "id_animal" },
+      { header: "Animal", accessorKey: "animal_name" },
       {
         header: "Adoption date",
         accessorKey: "adoption_date",

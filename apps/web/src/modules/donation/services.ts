@@ -1,5 +1,6 @@
 import type {
   Donation,
+  DonationListItem,
   CreateDonation,
   SearchDonationsFilters,
 } from "@repo/schemas";
@@ -7,7 +8,7 @@ import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
 export const fetchDonations = (
   filters: Partial<SearchDonationsFilters> = {},
-): Promise<Donation[]> => {
+): Promise<DonationListItem[]> => {
   const params = new URLSearchParams();
 
   if (filters.id_animal != null)
@@ -24,7 +25,9 @@ export const fetchDonations = (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  return fetchWithAuth<Donation[]>(`/donations/search?${params.toString()}`);
+  return fetchWithAuth<DonationListItem[]>(
+    `/donations/search?${params.toString()}`,
+  );
 };
 
 export const fetchDonation = (id: string): Promise<Donation> => {

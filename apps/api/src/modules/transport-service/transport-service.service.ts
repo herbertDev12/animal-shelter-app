@@ -10,6 +10,7 @@ import {
   CreateTransportService,
   SearchTransportServicesFilters,
   TransportService,
+  TransportServiceListItem,
   UpdateTransportService,
 } from '@repo/schemas';
 import { toDateOnly } from '../../common/prisma-scalars';
@@ -28,16 +29,25 @@ type TransportServiceRow = Prisma.TransportServiceGetPayload<{
   include: typeof withContract;
 }>;
 
+/** List responses also name the supplier instead of exposing its id. */
+const withContractAndSupplierName = {
+  contract: { include: { supplier: { select: { name: true } } } },
+} satisfies Prisma.TransportServiceInclude;
+
+type TransportServiceWithSupplierName = Prisma.TransportServiceGetPayload<{
+  include: typeof withContractAndSupplierName;
+}>;
+
 @Injectable()
 export class TransportServiceService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<TransportService[]> {
+  async findAll(): Promise<TransportServiceListItem[]> {
     const rows = await this.prisma.transportService.findMany({
-      include: withContract,
+      include: withContractAndSupplierName,
       orderBy: [{ contract: { start_date: 'desc' } }, { id_contract: 'asc' }],
     });
-    return rows.map(toTransportService);
+    return rows.map(toTransportServiceListItem);
   }
 
   async findById(id: string): Promise<TransportService> {
@@ -53,7 +63,7 @@ export class TransportServiceService {
 
   async search(
     filters: SearchTransportServicesFilters,
-  ): Promise<TransportService[]> {
+  ): Promise<TransportServiceListItem[]> {
     const contractFilter: Prisma.ContractWhereInput = {
       ...(filters.id_supplier && { id_supplier: filters.id_supplier }),
       ...(filters.status && { status: filters.status }),
@@ -67,12 +77,12 @@ export class TransportServiceService {
           contract: { is: contractFilter },
         }),
       },
-      include: withContract,
+      include: withContractAndSupplierName,
       orderBy: [{ contract: { start_date: 'desc' } }, { id_contract: 'asc' }],
       take: filters.limit || 10,
       skip: filters.offset || 0,
     });
-    return rows.map(toTransportService);
+    return rows.map(toTransportServiceListItem);
   }
 
   async create(data: CreateTransportService): Promise<TransportService> {
@@ -191,10 +201,9 @@ function assertDateOrder(start_date: Date, end_date: Date): void {
   }
 }
 
-function toTransportService(row: TransportServiceRow): TransportService {
+function transportServiceFields(row: TransportServiceRow) {
   return {
     id: row.id_contract,
-    id_supplier: row.contract.id_supplier,
     contract_category: ContractCategory.Service,
     start_date: row.contract.start_date,
     end_date: row.contract.end_date,
@@ -203,5 +212,21 @@ function toTransportService(row: TransportServiceRow): TransportService {
     status: row.contract.status as ContractStatus,
     vehicle: row.vehicle as string,
     transport_modality: row.transport_modality as string,
+  };
+}
+
+function toTransportService(row: TransportServiceRow): TransportService {
+  return {
+    ...transportServiceFields(row),
+    id_supplier: row.contract.id_supplier,
+  };
+}
+
+function toTransportServiceListItem(
+  row: TransportServiceWithSupplierName,
+): TransportServiceListItem {
+  return {
+    ...transportServiceFields(row),
+    supplier_name: row.contract.supplier.name,
   };
 }

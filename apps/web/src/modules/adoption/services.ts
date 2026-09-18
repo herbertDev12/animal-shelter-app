@@ -1,5 +1,6 @@
 import type {
   Adoption,
+  AdoptionListItem,
   CreateAdoption,
   SearchAdoptionsFilters,
 } from "@repo/schemas";
@@ -7,7 +8,7 @@ import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
 export const fetchAdoptions = (
   filters: Partial<SearchAdoptionsFilters> = {},
-): Promise<Adoption[]> => {
+): Promise<AdoptionListItem[]> => {
   const params = new URLSearchParams();
 
   if (filters.id_animal != null)
@@ -23,7 +24,9 @@ export const fetchAdoptions = (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  return fetchWithAuth<Adoption[]>(`/adoptions/search?${params.toString()}`);
+  return fetchWithAuth<AdoptionListItem[]>(
+    `/adoptions/search?${params.toString()}`,
+  );
 };
 
 export const fetchAdoption = (id: string): Promise<Adoption> => {

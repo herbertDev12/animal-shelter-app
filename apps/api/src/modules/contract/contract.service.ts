@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { Contract as ContractRow } from '@prisma/client';
+import type { Prisma, Contract as ContractRow } from '@prisma/client';
 import {
   Contract,
+  ContractListItem,
   ContractCategory,
   ContractStatus,
   CreateContract,
@@ -18,6 +19,15 @@ import { autoExpire } from './contract-status';
 
 /** How long a sweep is considered fresh, so reads don't re-run it per request. */
 const EXPIRY_SWEEP_TTL_MS = 60_000;
+
+/** List responses name the supplier instead of exposing its id. */
+const withSupplierName = {
+  supplier: { select: { name: true } },
+} satisfies Prisma.ContractInclude;
+
+type ContractWithSupplierName = Prisma.ContractGetPayload<{
+  include: typeof withSupplierName;
+}>;
 
 @Injectable()
 export class ContractService {
@@ -45,12 +55,13 @@ export class ContractService {
     });
   }
 
-  async findAll(): Promise<Contract[]> {
+  async findAll(): Promise<ContractListItem[]> {
     await this.expireOverdue();
     const rows = await this.prisma.contract.findMany({
+      include: withSupplierName,
       orderBy: [{ start_date: 'desc' }, { id_contract: 'asc' }],
     });
-    return rows.map(toContract);
+    return rows.map(toContractListItem);
   }
 
   async findById(id: string): Promise<Contract> {
@@ -62,7 +73,7 @@ export class ContractService {
     return toContract(row);
   }
 
-  async search(filters: SearchContractsFilters): Promise<Contract[]> {
+  async search(filters: SearchContractsFilters): Promise<ContractListItem[]> {
     await this.expireOverdue();
     const rows = await this.prisma.contract.findMany({
       where: {
@@ -70,11 +81,12 @@ export class ContractService {
         contract_category: filters.contract_category,
         status: filters.status,
       },
+      include: withSupplierName,
       orderBy: [{ start_date: 'desc' }, { id_contract: 'asc' }],
       take: filters.limit || 10,
       skip: filters.offset || 0,
     });
-    return rows.map(toContract);
+    return rows.map(toContractListItem);
   }
 
   async create(data: CreateContract): Promise<Contract> {
@@ -159,10 +171,9 @@ function assertDateOrder(start_date: Date, end_date: Date): void {
   }
 }
 
-export function toContract(row: ContractRow): Contract {
+function contractFields(row: ContractRow) {
   return {
     id: row.id_contract,
-    id_supplier: row.id_supplier,
     contract_category: row.contract_category as ContractCategory,
     start_date: row.start_date,
     end_date: row.end_date,
@@ -170,4 +181,12 @@ export function toContract(row: ContractRow): Contract {
     description: row.description ?? null,
     status: row.status as ContractStatus,
   };
+}
+
+export function toContract(row: ContractRow): Contract {
+  return { ...contractFields(row), id_supplier: row.id_supplier };
+}
+
+function toContractListItem(row: ContractWithSupplierName): ContractListItem {
+  return { ...contractFields(row), supplier_name: row.supplier.name };
 }

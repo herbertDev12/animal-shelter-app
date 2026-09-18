@@ -61,6 +61,11 @@ export const transportServiceSchema = z.object({
   transport_modality: z.string(),
 });
 
+/** Row shape for list responses: the supplier is named, not referenced by id. */
+export const transportServiceListItemSchema = transportServiceSchema
+  .omit({ id_supplier: true })
+  .extend({ supplier_name: z.string() });
+
 export type CreateTransportService = z.infer<
   typeof createTransportServiceSchema
 >;
@@ -68,6 +73,9 @@ export type UpdateTransportService = z.infer<
   typeof updateTransportServiceSchema
 >;
 export type TransportService = z.infer<typeof transportServiceSchema>;
+export type TransportServiceListItem = z.infer<
+  typeof transportServiceListItemSchema
+>;
 export type SearchTransportServicesFilters = z.infer<
   typeof searchTransportServicesFiltersSchema
 >;

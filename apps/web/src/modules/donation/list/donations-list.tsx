@@ -12,10 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import type { Donation } from "@repo/schemas";
+import type { DonationListItem } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchDonations, deleteDonation } from "../services";
-import { shortId } from "@/lib/utils/short-id";
 import { FkFilterSelect } from "@/components/fields/fk-filter-select";
 import { fetchAnimalOptions } from "@/modules/animal/services";
 
@@ -74,19 +73,19 @@ export function DonationsList() {
     },
   });
 
-  const handleDelete = (donation: Donation) => {
+  const handleDelete = (donation: DonationListItem) => {
     if (
       window.confirm(
-        `Are you sure you want to delete donation #${shortId(donation.id)}?`,
+        `Are you sure you want to delete the donation for ${donation.animal_name}?`,
       )
     ) {
       deleteMutation.mutate(donation.id);
     }
   };
 
-  const columns = useMemo<ColumnDef<Donation>[]>(
+  const columns = useMemo<ColumnDef<DonationListItem>[]>(
     () => [
-      { header: "Animal", accessorKey: "id_animal" },
+      { header: "Animal", accessorKey: "animal_name" },
       {
         header: "Amount",
         accessorKey: "amount",

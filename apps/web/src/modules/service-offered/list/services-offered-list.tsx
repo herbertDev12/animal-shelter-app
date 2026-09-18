@@ -12,10 +12,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui";
-import type { ServiceOffered } from "@repo/schemas";
+import type { ServiceOfferedListItem } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchServicesOffered, deleteServiceOffered } from "../services";
-import { shortId } from "@/lib/utils/short-id";
 import { FkFilterSelect } from "@/components/fields/fk-filter-select";
 import { fetchContractOptions } from "@/modules/contract/services";
 
@@ -59,20 +58,20 @@ export function ServicesOfferedList() {
     },
   });
 
-  const handleDelete = (service: ServiceOffered) => {
+  const handleDelete = (service: ServiceOfferedListItem) => {
     if (
       window.confirm(
-        `Are you sure you want to delete service offered #${shortId(service.id)}?`,
+        `Are you sure you want to delete the service "${service.name}"?`,
       )
     ) {
       deleteMutation.mutate(service.id);
     }
   };
 
-  const columns = useMemo<ColumnDef<ServiceOffered>[]>(
+  const columns = useMemo<ColumnDef<ServiceOfferedListItem>[]>(
     () => [
       { header: "Name", accessorKey: "name" },
-      { header: "Contract", accessorKey: "id_contract" },
+      { header: "Contract", accessorKey: "contract_name" },
       {
         header: "Food type",
         accessorKey: "food_type",

@@ -1,5 +1,6 @@
 import type {
   TransportService,
+  TransportServiceListItem,
   CreateTransportService,
   SearchTransportServicesFilters,
 } from "@repo/schemas";
@@ -7,7 +8,7 @@ import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
 export const fetchTransportServices = (
   filters: Partial<SearchTransportServicesFilters> = {},
-): Promise<TransportService[]> => {
+): Promise<TransportServiceListItem[]> => {
   const params = new URLSearchParams();
 
   if (filters.id_supplier != null)
@@ -19,7 +20,7 @@ export const fetchTransportServices = (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  return fetchWithAuth<TransportService[]>(
+  return fetchWithAuth<TransportServiceListItem[]>(
     `/transport-services/search?${params.toString()}`,
   );
 };

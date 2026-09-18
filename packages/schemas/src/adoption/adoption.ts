@@ -23,9 +23,15 @@ export const adoptionSchema = createAdoptionSchema.extend({
   adoption_price: z.number().min(0).nullish(),
 });
 
+/** Row shape for list responses: the animal is named, not referenced by id. */
+export const adoptionListItemSchema = adoptionSchema
+  .omit({ id_animal: true })
+  .extend({ animal_name: z.string() });
+
 export type CreateAdoption = z.infer<typeof createAdoptionSchema>;
 export type UpdateAdoption = z.infer<typeof updateAdoptionSchema>;
 export type Adoption = z.infer<typeof adoptionSchema>;
+export type AdoptionListItem = z.infer<typeof adoptionListItemSchema>;
 export type SearchAdoptionsFilters = z.infer<
   typeof searchAdoptionsFiltersSchema
 >;

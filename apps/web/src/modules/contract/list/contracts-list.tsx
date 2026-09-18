@@ -22,10 +22,10 @@ import {
   ContractStatus,
   ContractStatusLabel,
   type Contract,
+  type ContractListItem,
 } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchContracts, deleteContract } from "../services";
-import { shortId } from "@/lib/utils/short-id";
 import { StatusBadge } from "@/components/status-badge";
 import {
   CONTRACT_CATEGORY_OPTIONS,
@@ -86,19 +86,19 @@ export function ContractsList() {
     },
   });
 
-  const handleDelete = (contract: Contract) => {
+  const handleDelete = (contract: ContractListItem) => {
     if (
       window.confirm(
-        `Are you sure you want to delete contract #${shortId(contract.id)}?`,
+        `Are you sure you want to delete the contract with ${contract.supplier_name}?`,
       )
     ) {
       deleteMutation.mutate(contract.id);
     }
   };
 
-  const columns = useMemo<ColumnDef<Contract>[]>(
+  const columns = useMemo<ColumnDef<ContractListItem>[]>(
     () => [
-      { header: "Supplier", accessorKey: "id_supplier" },
+      { header: "Supplier", accessorKey: "supplier_name" },
       {
         header: "Category",
         accessorKey: "contract_category",

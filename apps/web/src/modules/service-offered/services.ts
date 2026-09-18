@@ -1,5 +1,6 @@
 import type {
   ServiceOffered,
+  ServiceOfferedListItem,
   CreateServiceOffered,
   SearchServiceOfferedFilters,
 } from "@repo/schemas";
@@ -8,7 +9,7 @@ import type { FkOption } from "@/components/fields/rhf-fk-select";
 
 export const fetchServicesOffered = (
   filters: Partial<SearchServiceOfferedFilters> = {},
-): Promise<ServiceOffered[]> => {
+): Promise<ServiceOfferedListItem[]> => {
   const params = new URLSearchParams();
 
   if (filters.id_contract != null)
@@ -17,7 +18,7 @@ export const fetchServicesOffered = (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  return fetchWithAuth<ServiceOffered[]>(
+  return fetchWithAuth<ServiceOfferedListItem[]>(
     `/services-offered/search?${params.toString()}`,
   );
 };

@@ -52,9 +52,15 @@ export const contractSchema = contractBaseSchema.extend({
   id: z.uuid(),
 });
 
+/** Row shape for list responses: the supplier is named, not referenced by id. */
+export const contractListItemSchema = contractSchema
+  .omit({ id_supplier: true })
+  .extend({ supplier_name: z.string() });
+
 export type CreateContract = z.infer<typeof createContractSchema>;
 export type UpdateContract = z.infer<typeof updateContractSchema>;
 export type Contract = z.infer<typeof contractSchema>;
+export type ContractListItem = z.infer<typeof contractListItemSchema>;
 export type SearchContractsFilters = z.infer<
   typeof searchContractsFiltersSchema
 >;

@@ -1,22 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Adoption as AdoptionRow } from '@prisma/client';
+import type { Prisma, Adoption as AdoptionRow } from '@prisma/client';
 import {
   Adoption,
+  AdoptionListItem,
   CreateAdoption,
   SearchAdoptionsFilters,
 } from '@repo/schemas';
 import { num, toDateOnly } from '../../common/prisma-scalars';
 import { PrismaService } from '../prisma/prisma.service';
 
+/** List responses name the animal instead of exposing its id. */
+const withAnimalName = {
+  animal: { select: { name: true } },
+} satisfies Prisma.AdoptionInclude;
+
+type AdoptionWithAnimalName = Prisma.AdoptionGetPayload<{
+  include: typeof withAnimalName;
+}>;
+
 @Injectable()
 export class AdoptionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<Adoption[]> {
+  async findAll(): Promise<AdoptionListItem[]> {
     const rows = await this.prisma.adoption.findMany({
+      include: withAnimalName,
       orderBy: [{ adoption_date: 'desc' }, { id_adoption: 'asc' }],
     });
-    return rows.map(toAdoption);
+    return rows.map(toAdoptionListItem);
   }
 
   async findById(id: string): Promise<Adoption> {
@@ -27,18 +38,19 @@ export class AdoptionService {
     return toAdoption(row);
   }
 
-  async search(filters: SearchAdoptionsFilters): Promise<Adoption[]> {
+  async search(filters: SearchAdoptionsFilters): Promise<AdoptionListItem[]> {
     const rows = await this.prisma.adoption.findMany({
       where: {
         id_animal: filters.id_animal,
         adoption_date: dateRange(filters.startDate, filters.endDate),
         adoption_price: numberRange(filters.minPrice, filters.maxPrice),
       },
+      include: withAnimalName,
       orderBy: [{ adoption_date: 'desc' }, { id_adoption: 'asc' }],
       take: filters.limit || 10,
       skip: filters.offset || 0,
     });
-    return rows.map(toAdoption);
+    return rows.map(toAdoptionListItem);
   }
 
   async create(data: CreateAdoption): Promise<Adoption> {
@@ -92,11 +104,18 @@ function numberRange(min?: number, max?: number) {
   };
 }
 
-function toAdoption(row: AdoptionRow): Adoption {
+function adoptionFields(row: AdoptionRow) {
   return {
     id: row.id_adoption,
-    id_animal: row.id_animal,
     adoption_date: row.adoption_date,
     adoption_price: num(row.adoption_price) ?? null,
   };
+}
+
+function toAdoption(row: AdoptionRow): Adoption {
+  return { ...adoptionFields(row), id_animal: row.id_animal };
+}
+
+function toAdoptionListItem(row: AdoptionWithAnimalName): AdoptionListItem {
+  return { ...adoptionFields(row), animal_name: row.animal.name };
 }

@@ -42,6 +42,14 @@ describe('Contracts (e2e)', () => {
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
+    it('names the supplier instead of exposing id_supplier', async () => {
+      const res = await api.get('/contracts/search').expect(200);
+      for (const item of res.body as Record<string, unknown>[]) {
+        expect(typeof item.supplier_name).toBe('string');
+        expect(item).not.toHaveProperty('id_supplier');
+      }
+    });
+
     it('rejects an invalid contract_category enum', async () => {
       await api.get('/contracts/search?contract_category=Toys').expect(400);
     });

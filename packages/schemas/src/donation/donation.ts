@@ -25,9 +25,15 @@ export const donationSchema = createDonationSchema.extend({
   donor: z.string().max(100).nullish(),
 });
 
+/** Row shape for list responses: the animal is named, not referenced by id. */
+export const donationListItemSchema = donationSchema
+  .omit({ id_animal: true })
+  .extend({ animal_name: z.string() });
+
 export type CreateDonation = z.infer<typeof createDonationSchema>;
 export type UpdateDonation = z.infer<typeof updateDonationSchema>;
 export type Donation = z.infer<typeof donationSchema>;
+export type DonationListItem = z.infer<typeof donationListItemSchema>;
 export type SearchDonationsFilters = z.infer<
   typeof searchDonationsFiltersSchema
 >;

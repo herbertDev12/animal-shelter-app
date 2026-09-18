@@ -41,6 +41,14 @@ describe('Adoptions (e2e)', () => {
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
+    it('names the animal instead of exposing id_animal', async () => {
+      const res = await api.get('/adoptions/search').expect(200);
+      for (const item of res.body as Record<string, unknown>[]) {
+        expect(typeof item.animal_name).toBe('string');
+        expect(item).not.toHaveProperty('id_animal');
+      }
+    });
+
     it('coerces date and price filters', async () => {
       await api
         .get('/adoptions/search?minPrice=0&startDate=2020-01-01')

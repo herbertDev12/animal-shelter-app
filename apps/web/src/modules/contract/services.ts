@@ -1,16 +1,16 @@
 import {
   ContractCategoryLabel,
   type Contract,
+  type ContractListItem,
   type CreateContract,
   type SearchContractsFilters,
 } from "@repo/schemas";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 import type { FkOption } from "@/components/fields/rhf-fk-select";
-import { shortId } from "@/lib/utils/short-id";
 
 export const fetchContracts = (
   filters: Partial<SearchContractsFilters> = {},
-): Promise<Contract[]> => {
+): Promise<ContractListItem[]> => {
   const params = new URLSearchParams();
 
   if (filters.id_supplier != null)
@@ -21,7 +21,9 @@ export const fetchContracts = (
   if (filters.limit != null) params.append("limit", String(filters.limit));
   if (filters.offset != null) params.append("offset", String(filters.offset));
 
-  return fetchWithAuth<Contract[]>(`/contracts/search?${params.toString()}`);
+  return fetchWithAuth<ContractListItem[]>(
+    `/contracts/search?${params.toString()}`,
+  );
 };
 
 export const fetchContract = (id: string): Promise<Contract> => {
@@ -51,13 +53,13 @@ export const deleteContract = (id: string): Promise<void> => {
   });
 };
 
-/** Contracts have no name, so the label falls back to category + short id. */
+/** Contracts have no name, so the label falls back to supplier + category. */
 export const fetchContractOptions = (): Promise<FkOption[]> =>
   fetchContracts({ limit: 100 }).then((rows) =>
     rows.map((contract) => ({
       id: contract.id,
       label:
         contract.description ??
-        `${ContractCategoryLabel[contract.contract_category]} #${shortId(contract.id)}`,
+        `${contract.supplier_name} · ${ContractCategoryLabel[contract.contract_category]}`,
     })),
   );

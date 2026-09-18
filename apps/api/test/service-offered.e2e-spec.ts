@@ -47,6 +47,14 @@ describe('Services Offered (e2e)', () => {
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
+    it('names the contract instead of exposing id_contract', async () => {
+      const res = await api.get('/services-offered/search').expect(200);
+      for (const item of res.body as Record<string, unknown>[]) {
+        expect(typeof item.contract_name).toBe('string');
+        expect(item).not.toHaveProperty('id_contract');
+      }
+    });
+
     it('rejects limit=0', async () => {
       await api.get('/services-offered/search?limit=0').expect(400);
     });

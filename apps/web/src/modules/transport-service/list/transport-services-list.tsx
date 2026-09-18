@@ -21,10 +21,10 @@ import {
   ContractStatus,
   ContractStatusLabel,
   type TransportService,
+  type TransportServiceListItem,
 } from "@repo/schemas";
 import { CustomTable } from "@/components/custom-table";
 import { fetchTransportServices, deleteTransportService } from "../services";
-import { shortId } from "@/lib/utils/short-id";
 import { FkFilterSelect } from "@/components/fields/fk-filter-select";
 import { fetchSupplierOptions } from "@/modules/supplier/services";
 import { StatusBadge } from "@/components/status-badge";
@@ -88,19 +88,19 @@ export function TransportServicesList() {
     },
   });
 
-  const handleDelete = (transportService: TransportService) => {
+  const handleDelete = (transportService: TransportServiceListItem) => {
     if (
       window.confirm(
-        `Are you sure you want to delete transport service #${shortId(transportService.id)}?`,
+        `Are you sure you want to delete the transport service with ${transportService.supplier_name}?`,
       )
     ) {
       deleteMutation.mutate(transportService.id);
     }
   };
 
-  const columns = useMemo<ColumnDef<TransportService>[]>(
+  const columns = useMemo<ColumnDef<TransportServiceListItem>[]>(
     () => [
-      { header: "Supplier", accessorKey: "id_supplier" },
+      { header: "Supplier", accessorKey: "supplier_name" },
       { header: "Vehicle", accessorKey: "vehicle" },
       { header: "Modality", accessorKey: "transport_modality" },
       {

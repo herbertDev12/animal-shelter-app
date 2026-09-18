@@ -23,9 +23,20 @@ export const serviceOfferedSchema = serviceOfferedBaseSchema.extend({
   id: z.uuid(),
 });
 
+/**
+ * Row shape for list responses. Contracts have no name, so `contract_name` is
+ * the contract's supplier name and category label.
+ */
+export const serviceOfferedListItemSchema = serviceOfferedSchema
+  .omit({ id_contract: true })
+  .extend({ contract_name: z.string() });
+
 export type CreateServiceOffered = z.infer<typeof createServiceOfferedSchema>;
 export type UpdateServiceOffered = z.infer<typeof updateServiceOfferedSchema>;
 export type ServiceOffered = z.infer<typeof serviceOfferedSchema>;
+export type ServiceOfferedListItem = z.infer<
+  typeof serviceOfferedListItemSchema
+>;
 export type SearchServiceOfferedFilters = z.infer<
   typeof searchServiceOfferedFiltersSchema
 >;

@@ -40,6 +40,14 @@ describe('Donations (e2e)', () => {
       expect(res.body.length).toBeLessThanOrEqual(10);
     });
 
+    it('names the animal instead of exposing id_animal', async () => {
+      const res = await api.get('/donations/search').expect(200);
+      for (const item of res.body as Record<string, unknown>[]) {
+        expect(typeof item.animal_name).toBe('string');
+        expect(item).not.toHaveProperty('id_animal');
+      }
+    });
+
     it('rejects a negative minAmount', async () => {
       await api.get('/donations/search?minAmount=-1').expect(400);
     });
