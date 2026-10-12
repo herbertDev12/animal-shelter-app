@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { loginInputSchema } from '@repo/schemas';
@@ -6,7 +10,10 @@ import type {
   LoginInput,
   LoginOutput,
   RegisterInput,
+  SessionUser,
+  UpdateUser,
   User,
+  UserWithRole,
 } from '@repo/schemas';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserAlreadyExistsException } from './auth.exceptions';
@@ -117,10 +124,106 @@ export class AuthService {
     });
   }
 
-  async findAll() {
+  async findSessionUser(id: string): Promise<SessionUser | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        ...publicUserSelect,
+        role: {
+          select: {
+            name: true,
+            permissions: {
+              select: { permission: { select: { code: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const { role, ...rest } = user;
+    return {
+      ...rest,
+      role: { name: role.name },
+      permissions: role.permissions.map(({ permission }) => permission.code),
+    };
+  }
+
+  async findAll(): Promise<UserWithRole[]> {
     return this.prisma.user.findMany({
       select: { ...publicUserSelect, role: { select: { name: true } } },
       orderBy: { email: 'asc' },
     });
+  }
+
+  async update(id: string, dto: UpdateUser): Promise<User> {
+    const existing = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (dto.email) {
+      const clash = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+        select: { id: true },
+      });
+
+      if (clash && clash.id !== id) {
+        throw new UserAlreadyExistsException();
+      }
+    }
+
+    if (dto.roleId) {
+      const role = await this.prisma.role.findFirst({
+        where: { id: dto.roleId, isActive: true, isDeleted: false },
+        select: { id: true },
+      });
+
+      if (!role) {
+        throw new BadRequestException('Invalid role');
+      }
+    }
+
+    const data: {
+      email?: string;
+      name?: string;
+      lastName?: string | null;
+      passwordHash?: string;
+      roleId?: string;
+    } = {};
+
+    if (dto.email !== undefined) data.email = dto.email;
+    if (dto.name !== undefined) data.name = dto.name;
+    if (dto.lastName !== undefined) data.lastName = dto.lastName;
+    if (dto.roleId !== undefined) data.roleId = dto.roleId;
+    if (dto.password !== undefined) {
+      data.passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
+    }
+
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      select: publicUserSelect,
+    });
+  }
+
+  async remove(id: string): Promise<void> {
+    const existing = await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.user.delete({ where: { id } });
   }
 }
