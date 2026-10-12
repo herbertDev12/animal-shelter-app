@@ -15,10 +15,13 @@ import {
 import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "../../lib/cn";
 import { CollapsibleReportsTree } from "./collapsible-reports-tree";
+import { CollapsibleAdministrationTree } from "./collapsible-administration-tree";
 import { UserCard } from "@/modules/auth/components/user-card";
+import { useCanAccessAdministration } from "@/modules/auth/use-session";
 
 export function Sidebar() {
   const location = useLocation();
+  const canAccessAdministration = useCanAccessAdministration();
 
   const navItems = [
     { to: "/", label: "Home", icon: Home },
@@ -61,6 +64,7 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-1 overflow-y-auto pr-2">
         <CollapsibleReportsTree />
+        {canAccessAdministration && <CollapsibleAdministrationTree />}
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.to;

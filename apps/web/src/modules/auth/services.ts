@@ -1,4 +1,4 @@
-import type { LoginInput, LoginOutput, User } from "@repo/schemas";
+import type { LoginInput, LoginOutput, SessionUser } from "@repo/schemas";
 import { ApiError } from "@/lib/api/api-error";
 import { fetchWithAuth } from "@/lib/api/fetch-with-auth";
 
@@ -22,5 +22,5 @@ export const login = async (input: LoginInput): Promise<LoginOutput> => {
   return response.json();
 };
 
-export const fetchCurrentUser = (): Promise<User> =>
-  fetchWithAuth<User>("/auth/me");
+export const fetchCurrentUser = (): Promise<SessionUser> =>
+  fetchWithAuth<SessionUser>("/auth/me");
