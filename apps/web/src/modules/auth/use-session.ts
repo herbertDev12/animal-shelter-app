@@ -17,6 +17,21 @@ export function useSession() {
   return { user, isLoading };
 }
 
+/** Permissions that unlock the Administration section of the sidebar. */
+const ADMINISTRATION_PERMISSIONS = ["auth.read", "role.read"] as const;
+
+/**
+ * Client-side gate for the Administration navigation. The API still authorises
+ * every admin request, so this only decides what the sidebar renders.
+ */
+export function useCanAccessAdministration(): boolean {
+  const { user } = useSession();
+
+  return ADMINISTRATION_PERMISSIONS.every((permission) =>
+    user?.permissions.includes(permission),
+  );
+}
+
 export function useLogout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();

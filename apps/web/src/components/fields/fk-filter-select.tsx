@@ -22,10 +22,6 @@ interface FkFilterSelectProps {
   className?: string;
 }
 
-/**
- * Foreign-key filter for list pages. Picking from loaded options means the API
- * only ever receives a complete, valid UUID.
- */
 export function FkFilterSelect({
   value,
   onChange,
